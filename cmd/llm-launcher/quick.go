@@ -19,6 +19,9 @@ func quickScan(ctx context.Context, o options, in io.Reader, out, errOut io.Writ
 	if !o.explicit["dir"] {
 		o.dir = "./runs"
 	}
+	if o.catalog == "" && o.inventory == "" && !o.dryRun {
+		go catalog.Refresh(ctx)
+	}
 	hw, err := scan(ctx, o)
 	if err != nil {
 		return err

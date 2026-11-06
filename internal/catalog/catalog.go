@@ -20,8 +20,8 @@ const LlamaCUDAImage = "ghcr.io/ggml-org/llama.cpp@sha256:502fde462776339020cec3
 
 func Load(path string) (domain.Catalog, error) {
 	if path == "" {
-		if cached, err := loadCache(); err == nil {
-			return cached, nil
+		if u, err := defaultUpdater(); err == nil {
+			return u.current()
 		}
 		return Decode([]byte(llmlauncher.EmbeddedCatalog()))
 	}

@@ -40,14 +40,16 @@ Linux ARM64 and macOS Apple Silicon use CPU containers. Each plan serves one req
 
 ## Update the catalog
 
-Run `llm-launcher update` or click **Обновить список моделей** in the Windows app. A successful update is used the next time you pick a model. If the server is unavailable or the signature fails, the launcher uses its last verified copy or the bundled list. Existing plans keep their saved settings.
+The desktop app and interactive CLI check [this repository's catalog](../catalog.json) in the background. The first launch checks right away. Subsequent launches check at most once every 24 hours. The picker can open immediately with the latest verified local copy or the catalog built into the executable.
+
+Run `llm-launcher update` or click **Обновить список моделей** in Windows to check immediately. A successful check reports whether a newer catalog was installed. If the network or signature check fails, the launcher keeps the current list. New recommendations use the latest verified catalog, and saved deployments use their recorded plans.
 
 To try a local file, pass `--catalog /path/to/catalog.json` to `catalog`, `recommend`, or `plan`.
 
 ### Maintainers
 
 1. Add an entry with a model ID, runtime, tasks, license, exact weight reference, and resource estimates. Under `profiles`, record its intended use, format, source, and verification status. For GGUF, include the commit, filename, byte count, and SHA-256 hash.
-2. Set new profiles to `estimated` and add hardware results to the [build report](BUILD_REPORT.md) once tested. Update the catalog date.
+2. Set new profiles to `estimated` and add hardware results to the [build report](BUILD_REPORT.md) once tested. Set `updated` to a newer UTC timestamp such as `2026-11-07T12:00:00Z`. Full timestamps let you publish several revisions on the same day.
 3. Regenerate the signature with the publisher key and commit the catalog and signature together.
 
    ```bash
@@ -56,3 +58,5 @@ To try a local file, pass `--catalog /path/to/catalog.json` to `catalog`, `recom
    ```
 
 Keep the publisher key outside the repository. Schema 2 adds profile metadata and pinned GGUF files. The launcher still accepts schema 1 via `--catalog`. [Model and runtime sources](SOURCES.md)
+
+Push the signed files together to `main`, then verify that `llm-launcher update` reaches them without a GitHub login. Catalog updates are published independently of binary releases.

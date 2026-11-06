@@ -20,7 +20,7 @@ git archive --format=tar.gz --prefix="$name/" --output="$staging/$archive" "$com
 tar -xzf "$staging/$archive" -C "$staging"
 cd -- "$staging/$name"
 BUILD_VERSION="${tag#v}" bash scripts/build.sh
-cp -- catalog.json catalog.json.sig catalog.pub "$staging/$archive" dist/
+cp -- "$staging/$archive" dist/
 
 cd dist
 assets=(
@@ -30,9 +30,6 @@ assets=(
   llm-launcher-linux-arm64
   llm-launcher-darwin-arm64
   "$archive"
-  catalog.json
-  catalog.json.sig
-  catalog.pub
 )
 if command -v sha256sum >/dev/null 2>&1; then
   sha256sum "${assets[@]}" > SHA256SUMS.txt

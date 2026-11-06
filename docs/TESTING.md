@@ -35,7 +35,7 @@ Create a plan on the target machine and run `up`, `test`, and `status --dir`. Th
 | Linux x64 with NVIDIA | Ollama GPU, vLLM, and llama.cpp CUDA. Check a small card and a larger card where available. |
 | Windows x64 with WSL2 | Open the GUI, scan, choose a profile, review the plan, run it, test the API, stop and restore. |
 | Private Hugging Face model | Import with a scoped read token and confirm it is absent from saved plans and Compose. |
-| Catalog updates | Accept a signed update and keep the cached copy if the next update fails. |
+| Catalog updates | Open the wizard with a fresh user config, confirm the background check, then reopen it within 24 hours. Force a check with `update` and verify offline startup uses the local catalog. |
 
 Record the OS, Docker backend, launcher version, engine image, model ID, context, GPU and driver, and result. Distinguish a successful compile, fixture or mock check, CPU inference, and GPU inference. [Recorded results](BUILD_REPORT.md)
 
@@ -46,8 +46,8 @@ Add notes at `docs/releases/vMAJOR.MINOR.PATCH.md`. A tag push runs the **Releas
 To produce the same set of assets locally:
 
 ```bash
-bash scripts/package-release.sh v0.3.0
-(cd dist/release/v0.3.0 && shasum -a 256 -c SHA256SUMS.txt)
+bash scripts/package-release.sh v0.3.1
+(cd dist/release/v0.3.1 && shasum -a 256 -c SHA256SUMS.txt)
 ```
 
-The source archive and binaries are built from the tagged commit. The workflow attaches them, the signed catalog, and the checksum file to the GitHub Release. Manual runs take the release description from the selected workflow branch. [GitHub workflow dispatch](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflow_dispatch)
+The source archive and binaries are built from the tagged commit. The workflow attaches them and their checksums to the GitHub Release. The launcher fetches catalog updates separately from `main`. Manual runs take the release description from the selected workflow branch. [GitHub workflow dispatch](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflow_dispatch)

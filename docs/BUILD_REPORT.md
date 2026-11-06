@@ -1,5 +1,12 @@
 # Build and test results
 
+## v0.3.1
+
+- Go tests, the race detector, and `go vet` passed on macOS ARM64. All five binaries were built and verified against their checksums.
+- Local HTTP tests covered first refresh, the 24-hour interval, forced refresh, signature rejection, and protection against reverting to an older catalog. A lock test covered simultaneous launch attempts.
+- The Linux ARM64 release binary reached the public GitHub catalog, verified its signature, and reported that the bundled version was current. The interactive wizard opened its model picker with a fresh config both online and in a container with networking disabled.
+- The Windows desktop executable was cross-compiled. The background check still needs a run on Windows.
+
 ## v0.3.0
 
 | Check | Result |

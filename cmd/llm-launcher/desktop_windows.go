@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"unsafe"
 
+	"llmlauncher/internal/catalog"
 	"llmlauncher/internal/process"
 )
 
@@ -17,6 +18,7 @@ import (
 var desktopScript []byte
 
 func runDesktop(ctx context.Context) {
+	go catalog.Refresh(ctx)
 	exe, err := os.Executable()
 	if err == nil {
 		systemRoot := os.Getenv("SystemRoot")

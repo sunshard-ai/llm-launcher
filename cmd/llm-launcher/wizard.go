@@ -104,6 +104,9 @@ func wizard(ctx context.Context, o options, in io.Reader, out, errOut io.Writer)
 		}
 		return existing(ctx, o, r, out, errOut)
 	}
+	if o.catalog == "" && o.inventory == "" && !o.dryRun {
+		go catalog.Refresh(ctx)
+	}
 	fmt.Fprintln(out, "\nПроверяю систему…")
 	hw, err := scan(ctx, o)
 	if err != nil {

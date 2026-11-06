@@ -25,7 +25,7 @@ import (
 	"llmlauncher/internal/recommend"
 )
 
-var version = "0.3.0"
+var version = "0.3.1"
 var desktopMode string
 var hfToken string
 
@@ -83,7 +83,7 @@ func parseOptions(command string, args []string, errOut io.Writer) (options, err
 	f.StringVar(&o.task, "task", "chat", "задача: chat, code, rag, embeddings")
 	f.StringVar(&o.runtime, "runtime", "", "движок: ollama или vllm; пусто = подбор")
 	f.StringVar(&o.model, "model", "", "ID модели из команды catalog/recommend")
-	f.StringVar(&o.catalog, "catalog", "", "свой JSON-каталог; по умолчанию встроенный")
+	f.StringVar(&o.catalog, "catalog", "", "свой JSON-каталог; по умолчанию кеш или встроенный каталог")
 	f.StringVar(&o.inventory, "inventory", "", "JSON-снимок железа для демонстрационного плана; запуск запрещён")
 	f.StringVar(&o.gpu, "gpu", "", "индекс или UUID одной NVIDIA GPU")
 	f.IntVar(&o.port, "port", 0, "локальный порт; 0 = 11434 для Ollama, 8000 для vLLM")
@@ -191,11 +191,15 @@ func run(ctx context.Context, args []string, in io.Reader, out, errOut io.Writer
 		return errors.New("--inventory разрешён только для scan/recommend/plan/wizard; реальное развёртывание всегда проверяет текущее железо")
 	}
 	if command == "update" {
-		c, err := catalog.Update(ctx)
+		c, changed, err := catalog.Update(ctx)
 		if err != nil {
 			return fmt.Errorf("каталог не обновлён, сохранена текущая версия: %w", err)
 		}
-		fmt.Fprintf(out, "Каталог обновлён (%s), профилей: %d.\n", c.Updated, len(c.Models))
+		if changed {
+			fmt.Fprintf(out, "Каталог обновлён (%s), профилей: %d.\n", c.Updated, len(c.Models))
+		} else {
+			fmt.Fprintf(out, "Каталог актуален (%s), профилей: %d.\n", c.Updated, len(c.Models))
+		}
 		return nil
 	}
 	if command == "catalog" {
@@ -689,8 +693,8 @@ func printHelp(w io.Writer) {
   llm-launcher scan                   В терминале Linux: задача, модель и запуск
   llm-launcher scan --info|--json     Только инвентаризация оборудования
   llm-launcher doctor                  Диагностика окружения без загрузок
-  llm-launcher update                 Обновить подписанный каталог моделей
-  llm-launcher catalog [--json]        Встроенный каталог моделей
+  llm-launcher update                 Проверить подписанный каталог вручную
+  llm-launcher catalog [--json]        Текущий каталог моделей
   llm-launcher recommend --task chat|code|rag|embeddings [--runtime ollama|vllm|llama.cpp]
   llm-launcher plan --task code --runtime ollama --model ID --dir ./my-model
   llm-launcher hf-plan --hf-url URL --dir ./my-model    GGUF из Hugging Face через llama.cpp CPU
@@ -716,6 +720,7 @@ plan и hf-plan: --settings-json JSON (температура, токены, п�
 Команды up/test/gpu-check: --timeout 30m. Флаги указывайте после команды.
 help, version; COMMAND --help выводит параметры.
 
+Мастер проверяет обновления каталога в фоне до одного раза в сутки.
 Задача rag подбирает генеративную модель для приложения RAG; индексатор
 и поиск по документам в этот MVP не входят. Для Windows есть отдельный
 графический мастер LLM-Launcher-Windows-x64.exe.
