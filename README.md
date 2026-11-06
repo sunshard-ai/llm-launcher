@@ -46,4 +46,4 @@ The launcher includes a model catalog and checks for signed updates in the backg
 
 ## License
 
-The launcher is released under the [MIT License](LICENSE). Each model has its own license, listed in [catalog.json](catalog.json).
+The launcher code is released under the [MIT License](LICENSE). Runtime images and model weights retain their own licenses. Check the upstream repositories for runtime licenses and the [model catalog](catalog.json) for model licenses.
