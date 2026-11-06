@@ -18,6 +18,8 @@ Use `powershell -File scripts/build.ps1` on Windows. The scripts produce four CL
 - Run `--help` and `hf-plan --help` on the Linux and macOS binaries and check that the command and flag descriptions are in English.
 - On Windows, launch the desktop app with a fresh user profile and confirm it opens in English. Switch through all five languages and check both tabs, the GPU list, the Hugging Face and advanced settings dialogs, and the archive confirmation.
 - Prepare a plan, change the language, and confirm that the selected options and **Launch plan** are still available. Close and reopen the app and verify it remembers the selected language.
+- Scan in Russian, switch to French, and check that the existing Docker summary and disk note switch to French without a second scan. Verify that original container output is available under **Technical details…**.
+- Run `pwsh -File scripts/test-desktop-journal.ps1` to check journal rendering in all five languages with mock controls.
 
 ## Review a plan without downloading weights
 
@@ -52,8 +54,16 @@ Add notes at `docs/releases/vMAJOR.MINOR.PATCH.md`. A tag push runs the **Releas
 To produce the same set of assets locally:
 
 ```bash
-bash scripts/package-release.sh v0.3.2
-(cd dist/release/v0.3.2 && shasum -a 256 -c SHA256SUMS.txt)
+bash scripts/package-release.sh v0.3.3
+(cd dist/release/v0.3.3 && shasum -a 256 -c SHA256SUMS.txt)
 ```
 
 The source archive and binaries are built from the tagged commit. The workflow attaches them and their checksums to the GitHub Release. The launcher fetches catalog updates separately from `main`. Manual runs take the release description from the selected workflow branch. [GitHub workflow dispatch](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflow_dispatch)
+
+### Windows publisher signing
+
+For signed Windows releases, provision an Azure Artifact Signing account with a validated publisher identity and a Public Trust certificate profile. Configure GitHub Actions as a federated identity and grant it the **Artifact Signing Certificate Profile Signer** role for the profile. [Microsoft setup guide](https://learn.microsoft.com/azure/artifact-signing/quickstart) · [GitHub Actions signing guide](https://github.com/Azure/artifact-signing-action#authenticating-with-openid-connect)
+
+Set the repository secrets `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, and `AZURE_SUBSCRIPTION_ID`. Set the repository variables `ARTIFACT_SIGNING_ENDPOINT`, `ARTIFACT_SIGNING_ACCOUNT`, and `ARTIFACT_SIGNING_PROFILE`. Then set `WINDOWS_SIGNING_ENABLED` to `true`. The federated identity must allow the release tag ref and any branch used to dispatch the workflow manually. [Microsoft Entra federated credentials](https://learn.microsoft.com/entra/workload-id/workload-identity-federation-create-trust)
+
+With signing enabled, publication requires valid timestamped Authenticode signatures on both executables. The release workflow regenerates SHA-256 checksums after signing. With signing disabled, the release workflow builds unsigned Windows executables.

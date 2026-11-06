@@ -1,5 +1,16 @@
 # Troubleshooting
 
+## Windows SmartScreen
+
+If Windows shows **Unknown publisher**, check that the executable came from the project’s GitHub release. Compare its hash with the matching entry in `SHA256SUMS.txt`.
+
+```powershell
+Get-FileHash -Algorithm SHA256 .\LLM-Launcher-Windows-x64.exe
+Get-AuthenticodeSignature .\LLM-Launcher-Windows-x64.exe
+```
+
+A trusted Authenticode signature identifies the publisher. SmartScreen may still warn while the publisher or file builds reputation. Microsoft Store distribution is covered by Microsoft’s signing and trust. [SmartScreen reputation](https://learn.microsoft.com/windows/apps/package-and-deploy/smartscreen-reputation)
+
 ## Find the failing step
 
 Run these commands from the directory where you normally use the launcher. Point `--dir` at your deployment.

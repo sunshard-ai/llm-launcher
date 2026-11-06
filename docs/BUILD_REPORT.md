@@ -1,5 +1,11 @@
 # Build and test results
 
+## v0.3.3
+
+- The desktop journal regression used mock controls to replay the Russian Docker summary and disk warning in French, German, Chinese, and English. It also checked a nested GPU warning, streamed API details, and separation of original diagnostic output.
+- Go tests, vet, and the release build ran on macOS ARM64. The Windows executable was cross-compiled.
+- The release workflow passed static validation. The Authenticode signing path requires a validated publisher identity. Visual verification in Windows WinForms remains open.
+
 ## v0.3.2
 
 - `go test ./...`, `go vet ./...`, and `bash scripts/build.sh` passed on macOS ARM64. All five binaries passed SHA-256 verification.

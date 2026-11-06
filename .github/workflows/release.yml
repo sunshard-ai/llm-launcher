@@ -16,10 +16,11 @@ concurrency:
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   build-and-publish:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.WINDOWS_SIGNING_ENABLED == 'true' && 'windows-2025' || 'ubuntu-latest' }}
     env:
       RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
     steps:
@@ -30,11 +31,51 @@ jobs:
         with:
           go-version: '1.27.3'
           cache: false
+      - name: Test the desktop journal
+        shell: pwsh
+        run: ./scripts/test-desktop-journal.ps1
       - name: Build and verify assets
+        shell: bash
         run: |
           bash scripts/package-release.sh "$RELEASE_TAG"
           (cd "dist/release/$RELEASE_TAG" && sha256sum --check SHA256SUMS.txt)
+      - name: Sign in to Azure
+        if: vars.WINDOWS_SIGNING_ENABLED == 'true'
+        uses: azure/login@a641126d1b8aa4d1fa005f4f92df94a3a4c4c906 # v3.1.0
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Sign Windows executables
+        if: vars.WINDOWS_SIGNING_ENABLED == 'true'
+        uses: azure/artifact-signing-action@c7ab2a863ab5f9a846ddb8265964877ef296ee82 # v2.0.0
+        with:
+          endpoint: ${{ vars.ARTIFACT_SIGNING_ENDPOINT }}
+          signing-account-name: ${{ vars.ARTIFACT_SIGNING_ACCOUNT }}
+          certificate-profile-name: ${{ vars.ARTIFACT_SIGNING_PROFILE }}
+          files-folder: ${{ github.workspace }}/dist/release/${{ env.RELEASE_TAG }}
+          files-folder-filter: exe
+          description: LLM Launcher
+      - name: Verify Windows publisher signatures
+        if: vars.WINDOWS_SIGNING_ENABLED == 'true'
+        shell: pwsh
+        run: |
+          foreach ($name in 'LLM-Launcher-Windows-x64.exe', 'llm-launcher-windows-amd64.exe') {
+            $path = Join-Path "dist/release/$env:RELEASE_TAG" $name
+            $signature = Get-AuthenticodeSignature -LiteralPath $path
+            if ($signature.Status -ne 'Valid' -or !$signature.TimeStamperCertificate) {
+              throw "Expected a valid timestamped publisher signature on ${name}: $($signature.Status)"
+            }
+          }
+      - name: Refresh checksums for the signed files
+        if: vars.WINDOWS_SIGNING_ENABLED == 'true'
+        shell: bash
+        run: |
+          cd "dist/release/$RELEASE_TAG"
+          sha256sum -- *.exe llm-launcher-linux-* llm-launcher-darwin-* *-source.tar.gz > SHA256SUMS.txt
+          sha256sum --check SHA256SUMS.txt
       - name: Publish release
+        shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

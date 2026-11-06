@@ -1,6 +1,6 @@
 param(
     [ValidatePattern('^[0-9]+\.[0-9]+\.[0-9]+([-+][A-Za-z0-9.-]+)?$')]
-    [string]$Version = '0.3.2',
+    [string]$Version = '0.3.3',
     [string]$Go = 'go'
 )
 

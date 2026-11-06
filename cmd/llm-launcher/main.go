@@ -25,7 +25,7 @@ import (
 	"llmlauncher/internal/recommend"
 )
 
-var version = "0.3.2"
+var version = "0.3.3"
 var desktopMode string
 var hfToken string
 

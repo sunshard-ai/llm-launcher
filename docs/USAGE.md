@@ -26,7 +26,7 @@ Use `--gpu 0` or a GPU UUID to select a specific card. Use `inspect --compose --
 4. Pick a model. **Advanced settings…** opens advanced settings. **Prepare plan** saves the plan, **View details…** opens the Compose file, and **Launch plan** starts the deployment.
 5. Use **My deployments** to inspect status, view logs, test, stop, archive, or restore a deployment.
 
-The desktop interface supports English, German, Russian, Simplified Chinese, and French. The activity journal also includes raw diagnostics from the CLI and Docker, which can appear in their source language.
+The desktop interface supports English, German, Russian, Simplified Chinese, and French. Changing languages also translates existing activity entries, including the hardware scan and model selection notes. **Technical details…** shows the original output from Docker, the model, and any diagnostics that are specific to the environment.
 
 The Windows CLI supports the same planning and management commands. In PowerShell, invoke it as `.\llm-launcher-windows-amd64.exe`.
 

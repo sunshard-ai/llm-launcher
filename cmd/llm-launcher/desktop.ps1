@@ -5,6 +5,14 @@ Add-Type -AssemblyName System.Drawing
 [Windows.Forms.Application]::SetCompatibleTextRenderingDefault($false)
 
 $desktopStrings = ConvertFrom-Json $desktopStringsJson
+$diagnosticKeys = [Collections.Generic.Dictionary[string,string]]::new([StringComparer]::Ordinal)
+$diagnosticPatterns = @(foreach ($message in $desktopStrings.PSObject.Properties) {
+    if ($message.Value.sourcePattern) {
+        @{ Key = $message.Name; Pattern = [regex]::new('\A' + $message.Value.sourcePattern + '\z') }
+    } elseif ($message.Value.source) {
+        $diagnosticKeys.Add($message.Value.source, $message.Name)
+    }
+})
 $languageIDs = @('en', 'de', 'ru', 'zh', 'fr')
 $appDir = Join-Path ([Environment]::GetFolderPath('LocalApplicationData')) 'LLM Launcher'
 $languagePreference = Join-Path $appDir 'language.txt'
@@ -20,7 +28,10 @@ function Get-Text([string]$key) {
     $entry = $desktopStrings.PSObject.Properties[$key]
     if (!$entry) { return $key }
     $text = $entry.Value.($script:language)
-    if ($args.Count) { return $text -f $args }
+    if ($args.Count) {
+        $culture = [Globalization.CultureInfo]::GetCultureInfo($script:language)
+        return [string]::Format($culture, $text, [object[]]$args)
+    }
     $text
 }
 
@@ -143,7 +154,7 @@ $storage.Controls.Add($root)
             try {
                 [void][IO.Directory]::CreateDirectory($appDir)
                 [IO.File]::WriteAllText($rootPreference, $root.Text)
-            } catch { Write-Log (Get-Text 'folderSaveError') }
+            } catch { Write-Journal 'folderSaveError' }
             Reset-Prepared
             $models.Items.Clear()
             $savePlan.Enabled = [bool](Hub-Selected)
@@ -265,12 +276,16 @@ $layout.Controls.Add($footer, 0, 5)
 $cancel = Add-Button $footer 'cancelCommand' {
     if ($script:job -and !$script:job.Process.HasExited) {
         try { $script:job.Process.StandardInput.Close() }
-        catch { Write-Log $_.Exception.Message }
+        catch { Write-Diagnostic $_.Exception.Message }
     }
     $cancel.Enabled = $false
 }
 $cancel.Enabled = $false
+$technicalButton = Add-Button $footer 'technicalDetails' { Show-TechnicalOutput }
+$technicalButton.Enabled = $false
 $progress = Add-Label $footer 'idle'
+$script:journal = [Collections.Generic.List[hashtable]]::new()
+$script:technicalOutput = [Text.StringBuilder]::new()
 $script:job = $null
 $script:preparedPath = $null
 $script:choices = @()
@@ -288,10 +303,79 @@ function Show-Message([string]$text) {
     [void][Windows.Forms.MessageBox]::Show($form, $text, 'LLM Launcher', 'OK', 'Information')
 }
 
-function Write-Log([string]$line) {
-    if ($log.TextLength -gt 100000) { $log.Text = $log.Text.Substring($log.TextLength - 75000) }
+function Format-JournalEntry($entry) {
+    $values = @(foreach ($value in $entry.Args) {
+        if ($value -is [hashtable]) { Format-JournalEntry $value } else { $value }
+    })
+    Get-Text $entry.Key @values
+}
+
+function Update-Journal {
+    $log.Text = (@(foreach ($entry in $script:journal) {
+        (Format-JournalEntry $entry) + [Environment]::NewLine
+    }) -join '')
+    $log.SelectionStart = $log.TextLength
+    $log.ScrollToCaret()
+}
+
+function Clear-Journal {
+    $script:journal.Clear()
+    [void]$script:technicalOutput.Clear()
+    $technicalButton.Enabled = $false
+    $log.Clear()
+}
+
+function Write-Journal([string]$key) {
+    $entry = @{ Key = $key; Args = @($args) }
+    $script:journal.Add($entry)
+    if ($script:journal.Count -gt 1000) {
+        $script:journal.RemoveRange(0, 250)
+        Update-Journal
+    } else {
+        $log.AppendText((Format-JournalEntry $entry) + [Environment]::NewLine)
+    }
+}
+
+function Find-Diagnostic([string]$line, [switch]$reasonOnly) {
+    $key = ''
+    if ($diagnosticKeys.TryGetValue($line, [ref]$key)) { return @{ Key = $key; Args = @() } }
+    foreach ($diagnostic in $diagnosticPatterns) {
+        $match = $diagnostic.Pattern.Match($line)
+        if (!$match.Success) { continue }
+        $values = @($match.Groups | Select-Object -Skip 1 | ForEach-Object { $_.Value })
+        if ($diagnostic.Key -eq 'gpuRejected') {
+            if ($reasonOnly) { return }
+            $reason = Find-Diagnostic $values[2] -ReasonOnly
+            if (!$reason) { return }
+            $values[2] = $reason
+        }
+        return @{ Key = $diagnostic.Key; Args = $values }
+    }
+}
+
+function Write-TechnicalOutput([string]$line) {
     $line = [regex]::Replace($line, '\x1B\[[0-?]*[ -/]*[@-~]', '')
-    $log.AppendText($line + [Environment]::NewLine)
+    if (!$line) { return }
+    if (!$technicalButton.Enabled) {
+        $technicalButton.Enabled = $true
+        Write-Journal 'technicalOutputHint'
+    }
+    [void]$script:technicalOutput.AppendLine($line)
+    if ($script:technicalOutput.Length -gt 100000) {
+        [void]$script:technicalOutput.Remove(0, $script:technicalOutput.Length - 75000)
+    }
+}
+
+function Write-Diagnostic([string]$line) {
+    $line = [regex]::Replace($line, '\x1B\[[0-?]*[ -/]*[@-~]', '')
+    if (!$line.Trim()) { return }
+    $entry = Find-Diagnostic $line
+    if ($entry) {
+        $values = $entry.Args
+        Write-Journal $entry.Key @values
+    } else {
+        Write-TechnicalOutput $line
+    }
 }
 
 function Quote-Arg([string]$value) {
@@ -330,7 +414,10 @@ function Start-Launcher([string[]]$arguments, [scriptblock]$onDone = {}, [string
         $progress.Tag = 'running'
         $progress.Text = Get-Text 'running' $script:job.Command
         $timer.Start()
-    } catch { Show-Message $_.Exception.Message }
+    } catch {
+        Write-Journal 'failed'
+        Write-Diagnostic $_.Exception.Message
+    }
 }
 
 $timer = [Windows.Forms.Timer]::new()
@@ -341,14 +428,16 @@ $timer.Add_Tick({
         for ($i = 0; $i -lt 100 -and $job[$key] -and $job[$key].IsCompleted; $i++) {
             $task = $job[$key]
             $job[$key] = $null
-            if ($task.IsFaulted) { Write-Log $task.Exception.Message; break }
+            if ($task.IsFaulted) { Write-Diagnostic $task.Exception.Message; break }
             $line = $task.Result
             if ($null -eq $line) { break }
             if ($key -eq 'StdOut') {
-                if ($job.Capture) { [void]$job.Output.AppendLine($line) } else { Write-Log $line }
+                if ($job.Capture) { [void]$job.Output.AppendLine($line) }
+                elseif ($job.Command -eq 'logs') { Write-TechnicalOutput $line }
+                else { Write-Diagnostic $line }
                 $job[$key] = $job.Process.StandardOutput.ReadLineAsync()
             } else {
-                Write-Log $line
+                Write-Diagnostic $line
                 $job[$key] = $job.Process.StandardError.ReadLineAsync()
             }
         }
@@ -362,9 +451,12 @@ $timer.Add_Tick({
     $tabs.Enabled = $true
     $cancel.Enabled = $false
     if ($exitCode -eq 0) { Set-TextKey $progress 'completed' }
-    else { Set-TextKey $progress 'failed' }
+    else {
+        Set-TextKey $progress 'failed'
+        Write-Journal 'failed'
+    }
     try { & $job.OnDone $exitCode $job.Output.ToString() $job.Data }
-    catch { Write-Log $_.Exception.Message }
+    catch { Write-Diagnostic $_.Exception.Message }
 })
 
 function Set-ComboItems($combo, [object[]]$items, [int]$index) {
@@ -388,11 +480,11 @@ function Update-HardwareLabels([int]$deviceIndex) {
 }
 
 function Availability([bool]$value) {
-    if ($value) { Get-Text 'available' } else { Get-Text 'unavailable' }
+    if ($value) { @{ Key = 'available' } } else { @{ Key = 'unavailable' } }
 }
 
 function Read-Hardware {
-    $log.Clear()
+    Clear-Journal
     Start-Launcher @('scan', '--json', '--dir', $root.Text) {
         param($code, $json)
         if ($code -ne 0) { return }
@@ -400,9 +492,8 @@ function Read-Hardware {
         $script:hardwareInfo = $hw
         $script:gpus = @($hw.gpus | Where-Object { $_.vendor -eq 'nvidia' })
         Update-HardwareLabels 0
-        Write-Log (Get-Text 'dockerSummary' (Availability $hw.docker.reachable) (Availability $hw.docker.compose) ([Math]::Round($hw.docker.memory_bytes / 1GB, 1)))
-        if ($hw.docker.error) { Write-Log $hw.docker.error }
-        foreach ($note in $hw.warnings) { Write-Log $note }
+        Write-Journal 'dockerSummary' (Availability $hw.docker.reachable) (Availability $hw.docker.compose) ([Math]::Round($hw.docker.memory_bytes / 1GB, 1))
+        foreach ($note in $hw.warnings) { Write-Diagnostic $note }
     } -Capture
 }
 
@@ -422,7 +513,7 @@ function Fit-Args {
 function Read-Recommendations {
     Reset-Prepared
     $script:hfEngine = ''
-    $log.Clear()
+    Clear-Journal
     $models.Items.Clear()
     $savePlan.Enabled = $false
     Start-Launcher (@('recommend', '--json') + @(Fit-Args)) {
@@ -434,8 +525,8 @@ function Read-Recommendations {
             [void]$models.Items.Add("$($r.model.name)   |   $($r.model.runtime) / $($r.acceleration)   |   $($r.model.license)")
         }
         if ($script:choices.Count) { $models.SelectedIndex = 0; $savePlan.Enabled = $true }
-        else { Write-Log (Get-Text 'noModels') }
-        foreach ($note in $result.notes) { Write-Log $note }
+        else { Write-Journal 'noModels' }
+        foreach ($note in $result.notes) { Write-Diagnostic $note }
     } -Capture
 }
 
@@ -443,10 +534,10 @@ $models.Add_SelectedIndexChanged({
     Reset-Prepared
     if ($models.SelectedIndex -lt 0) { return }
     $script:hfEngine = ''
-    $log.Clear()
+    Clear-Journal
     $r = $script:choices[$models.SelectedIndex]
-    Write-Log "$($r.model.ref) | $($r.model.url)"
-    foreach ($note in $r.notes) { Write-Log $note }
+    Write-Journal 'modelSource' $r.model.ref $r.model.url
+    foreach ($note in $r.notes) { Write-Diagnostic $note }
 })
 function Selected-Engine { $engineIDs[$engines.SelectedIndex] }
 
@@ -519,7 +610,7 @@ function Save-ReviewedPlan {
     if ($key -and $script:advanced.ContainsKey($key)) {
         $arguments += @('--settings-json', (ConvertTo-Json -InputObject $script:advanced[$key] -Depth 4 -Compress))
     }
-    $log.Clear()
+    Clear-Journal
     Start-Launcher $arguments {
         param($code, $output, $dir)
         if ($code -ne 0) { return }
@@ -527,16 +618,16 @@ function Save-ReviewedPlan {
         $script:preparedPath = $dir
         $startPrepared.Enabled = $true
         $detailsButton.Enabled = $true
-        Write-Log (Get-Text 'planSummary' $p.model.name $p.runtime $p.acceleration $p.context)
-        Write-Log (Get-Text 'planFolder' $dir)
-        Write-Log (Get-Text 'planApi' "http://127.0.0.1:$($p.port)/v1")
-        if ($p.runtime -eq 'vllm') { Write-Log (Get-Text 'planImage' $p.image) }
+        Write-Journal 'planSummary' $p.model.name $p.runtime $p.acceleration $p.context
+        Write-Journal 'planFolder' $dir
+        Write-Journal 'planApi' "http://127.0.0.1:$($p.port)/v1"
+        if ($p.runtime -eq 'vllm') { Write-Journal 'planImage' $p.image }
         if ($p.hf_source) {
-            Write-Log "Hugging Face: $($p.hf_source.repo) | $($p.hf_source.revision)"
-            Write-Log (Get-Text 'planDownload' ([Math]::Round($p.hf_source.bytes / 1GB, 2)))
+            Write-Journal 'hfRevision' $p.hf_source.repo $p.hf_source.revision
+            Write-Journal 'planDownload' ([Math]::Round($p.hf_source.bytes / 1GB, 2))
         }
-        if ($p.advanced) { Write-Log (Get-Text 'planSettings') }
-        Write-Log (Get-Text 'planReady')
+        if ($p.advanced) { Write-Journal 'planSettings' }
+        Write-Journal 'planReady'
     } -Data $dir -HubToken $secret -Capture
 }
 
@@ -544,18 +635,26 @@ function Show-Compose([string]$dir) {
     Start-Launcher @('inspect', '--compose', '--dir', $dir) {
         param($code, $output)
         if ($code -ne 0) { return }
-        $dialog = New-Dialog (Get-Text 'composeTitle') 820 560
-        $text = [Windows.Forms.TextBox]::new()
-        $text.Multiline = $true
-        $text.ReadOnly = $true
-        $text.WordWrap = $false
-        $text.ScrollBars = 'Both'
-        $text.Dock = 'Fill'
-        $text.Font = [Drawing.Font]::new('Consolas', 10)
-        $text.Text = $output
-        $dialog.Controls.Add($text)
-        try { [void]$dialog.ShowDialog($form) } finally { $dialog.Dispose() }
+        Show-TextDialog (Get-Text 'composeTitle') $output
     } -Capture
+}
+
+function Show-TechnicalOutput {
+    Show-TextDialog (Get-Text 'technicalDetails') $script:technicalOutput.ToString()
+}
+
+function Show-TextDialog([string]$caption, [string]$output) {
+    $dialog = New-Dialog $caption 820 560
+    $text = [Windows.Forms.TextBox]::new()
+    $text.Multiline = $true
+    $text.ReadOnly = $true
+    $text.WordWrap = $false
+    $text.ScrollBars = 'Both'
+    $text.Dock = 'Fill'
+    $text.Font = [Drawing.Font]::new('Consolas', 10)
+    $text.Text = $output
+    $dialog.Controls.Add($text)
+    try { [void]$dialog.ShowDialog($form) } finally { $dialog.Dispose() }
 }
 
 function Update-ProjectList([string]$selectedDir) {
@@ -583,13 +682,16 @@ function Read-Projects {
         })
         Update-ProjectList $old
         foreach ($p in $script:projects) {
-            if ($p.error) { Write-Log "$($p.dir): $($p.error)" }
+            if ($p.error) {
+                Write-Journal 'invalidProject' $p.dir
+                Write-Diagnostic $p.error
+            }
         }
     } -Capture
 }
 
 function Run-Project([string]$command, [string]$dir) {
-    $log.Clear()
+    Clear-Journal
     if ($command -in @('status', 'test')) {
         Start-Launcher @($command, '--json', '--dir', $dir) {
             param($code, $json, $command)
@@ -597,15 +699,15 @@ function Run-Project([string]$command, [string]$dir) {
             $result = ConvertFrom-Json $json
             if ($command -eq 'test' -and $result.kind) {
                 $key = if ($result.ok) { 'testPassed' } else { 'testFailed' }
-                Write-Log (Get-Text $key $result.kind $result.duration_ms)
-                if ($result.output) { Write-Log $result.output }
+                Write-Journal $key $result.kind $result.duration_ms
+                if ($result.output) { Write-TechnicalOutput $result.output }
             } elseif ($result.project) {
-                Write-Log "$($result.project) · $($result.runtime) / $($result.model)"
-                Write-Log (Get-Text 'apiReachable' $result.endpoint (Availability $result.reachable))
-                $loaded = if ($result.model_loaded) { Get-Text 'yes' } else { Get-Text 'no' }
-                Write-Log (Get-Text 'modelLoaded' $loaded)
-                if ($result.containers) { Write-Log $result.containers }
-                if ($result.error) { Write-Log $result.error }
+                Write-Journal 'statusSummary' $result.project $result.runtime $result.model
+                Write-Journal 'apiReachable' $result.endpoint (Availability $result.reachable)
+                $loaded = if ($result.model_loaded) { @{ Key = 'yes' } } else { @{ Key = 'no' } }
+                Write-Journal 'modelLoaded' $loaded
+                if ($result.containers) { Write-Diagnostic $result.containers }
+                if ($result.error) { Write-Diagnostic $result.error }
             }
         } -Data $command -Capture
         return
@@ -613,6 +715,8 @@ function Run-Project([string]$command, [string]$dir) {
     $done = {}
     if ($command -in @('up', 'down', 'delete', 'restore')) {
         $done = { param($code, $output); if ($code -eq 0) { Read-Projects } }
+    } elseif ($command -eq 'logs') {
+        $done = { if ($technicalButton.Enabled) { Show-TechnicalOutput } }
     }
     $secret = ''
     if ($command -eq 'up') { $secret = $script:hfToken }
@@ -622,7 +726,11 @@ function Run-Project([string]$command, [string]$dir) {
 function Invoke-Selected([string]$command) {
     if ($projectList.SelectedIndex -lt 0) { Show-Message (Get-Text 'selectProject'); return }
     $p = $script:projects[$projectList.SelectedIndex]
-    if ($p.state -eq 'invalid') { Show-Message $p.error; return }
+    if ($p.state -eq 'invalid') {
+        Write-Journal 'invalidProject' $p.dir
+        Write-Diagnostic $p.error
+        return
+    }
     if ($command -eq 'inspect') { Show-Compose $p.dir; return }
     if ($command -eq 'delete' -and !(Confirm-Archive)) { return }
     Run-Project $command $p.dir
@@ -712,7 +820,7 @@ function Edit-HubSource {
             $models.Items.Clear()
             Reset-Prepared
             $savePlan.Enabled = [bool](Hub-Selected)
-            if ($script:hfURL) { Write-Log (Get-Text 'sourceSelected') }
+            if ($script:hfURL) { Write-Journal 'sourceSelected' }
         }
     } finally { $dialog.Dispose() }
 }
@@ -821,11 +929,12 @@ $languagePicker.Add_SelectedIndexChanged({
         $selectedDir = ''
         if ($projectList.SelectedIndex -ge 0) { $selectedDir = $script:projects[$projectList.SelectedIndex].dir }
         Update-ProjectList $selectedDir
+        Update-Journal
     } finally { $script:changingLanguage = $false }
     try {
         [void][IO.Directory]::CreateDirectory($appDir)
         [IO.File]::WriteAllText($languagePreference, $script:language)
-    } catch { Write-Log (Get-Text 'languageSaveError') }
+    } catch { Write-Journal 'languageSaveError' }
 })
 
 $tabs.Add_SelectedIndexChanged({

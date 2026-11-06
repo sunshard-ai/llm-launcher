@@ -782,5 +782,823 @@
     "ru": "vLLM: VLLM_LOGGING_LEVEL (DEBUG, INFO, WARNING, ERROR).",
     "zh": "vLLM: VLLM_LOGGING_LEVEL (DEBUG, INFO, WARNING, ERROR).",
     "fr": "vLLM: VLLM_LOGGING_LEVEL (DEBUG, INFO, WARNING, ERROR)."
+  },
+  "technicalDetails": {
+    "en": "Technical details…",
+    "de": "Technische Details…",
+    "ru": "Технические подробности…",
+    "zh": "技术详情…",
+    "fr": "Détails techniques…"
+  },
+  "technicalOutputHint": {
+    "en": "Open Technical details for the original output.",
+    "de": "Die Originalausgabe steht unter „Technische Details“.",
+    "ru": "Исходный вывод доступен в «Технических подробностях».",
+    "zh": "打开“技术详情”查看原始输出。",
+    "fr": "Ouvrez Détails techniques pour consulter la sortie d’origine."
+  },
+  "invalidProject": {
+    "en": "Could not read deployment at {0}.",
+    "de": "Bereitstellung unter {0} konnte nicht gelesen werden.",
+    "ru": "Не удалось прочитать развёртывание в {0}.",
+    "zh": "无法读取位于 {0} 的部署。",
+    "fr": "Impossible de lire le déploiement dans {0}."
+  },
+  "modelSource": {
+    "en": "Model: {0} · {1}",
+    "de": "Modell: {0} · {1}",
+    "ru": "Модель: {0} · {1}",
+    "zh": "模型：{0} · {1}",
+    "fr": "Modèle : {0} · {1}"
+  },
+  "hfRevision": {
+    "en": "Hugging Face: {0} · {1}",
+    "de": "Hugging Face: {0} · {1}",
+    "ru": "Hugging Face: {0} · {1}",
+    "zh": "Hugging Face：{0} · {1}",
+    "fr": "Hugging Face : {0} · {1}"
+  },
+  "statusSummary": {
+    "en": "{0} · {1} / {2}",
+    "de": "{0} · {1} / {2}",
+    "ru": "{0} · {1} / {2}",
+    "zh": "{0} · {1} / {2}",
+    "fr": "{0} · {1} / {2}"
+  },
+  "diskScope": {
+    "en": "Free space is measured for the selected folder. Docker images and volumes can use another disk or the Docker Desktop virtual disk.",
+    "de": "Der freie Speicherplatz wird für den ausgewählten Ordner gemessen. Docker-Images und -Volumes können auf einem anderen Datenträger oder der virtuellen Festplatte von Docker Desktop liegen.",
+    "ru": "Место на диске измерено для выбранного каталога; образы и тома Docker могут находиться на другом диске или внутри виртуального диска Docker Desktop.",
+    "zh": "可用空间按所选文件夹测量。Docker 镜像和卷可能位于其他磁盘或 Docker Desktop 的虚拟磁盘中。",
+    "fr": "L’espace libre est mesuré pour le dossier sélectionné. Les images et volumes Docker peuvent se trouver sur un autre disque ou sur le disque virtuel de Docker Desktop.",
+    "source": "Место на диске измерено для выбранного каталога; образы и тома Docker могут находиться на другом диске или внутри виртуального диска Docker Desktop."
+  },
+  "vramUnknown": {
+    "en": "Free NVIDIA VRAM is zero or unknown. This GPU is excluded from recommendations.",
+    "de": "Der freie NVIDIA-Grafikspeicher ist null oder unbekannt. Diese GPU wird bei Empfehlungen ausgeschlossen.",
+    "ru": "Свободная VRAM NVIDIA равна нулю или неизвестна; запуск на этой GPU не будет рекомендован.",
+    "zh": "NVIDIA 可用显存为零或未知。推荐结果不包含此 GPU。",
+    "fr": "La VRAM NVIDIA libre est nulle ou inconnue. Ce GPU est exclu des recommandations.",
+    "source": "Свободная VRAM NVIDIA равна нулю или неизвестна; запуск на этой GPU не будет рекомендован."
+  },
+  "ramUnknown": {
+    "en": "Available RAM could not be determined or is exhausted. Recommendations are unavailable.",
+    "de": "Der verfügbare Arbeitsspeicher konnte nicht ermittelt werden oder ist erschöpft. Empfehlungen sind derzeit nicht verfügbar.",
+    "ru": "Свободную оперативную память не удалось определить или она исчерпана. Рекомендации пока недоступны.",
+    "zh": "无法确定可用内存，或内存已耗尽。暂时无法提供推荐。",
+    "fr": "La RAM disponible est inconnue ou épuisée. Les recommandations sont indisponibles.",
+    "source": "Свободную оперативную память не удалось определить или она исчерпана. Рекомендации пока недоступны."
+  },
+  "diskUnknown": {
+    "en": "Free disk space could not be determined. Check Docker storage separately.",
+    "de": "Der freie Speicherplatz konnte nicht ermittelt werden. Prüfen Sie den Docker-Speicher separat.",
+    "ru": "Свободное место на диске не удалось определить. Проверьте место в хранилище Docker отдельно.",
+    "zh": "无法确定磁盘可用空间。请单独检查 Docker 存储。",
+    "fr": "Impossible de déterminer l’espace disque libre. Vérifiez séparément le stockage de Docker.",
+    "source": "Свободное место на диске не удалось определить. Проверьте место в хранилище Docker отдельно."
+  },
+  "cimUnavailable": {
+    "en": "Could not read hardware through PowerShell. Check access to CIM.",
+    "de": "Die Hardware konnte nicht über PowerShell erfasst werden. Prüfen Sie den Zugriff auf CIM.",
+    "ru": "Не удалось получить сведения о железе через PowerShell; проверьте доступ к CIM.",
+    "zh": "无法通过 PowerShell 读取硬件信息。请检查 CIM 访问权限。",
+    "fr": "Impossible de lire le matériel via PowerShell. Vérifiez l’accès à CIM.",
+    "source": "Не удалось получить сведения о железе через PowerShell; проверьте доступ к CIM."
+  },
+  "cimInvalid": {
+    "en": "PowerShell returned invalid hardware JSON.",
+    "de": "PowerShell hat ungültige Hardwaredaten im JSON-Format zurückgegeben.",
+    "ru": "PowerShell вернул некорректный JSON со сведениями о железе.",
+    "zh": "PowerShell 返回了无效的硬件 JSON。",
+    "fr": "PowerShell a renvoyé des données matérielles JSON invalides.",
+    "source": "PowerShell вернул некорректный JSON со сведениями о железе."
+  },
+  "dockerMissing": {
+    "en": "Docker CLI is missing. Install Docker Engine with Compose v2 on Linux or Docker Desktop on Windows or macOS.",
+    "de": "Die Docker-CLI fehlt. Installieren Sie Docker Engine mit Compose v2 unter Linux oder Docker Desktop unter Windows oder macOS.",
+    "ru": "Docker CLI не установлен. Установите Docker Engine + Compose v2 (Linux) или Docker Desktop (Windows/macOS).",
+    "zh": "未安装 Docker CLI。请在 Linux 上安装 Docker Engine 和 Compose v2，或在 Windows、macOS 上安装 Docker Desktop。",
+    "fr": "L’interface en ligne de commande Docker est absente. Installez Docker Engine avec Compose v2 sous Linux ou Docker Desktop sous Windows ou macOS.",
+    "source": "Docker CLI не установлен. Установите Docker Engine + Compose v2 (Linux) или Docker Desktop (Windows/macOS)."
+  },
+  "dockerEndpointUnknown": {
+    "en": "Could not confirm that the selected Docker endpoint is local.",
+    "de": "Der ausgewählte Docker-Endpunkt konnte nicht als lokal bestätigt werden.",
+    "ru": "Не удалось подтвердить, что выбранный Docker endpoint локальный.",
+    "zh": "无法确认所选 Docker 端点位于本机。",
+    "fr": "Impossible de confirmer que le point de terminaison Docker sélectionné est local.",
+    "source": "Не удалось подтвердить, что выбранный Docker endpoint локальный."
+  },
+  "dockerRemote": {
+    "en": "The selected Docker context uses a remote or TCP endpoint. Switch to a local Docker context.",
+    "de": "Der ausgewählte Docker-Kontext verwendet einen Remote- oder TCP-Endpunkt. Wechseln Sie zu einem lokalen Docker-Kontext.",
+    "ru": "Выбран удалённый/TCP контекст Docker. Локальное железо не описывает этот сервер; переключитесь на локальный контекст Docker.",
+    "zh": "所选 Docker 上下文使用远程或 TCP 端点。请切换到本地 Docker 上下文。",
+    "fr": "Le contexte Docker sélectionné utilise un point de terminaison distant ou TCP. Passez à un contexte Docker local.",
+    "source": "Выбран удалённый/TCP контекст Docker. Локальное железо не описывает этот сервер; переключитесь на локальный контекст Docker."
+  },
+  "dockerUnreachable": {
+    "en": "Docker is unavailable or access is denied. Start Docker and check your account permissions.",
+    "de": "Docker ist nicht erreichbar oder der Zugriff wurde verweigert. Starten Sie Docker und prüfen Sie Ihre Kontoberechtigungen.",
+    "ru": "Docker daemon недоступен или не хватает прав. Запустите Docker и проверьте доступ вашей учётной записи.",
+    "zh": "Docker 不可用或访问被拒绝。请启动 Docker 并检查账户权限。",
+    "fr": "Docker est inaccessible ou l’accès est refusé. Démarrez Docker et vérifiez les droits de votre compte.",
+    "source": "Docker daemon недоступен или не хватает прав. Запустите Docker и проверьте доступ вашей учётной записи."
+  },
+  "dockerInvalid": {
+    "en": "docker info returned invalid JSON.",
+    "de": "docker info hat ungültiges JSON zurückgegeben.",
+    "ru": "Команда docker info вернула некорректный JSON.",
+    "zh": "docker info 返回了无效的 JSON。",
+    "fr": "docker info a renvoyé du JSON invalide.",
+    "source": "Команда docker info вернула некорректный JSON."
+  },
+  "dockerLinux": {
+    "en": "Switch Docker to Linux containers.",
+    "de": "Stellen Sie Docker auf Linux-Container um.",
+    "ru": "Переключите Docker в режим Linux containers.",
+    "zh": "请将 Docker 切换到 Linux 容器模式。",
+    "fr": "Passez Docker en mode conteneurs Linux.",
+    "source": "Переключите Docker в режим Linux containers."
+  },
+  "composeMissing": {
+    "en": "The Docker Compose v2 plugin is missing.",
+    "de": "Das Plugin Docker Compose v2 fehlt.",
+    "ru": "Плагин Docker Compose v2 не установлен.",
+    "zh": "未安装 Docker Compose v2 插件。",
+    "fr": "Le module Docker Compose v2 est absent.",
+    "source": "Плагин Docker Compose v2 не установлен."
+  },
+  "estimateBasis": {
+    "en": "Base memory estimates use 4,096 tokens and one request. Longer contexts increase the estimate. A real model request verifies readiness.",
+    "de": "Die Basisschätzung verwendet 4.096 Token und eine Anfrage. Längere Kontexte erhöhen die Schätzung. Eine echte Modellanfrage prüft die Betriebsbereitschaft.",
+    "ru": "Базовые оценки памяти рассчитаны на 4096 токенов и один запрос; для большего контекста мастер увеличивает бюджет. Итоговая проверка — настоящий запрос к модели.",
+    "zh": "基础内存估算按 4096 个词元和一个请求计算。更长的上下文会提高估算值。实际模型请求用于验证就绪状态。",
+    "fr": "Les estimations de base reposent sur 4 096 jetons et une requête. Un contexte plus long augmente l’estimation. Une requête réelle vérifie que le modèle est prêt.",
+    "source": "Базовые оценки памяти рассчитаны на 4096 токенов и один запрос; для большего контекста мастер увеличивает бюджет. Итоговая проверка — настоящий запрос к модели."
+  },
+  "ragScope": {
+    "en": "RAG selects a model to generate answers. Your application handles document ingestion, search, and vector storage.",
+    "de": "RAG wählt ein Modell zur Antwortgenerierung. Ihre Anwendung übernimmt Dokumentimport, Suche und Vektorspeicherung.",
+    "ru": "Задача RAG выбирает модель для генерации ответа; загрузка документов, поиск и векторная БД в этот MVP не входят.",
+    "zh": "RAG 会选择用于生成回答的模型。文档导入、检索和向量存储由应用程序负责。",
+    "fr": "RAG sélectionne un modèle pour générer des réponses. Votre application gère l’import de documents, la recherche et le stockage vectoriel.",
+    "source": "Задача RAG выбирает модель для генерации ответа; загрузка документов, поиск и векторная БД в этот MVP не входят."
+  },
+  "planWithoutDocker": {
+    "en": "Docker or Compose could not be verified. You can save a plan. Launching requires a running local Docker daemon.",
+    "de": "Docker oder Compose konnte nicht geprüft werden. Sie können einen Plan speichern. Der Start erfordert einen laufenden lokalen Docker-Daemon.",
+    "ru": "Проверка Docker/Compose не завершена: план можно сохранить, но для запуска нужен работающий локальный Docker daemon.",
+    "zh": "无法验证 Docker 或 Compose。可以保存计划，启动时需要运行本地 Docker 守护进程。",
+    "fr": "Impossible de vérifier Docker ou Compose. Vous pouvez enregistrer un plan. Le lancement nécessite un service Docker local actif.",
+    "source": "Проверка Docker/Compose не завершена: план можно сохранить, но для запуска нужен работающий локальный Docker daemon."
+  },
+  "recommendDiskUnknown": {
+    "en": "Free space is unknown. Check Docker storage before downloading the model.",
+    "de": "Der freie Speicherplatz ist unbekannt. Prüfen Sie den Docker-Speicher vor dem Download des Modells.",
+    "ru": "Свободное место неизвестно. Перед загрузкой модели проверьте место в хранилище Docker.",
+    "zh": "可用空间未知。下载模型前请检查 Docker 存储。",
+    "fr": "L’espace libre est inconnu. Vérifiez le stockage Docker avant de télécharger le modèle.",
+    "source": "Свободное место неизвестно. Перед загрузкой модели проверьте место в хранилище Docker."
+  },
+  "ramReserve": {
+    "en": "No confirmed RAM remains for the model after reserving memory for the system.",
+    "de": "Nach Abzug des Systembedarfs ist kein verfügbarer Arbeitsspeicher für das Modell bestätigt.",
+    "ru": "После резервирования системной памяти не осталось подтверждённого бюджета RAM для модели.",
+    "zh": "为系统预留内存后，没有可确认供模型使用的内存。",
+    "fr": "Après la réservation pour le système, aucune RAM disponible n’est confirmée pour le modèle.",
+    "source": "После резервирования системной памяти не осталось подтверждённого бюджета RAM для модели."
+  },
+  "singleGpu": {
+    "en": "Each runtime uses one compatible GPU with the most available memory. VRAM budgets are per GPU.",
+    "de": "Jede Laufzeit verwendet eine kompatible GPU mit dem meisten verfügbaren Speicher. Das VRAM-Budget gilt pro GPU.",
+    "ru": "Для каждого движка выбирается одна совместимая GPU с наибольшим бюджетом свободной памяти; VRAM разных карт не суммируется.",
+    "zh": "每个引擎使用可用显存最多的一块兼容 GPU。显存预算按单块 GPU 计算。",
+    "fr": "Chaque moteur utilise le GPU compatible disposant du plus de mémoire. Le budget de VRAM s’applique à chaque GPU.",
+    "source": "Для каждого движка выбирается одна совместимая GPU с наибольшим бюджетом свободной памяти; VRAM разных карт не суммируется."
+  },
+  "windowsGpu": {
+    "en": "NVIDIA on Windows requires Docker Desktop and WSL2. GPU access is checked inside the container.",
+    "de": "NVIDIA unter Windows erfordert Docker Desktop und WSL2. Der GPU-Zugriff wird im Container geprüft.",
+    "ru": "Для NVIDIA на Windows нужны Docker Desktop и WSL2; доступ к GPU будет проверен внутри контейнера.",
+    "zh": "在 Windows 上使用 NVIDIA 需要 Docker Desktop 和 WSL2。GPU 访问将在容器内验证。",
+    "fr": "Sur Windows, NVIDIA nécessite Docker Desktop et WSL2. L’accès au GPU est vérifié dans le conteneur.",
+    "source": "Для NVIDIA на Windows нужны Docker Desktop и WSL2; доступ к GPU будет проверен внутри контейнера."
+  },
+  "vllmPlatform": {
+    "en": "vLLM requires x64 Linux or x64 Windows with local Docker Desktop in Linux container mode and NVIDIA through WSL2.",
+    "de": "vLLM erfordert x64-Linux oder x64-Windows mit lokalem Docker Desktop im Linux-Containermodus und NVIDIA über WSL2.",
+    "ru": "Профиль vLLM требует x86-64 с Linux или Windows с работающим локальным Docker Desktop в режиме Linux-контейнеров и NVIDIA через WSL2.",
+    "zh": "vLLM 需要 x64 Linux，或运行本地 Docker Desktop Linux 容器并通过 WSL2 使用 NVIDIA 的 x64 Windows。",
+    "fr": "vLLM nécessite Linux x64 ou Windows x64 avec Docker Desktop local en mode conteneurs Linux et NVIDIA via WSL2.",
+    "source": "Профиль vLLM требует x86-64 с Linux или Windows с работающим локальным Docker Desktop в режиме Linux-контейнеров и NVIDIA через WSL2."
+  },
+  "vllmNoGpu": {
+    "en": "No compatible NVIDIA GPU with verified capabilities and free VRAM was found for vLLM.",
+    "de": "Für vLLM wurde keine kompatible NVIDIA-GPU mit bestätigten Eigenschaften und freiem VRAM gefunden.",
+    "ru": "Для vLLM не найдена совместимая NVIDIA GPU с подтверждёнными параметрами и свободной VRAM.",
+    "zh": "未找到适合 vLLM、且已确认规格与可用显存的 NVIDIA GPU。",
+    "fr": "Aucun GPU NVIDIA compatible avec des caractéristiques et de la VRAM libre confirmées n’a été trouvé pour vLLM.",
+    "source": "Для vLLM не найдена совместимая NVIDIA GPU с подтверждёнными параметрами и свободной VRAM."
+  },
+  "ollamaNoGpu": {
+    "en": "No compatible NVIDIA GPU with verified capabilities and free VRAM was found for Ollama. Compatible CPU models are available.",
+    "de": "Für Ollama wurde keine kompatible NVIDIA-GPU mit bestätigten Eigenschaften und freiem VRAM gefunden. Kompatible CPU-Modelle sind verfügbar.",
+    "ru": "Для Ollama нет совместимой NVIDIA GPU с подтверждёнными параметрами и свободной VRAM: доступны подходящие CPU-модели. Адаптеры AMD/Intel/Apple GPU запланированы отдельно.",
+    "zh": "未找到适合 Ollama、且已确认规格与可用显存的 NVIDIA GPU。可以选择兼容的 CPU 模型。",
+    "fr": "Aucun GPU NVIDIA compatible avec des caractéristiques et de la VRAM libre confirmées n’a été trouvé pour Ollama. Des modèles compatibles CPU sont disponibles.",
+    "source": "Для Ollama нет совместимой NVIDIA GPU с подтверждёнными параметрами и свободной VRAM: доступны подходящие CPU-модели. Адаптеры AMD/Intel/Apple GPU запланированы отдельно."
+  },
+  "estimatedProfile": {
+    "en": "Compatibility is estimated. Inference still needs to be verified on the target GPU.",
+    "de": "Die Kompatibilität wurde geschätzt. Die Inferenz muss auf der Ziel-GPU geprüft werden.",
+    "ru": "Совместимость этого профиля рассчитана. Инференс на целевом GPU предстоит подтвердить.",
+    "zh": "兼容性为估算结果，仍需在目标 GPU 上验证推理。",
+    "fr": "La compatibilité est estimée. L’inférence reste à vérifier sur le GPU cible.",
+    "source": "Совместимость этого профиля рассчитана. Инференс на целевом GPU предстоит подтвердить."
+  },
+  "cpuSpeed": {
+    "en": "CPU speed depends on the processor and memory bandwidth. Performance has not been measured for this system.",
+    "de": "Die CPU-Geschwindigkeit hängt von Prozessor und Speicherbandbreite ab. Die Leistung wurde auf diesem System noch nicht gemessen.",
+    "ru": "Запуск на CPU: скорость зависит от процессора и пропускной способности памяти; заранее измеренной производительности нет.",
+    "zh": "CPU 运行速度取决于处理器和内存带宽。尚未测量此系统的性能。",
+    "fr": "Sur CPU, la vitesse dépend du processeur et de la bande passante mémoire. Les performances de ce système restent à mesurer.",
+    "source": "Запуск на CPU: скорость зависит от процессора и пропускной способности памяти; заранее измеренной производительности нет."
+  },
+  "smallModel": {
+    "en": "A small model is suitable for a first launch and has limited reasoning and answer quality.",
+    "de": "Ein kleines Modell eignet sich für den ersten Start und hat begrenzte Schlussfolgerungs- und Antwortqualität.",
+    "ru": "Небольшая модель подходит для первого запуска; сложность рассуждений и качество ответов ограничены.",
+    "zh": "小模型适合首次启动，其推理能力和回答质量有限。",
+    "fr": "Un petit modèle convient à un premier lancement, avec des capacités de raisonnement et une qualité de réponse limitées.",
+    "source": "Небольшая модель подходит для первого запуска; сложность рассуждений и качество ответов ограничены."
+  },
+  "driverProbe": {
+    "en": "The driver requirement depends on the selected image. The container probe and a model request verify PTX and CUDA compatibility.",
+    "de": "Der erforderliche Treiber hängt vom ausgewählten Image ab. Containerprüfung und Modellanfrage bestätigen die PTX- und CUDA-Kompatibilität.",
+    "ru": "Порог драйвера зависит от выбранного образа; совместимость с конкретным образом, PTX и CUDA подтвердят проверка контейнера и запрос к модели.",
+    "zh": "驱动要求取决于所选镜像。容器检查和模型请求用于验证 PTX 与 CUDA 兼容性。",
+    "fr": "Le pilote requis dépend de l’image sélectionnée. La vérification du conteneur et une requête au modèle valident la compatibilité PTX et CUDA.",
+    "source": "Порог драйвера зависит от выбранного образа; совместимость с конкретным образом, PTX и CUDA подтвердят проверка контейнера и запрос к модели."
+  },
+  "revisionUnpinned": {
+    "en": "The Hugging Face revision is unpinned. Use a verified full commit SHA to reproduce the same weights.",
+    "de": "Die Hugging-Face-Revision ist nicht festgelegt. Verwenden Sie eine geprüfte vollständige Commit-SHA für dieselben Gewichte.",
+    "ru": "В этой записи не закреплена ревизия Hugging Face; для точного воспроизведения укажите проверенный полный commit SHA.",
+    "zh": "Hugging Face 修订版本未固定。要复用完全相同的权重，请指定经过验证的完整提交 SHA。",
+    "fr": "La révision Hugging Face n’est pas épinglée. Utilisez un SHA de commit complet et vérifié pour retrouver les mêmes poids.",
+    "source": "В этой записи не закреплена ревизия Hugging Face; для точного воспроизведения укажите проверенный полный commit SHA."
+  },
+  "checkLicense": {
+    "en": "Review the model’s separate license before use.",
+    "de": "Prüfen Sie vor der Nutzung die separate Lizenz des Modells.",
+    "ru": "Перед использованием ознакомьтесь с отдельной лицензией модели.",
+    "zh": "使用前请查阅该模型的单独许可证。",
+    "fr": "Consultez la licence propre au modèle avant de l’utiliser.",
+    "source": "Перед использованием ознакомьтесь с отдельной лицензией модели."
+  },
+  "gpuVendor": {
+    "en": "This adapter supports NVIDIA GPUs only.",
+    "de": "Dieser Adapter unterstützt ausschließlich NVIDIA-GPUs.",
+    "ru": "эта версия адаптера поддерживает только NVIDIA",
+    "zh": "此适配器仅支持 NVIDIA GPU。",
+    "fr": "Cet adaptateur prend uniquement en charge les GPU NVIDIA.",
+    "source": "эта версия адаптера поддерживает только NVIDIA"
+  },
+  "gpuCapabilityUnknown": {
+    "en": "Compute capability is unknown. Check nvidia-smi and the driver.",
+    "de": "Die Compute Capability ist unbekannt. Prüfen Sie nvidia-smi und den Treiber.",
+    "ru": "compute capability не определена; проверьте вывод nvidia-smi и драйвер",
+    "zh": "计算能力未知。请检查 nvidia-smi 和驱动程序。",
+    "fr": "La capacité de calcul est inconnue. Vérifiez nvidia-smi et le pilote.",
+    "source": "compute capability не определена; проверьте вывод nvidia-smi и драйвер"
+  },
+  "gpuDriverUnknown": {
+    "en": "The NVIDIA driver version is unknown. Scan the computer again to check GPU support.",
+    "de": "Die NVIDIA-Treiberversion ist unbekannt. Prüfen Sie den Computer erneut.",
+    "ru": "версия драйвера NVIDIA не определена; GPU-вариант не предлагается до повторной диагностики",
+    "zh": "NVIDIA 驱动版本未知。请重新扫描电脑以检查 GPU 支持。",
+    "fr": "La version du pilote NVIDIA est inconnue. Analysez à nouveau le PC pour vérifier la prise en charge du GPU.",
+    "source": "версия драйвера NVIDIA не определена; GPU-вариант не предлагается до повторной диагностики"
+  },
+  "archivedResult": {
+    "en": "Deployment stopped and archived. The plan and downloaded weights were kept.",
+    "de": "Bereitstellung gestoppt und archiviert. Plan und heruntergeladene Gewichte wurden behalten.",
+    "ru": "Проект остановлен и архивирован. План и веса сохранены. Вернуть проект: restore.",
+    "zh": "部署已停止并归档。计划和下载的权重已保留。",
+    "fr": "Déploiement arrêté et archivé. Le plan et les poids téléchargés sont conservés.",
+    "source": "Проект остановлен и архивирован. План и веса сохранены. Вернуть проект: restore."
+  },
+  "restoredResult": {
+    "en": "Plan restored and available to launch.",
+    "de": "Der Plan wurde wiederhergestellt und kann gestartet werden.",
+    "ru": "План доступен для запуска через up.",
+    "zh": "计划已恢复，可以启动。",
+    "fr": "Le plan a été restauré et peut être lancé.",
+    "source": "План доступен для запуска через up."
+  },
+  "stoppedResult": {
+    "en": "Deployment stopped. Downloaded weights were kept.",
+    "de": "Bereitstellung gestoppt. Die heruntergeladenen Gewichte wurden behalten.",
+    "ru": "Контейнеры проекта остановлены. Скачанные веса сохранены.",
+    "zh": "部署已停止，下载的权重已保留。",
+    "fr": "Déploiement arrêté. Les poids téléchargés sont conservés.",
+    "source": "Контейнеры проекта остановлены. Скачанные веса сохранены."
+  },
+  "smokePassed": {
+    "en": "The model answered a test request.",
+    "de": "Das Modell hat auf eine Testanfrage geantwortet.",
+    "ru": "Модель ответила на тестовый запрос.",
+    "zh": "模型已响应测试请求。",
+    "fr": "Le modèle a répondu à une requête de test.",
+    "source": "Модель ответила на тестовый запрос."
+  },
+  "localApiKey": {
+    "en": "The API is local. Clients that require a key can use api_key=local.",
+    "de": "Die API ist lokal. Clients, die einen Schlüssel benötigen, können api_key=local verwenden.",
+    "ru": "API доступен локально; клиентам, требующим ключ, можно передать api_key=local.",
+    "zh": "API 仅在本机可用。需要密钥的客户端可以使用 api_key=local。",
+    "fr": "L’API est locale. Les clients qui exigent une clé peuvent utiliser api_key=local.",
+    "source": "API доступен локально; клиентам, требующим ключ, можно передать api_key=local."
+  },
+  "recheckRunning": {
+    "en": "A container is already running. Checking its model and API.",
+    "de": "Ein Container läuft bereits. Modell und API werden geprüft.",
+    "ru": "Контейнер уже запущен. Проверяем модель и API.",
+    "zh": "容器已在运行，正在检查模型和 API。",
+    "fr": "Un conteneur est déjà en cours d’exécution. Vérification du modèle et de l’API.",
+    "source": "This plan already has a running container; checking its model and API."
+  },
+  "pullRuntime": {
+    "en": "Downloading the runtime image if needed…",
+    "de": "Das Laufzeit-Image wird bei Bedarf heruntergeladen…",
+    "ru": "Загружаем образ движка при необходимости…",
+    "zh": "如有需要，正在下载引擎镜像…",
+    "fr": "Téléchargement de l’image du moteur si nécessaire…",
+    "source": "Downloading runtime image if it is not cached..."
+  },
+  "startService": {
+    "en": "Starting the model service…",
+    "de": "Der Modelldienst wird gestartet…",
+    "ru": "Запускаем сервис модели…",
+    "zh": "正在启动模型服务…",
+    "fr": "Démarrage du service de modèle…",
+    "source": "Starting the model service..."
+  },
+  "waitRuntime": {
+    "en": "Waiting for the runtime API. The first load can take several minutes.",
+    "de": "Warte auf die Laufzeit-API. Der erste Start kann mehrere Minuten dauern.",
+    "ru": "Ждём ответа API движка. Первая загрузка может занять несколько минут.",
+    "zh": "正在等待引擎 API。首次加载可能需要几分钟。",
+    "fr": "Attente de l’API du moteur. Le premier chargement peut prendre plusieurs minutes.",
+    "source": "Waiting for the runtime API (first model load can take several minutes)..."
+  },
+  "checkLibraries": {
+    "en": "Checking whether vLLM can load its runtime libraries…",
+    "de": "Prüfe, ob vLLM die Laufzeitbibliotheken laden kann…",
+    "ru": "Проверяем, может ли vLLM загрузить свои библиотеки…",
+    "zh": "正在检查 vLLM 能否加载运行库…",
+    "fr": "Vérification du chargement des bibliothèques de vLLM…",
+    "source": "Checking that vLLM can load its runtime libraries..."
+  },
+  "testRequest": {
+    "en": "Sending a real request to the model…",
+    "de": "Eine echte Anfrage wird an das Modell gesendet…",
+    "ru": "Отправляем тестовый запрос модели…",
+    "zh": "正在向模型发送实际请求…",
+    "fr": "Envoi d’une requête réelle au modèle…",
+    "source": "Checking a real model request..."
+  },
+  "gpuExcluded": {
+    "en": "GPU {0} was excluded because its free VRAM is unknown or below the reserve.",
+    "de": "GPU {0} wurde ausgeschlossen, weil ihr freier Grafikspeicher unbekannt ist oder unter der Reserve liegt.",
+    "ru": "GPU {0} исключена: свободная VRAM неизвестна или ниже резерва.",
+    "zh": "GPU {0} 已排除，因为可用显存未知或低于预留值。",
+    "fr": "Le GPU {0} a été exclu, car sa VRAM libre est inconnue ou inférieure à la réserve.",
+    "sourcePattern": "GPU (.+): свободная VRAM неизвестна или после резерва не остаётся памяти; эта GPU исключена\\."
+  },
+  "gpuRejected": {
+    "en": "GPU {0} was excluded for {1}: {2}",
+    "de": "GPU {0} wurde für {1} ausgeschlossen: {2}",
+    "ru": "GPU {0} исключена для {1}: {2}",
+    "zh": "GPU {0} 已从 {1} 的选项中排除：{2}",
+    "fr": "Le GPU {0} a été exclu pour {1} : {2}",
+    "sourcePattern": "GPU (.+) исключена из вариантов (Ollama|vLLM): (.+)\\."
+  },
+  "ramBudget": {
+    "en": "Available RAM budget: {0} GiB. Model estimate: {1} GiB. Allow about {2} GiB of disk space including the runtime image.",
+    "de": "Verfügbares RAM-Budget: {0} GiB. Modellschätzung: {1} GiB. Benötigt werden etwa {2} GiB Speicherplatz einschließlich Laufzeit-Image.",
+    "ru": "Доступный бюджет RAM: {0} ГиБ. Оценка модели: {1} ГиБ. Требуется около {2} ГиБ диска с учётом образа движка.",
+    "zh": "可用内存预算：{0} GiB。模型估算：{1} GiB。含引擎镜像约需 {2} GiB 磁盘空间。",
+    "fr": "Budget de RAM disponible : {0} Gio. Estimation du modèle : {1} Gio. Prévoyez environ {2} Gio de disque, image du moteur comprise.",
+    "sourcePattern": "Доступный бюджет RAM: (\\d+\\.\\d+) GiB; оценка модели: (\\d+\\.\\d+) GiB\\. Требуется около (\\d+) GiB места, включая резерв под образ движка\\."
+  },
+  "gpuBudget": {
+    "en": "GPU {0}: {1} GiB of available VRAM and {2} GiB estimated for the model.",
+    "de": "GPU {0}: {1} GiB verfügbarer VRAM und {2} GiB geschätzter Modellbedarf.",
+    "ru": "GPU {0}: бюджет VRAM {1} ГиБ, оценка модели {2} ГиБ.",
+    "zh": "GPU {0}：可用显存 {1} GiB，模型估算 {2} GiB。",
+    "fr": "GPU {0} : {1} Gio de VRAM disponible et {2} Gio estimés pour le modèle.",
+    "sourcePattern": "Одна GPU: (.+); доступный бюджет VRAM: (\\d+\\.\\d+) GiB; оценка модели: (\\d+\\.\\d+) GiB\\."
+  },
+  "contextEstimate": {
+    "en": "At {0} tokens, the memory estimate is scaled by {1}. This is a conservative estimate.",
+    "de": "Bei {0} Token wird die Speicherschätzung mit {1} multipliziert. Die Schätzung ist konservativ.",
+    "ru": "Для {0} токенов оценка памяти умножена на {1}. Это консервативная оценка.",
+    "zh": "上下文为 {0} 个词元时，内存估算乘以 {1}。这是保守估算。",
+    "fr": "Avec {0} jetons, l’estimation de mémoire est multipliée par {1}. Il s’agit d’une estimation prudente.",
+    "sourcePattern": "Для контекста (\\d+) оценка памяти умножена на (\\d+\\.\\d+); это консервативный фильтр, не измерение\\."
+  },
+  "catalogNoFit": {
+    "en": "No catalog profile fits this task and runtime with {0} GiB of RAM budget and the current GPU and disk limits.",
+    "de": "Kein Katalogprofil passt zur Aufgabe und Laufzeit bei {0} GiB RAM-Budget und den aktuellen GPU- und Datenträgergrenzen.",
+    "ru": "В каталоге нет профиля для выбранной задачи и движка при бюджете RAM {0} ГиБ и текущих ограничениях GPU и диска.",
+    "zh": "在 {0} GiB 内存预算和当前 GPU、磁盘限制下，目录中没有符合所选任务与引擎的配置。",
+    "fr": "Aucun profil du catalogue ne convient à cette tâche et à ce moteur avec {0} Gio de RAM et les limites actuelles du GPU et du disque.",
+    "sourcePattern": "В каталоге нет модели для выбранной задачи и движка, подходящей под (\\d+\\.\\d+) GiB доступного бюджета RAM и текущие ограничения GPU/диска\\."
+  },
+  "ollamaCapability": {
+    "en": "Compute capability {0} is below Ollama’s minimum of 5.0.",
+    "de": "Compute Capability {0} liegt unter Ollamas Minimum von 5.0.",
+    "ru": "Compute capability {0} ниже минимума Ollama 5.0.",
+    "zh": "计算能力 {0} 低于 Ollama 要求的 5.0。",
+    "fr": "La capacité de calcul {0} est inférieure au minimum de 5.0 requis par Ollama.",
+    "sourcePattern": "compute capability (\\S+) ниже требуемой Ollama 5\\.0"
+  },
+  "vllmCapability": {
+    "en": "Compute capability {0} is below vLLM’s minimum of 7.5.",
+    "de": "Compute Capability {0} liegt unter vLLMs Minimum von 7.5.",
+    "ru": "Compute capability {0} ниже минимума vLLM 7.5.",
+    "zh": "计算能力 {0} 低于 vLLM 要求的 7.5。",
+    "fr": "La capacité de calcul {0} est inférieure au minimum de 7.5 requis par vLLM.",
+    "sourcePattern": "compute capability (\\S+) ниже требуемой vLLM 7\\.5"
+  },
+  "ollamaDriver": {
+    "en": "NVIDIA driver {0} is older than branch {2} required for compute capability {1}.",
+    "de": "NVIDIA-Treiber {0} ist älter als der für Compute Capability {1} benötigte Zweig {2}.",
+    "ru": "Драйвер NVIDIA {0} старее ветки {2}, требуемой для compute capability {1}.",
+    "zh": "NVIDIA 驱动 {0} 早于计算能力 {1} 所需的 {2} 分支。",
+    "fr": "Le pilote NVIDIA {0} est antérieur à la branche {2} requise pour la capacité de calcul {1}.",
+    "sourcePattern": "драйвер NVIDIA (\\S+) старее требуемой для compute capability (\\S+) ветки (\\d+)"
+  },
+  "cuda12Driver": {
+    "en": "NVIDIA driver {0} is below the CUDA 12.x minimum of 525.60.13.",
+    "de": "NVIDIA-Treiber {0} liegt unter dem CUDA-12.x-Minimum 525.60.13.",
+    "ru": "Драйвер NVIDIA {0} ниже минимума CUDA 12.x 525.60.13.",
+    "zh": "NVIDIA 驱动 {0} 低于 CUDA 12.x 要求的 525.60.13。",
+    "fr": "Le pilote NVIDIA {0} est inférieur au minimum de 525.60.13 pour CUDA 12.x.",
+    "sourcePattern": "драйвер NVIDIA (\\S+) ниже предварительного минимума CUDA 12\\.x: 525\\.60\\.13"
+  },
+  "cuda13Driver": {
+    "en": "The selected vLLM image requires NVIDIA R580 or newer. Found {0}.",
+    "de": "Das ausgewählte vLLM-Image benötigt NVIDIA R580 oder neuer. Gefunden: {0}.",
+    "ru": "Для выбранного образа vLLM нужен NVIDIA R580 или новее. Найден {0}.",
+    "zh": "所选 vLLM 镜像需要 NVIDIA R580 或更新的驱动。检测到 {0}。",
+    "fr": "L’image vLLM sélectionnée exige NVIDIA R580 ou une version plus récente. Version détectée : {0}.",
+    "sourcePattern": "для выбранного образа vLLM нужен драйвер NVIDIA R580 или новее \\(найден (\\S+)\\)"
+  },
+  "catalogUpdated": {
+    "en": "Catalog updated ({0}, {1} profiles).",
+    "de": "Katalog aktualisiert ({0}, {1} Profile).",
+    "ru": "Каталог обновлён ({0}, профилей: {1}).",
+    "zh": "目录已更新（{0}，{1} 个配置）。",
+    "fr": "Catalogue actualisé ({0}, {1} profils).",
+    "sourcePattern": "Каталог обновлён \\(([^)]+)\\), профилей: (\\d+)\\."
+  },
+  "catalogCurrent": {
+    "en": "Catalog is up to date ({0}, {1} profiles).",
+    "de": "Der Katalog ist aktuell ({0}, {1} Profile).",
+    "ru": "Каталог актуален ({0}, профилей: {1}).",
+    "zh": "目录已是最新版本（{0}，{1} 个配置）。",
+    "fr": "Le catalogue est à jour ({0}, {1} profils).",
+    "sourcePattern": "Каталог актуален \\(([^)]+)\\), профилей: (\\d+)\\."
+  },
+  "modelDownload": {
+    "en": "Downloading model {0}…",
+    "de": "Modell {0} wird heruntergeladen…",
+    "ru": "Загружаем модель {0}…",
+    "zh": "正在下载模型 {0}…",
+    "fr": "Téléchargement du modèle {0}…",
+    "sourcePattern": "Downloading model (.+)\\.\\.\\."
+  },
+  "runtimeReady": {
+    "en": "API ready: {0} · model: {1}",
+    "de": "API bereit: {0} · Modell: {1}",
+    "ru": "API готов: {0} · модель: {1}",
+    "zh": "API 已就绪：{0} · 模型：{1}",
+    "fr": "API prête : {0} · modèle : {1}",
+    "sourcePattern": "Ready: (http://127\\.0\\.0\\.1:\\d+/v1) \\(model (.+)\\)"
+  },
+  "baseUrl": {
+    "en": "OpenAI base URL: {0}",
+    "de": "OpenAI-Basis-URL: {0}",
+    "ru": "Базовый URL OpenAI: {0}",
+    "zh": "OpenAI 基础 URL：{0}",
+    "fr": "URL de base OpenAI : {0}",
+    "sourcePattern": "OpenAI base_url: (http://127\\.0\\.0\\.1:\\d+/v1)"
+  },
+  "apiModel": {
+    "en": "API model: {0}",
+    "de": "API-Modell: {0}",
+    "ru": "Модель API: {0}",
+    "zh": "API 模型：{0}",
+    "fr": "Modèle de l’API : {0}",
+    "sourcePattern": "model: (.+)"
+  },
+  "apiRequest": {
+    "en": "{0}",
+    "de": "{0}",
+    "ru": "{0}",
+    "zh": "{0}",
+    "fr": "{0}",
+    "sourcePattern": "((?:GET|POST) http://127\\.0\\.0\\.1:\\d+/v1/\\S+)"
+  },
+  "gpuVisible": {
+    "en": "GPU visible in the container: {0}",
+    "de": "GPU im Container verfügbar: {0}",
+    "ru": "GPU доступна в контейнере: {0}",
+    "zh": "容器可访问 GPU：{0}",
+    "fr": "GPU visible dans le conteneur : {0}",
+    "sourcePattern": "GPU is visible inside the runtime container: (.+)"
+  },
+  "recommendRemote": {
+    "en": "Switch to a local Docker context before choosing a model.",
+    "de": "Wechseln Sie vor der Modellauswahl zu einem lokalen Docker-Kontext.",
+    "ru": "Переключитесь на локальный контекст Docker перед подбором модели.",
+    "zh": "选择模型前，请切换到本地 Docker 上下文。",
+    "fr": "Passez à un contexte Docker local avant de choisir un modèle.",
+    "source": "Ошибка: выбран удалённый Docker context: переключитесь на локальный endpoint перед подбором модели"
+  },
+  "profileTextVectorSearch": {
+    "en": "Text vector search. The client supplies query and document prefixes.",
+    "de": "Textsuche mit Vektoren. Der Client gibt Präfixe für Anfrage und Dokument vor.",
+    "ru": "Векторный поиск по тексту. Клиент задаёт префиксы для запроса и документа.",
+    "zh": "文本向量搜索。客户端为查询和文档指定前缀。",
+    "fr": "Recherche vectorielle de texte. Le client définit les préfixes des requêtes et des documents.",
+    "source": "Векторный поиск по тексту. Клиент задаёт префиксы для запроса и документа."
+  },
+  "profileMultilingualSearch": {
+    "en": "Embeddings for multilingual semantic search.",
+    "de": "Einbettungen für die mehrsprachige semantische Suche.",
+    "ru": "Векторы для многоязычного семантического поиска.",
+    "zh": "用于多语言语义搜索的向量。",
+    "fr": "Vecteurs pour la recherche sémantique multilingue.",
+    "source": "Векторы для многоязычного семантического поиска."
+  },
+  "profileShortContextChat": {
+    "en": "Chat and summarization with short contexts.",
+    "de": "Chat und Zusammenfassungen mit kurzem Kontext.",
+    "ru": "Диалог и резюме с коротким контекстом.",
+    "zh": "短上下文聊天与摘要。",
+    "fr": "Discussion et résumé avec un contexte court.",
+    "source": "Диалог и резюме с коротким контекстом."
+  },
+  "profileDocumentChatApi": {
+    "en": "Chat, summarization, and document Q&A through the OpenAI API.",
+    "de": "Chat, Zusammenfassungen und Fragen zu Dokumenten über die OpenAI-API.",
+    "ru": "Диалог, резюме и ответы по документам через OpenAI API.",
+    "zh": "通过 OpenAI API 聊天、生成摘要并回答文档问题。",
+    "fr": "Discussion, résumé et questions sur des documents via l’API OpenAI.",
+    "source": "Диалог, резюме и ответы по документам через OpenAI API."
+  },
+  "profileSuppliedContextChat": {
+    "en": "Chat, summarization, and answers based on supplied context.",
+    "de": "Chat, Zusammenfassungen und Antworten auf Basis des bereitgestellten Kontexts.",
+    "ru": "Диалог, резюме и ответы по переданному контексту.",
+    "zh": "聊天、摘要和基于所提供上下文的回答。",
+    "fr": "Discussion, résumé et réponses fondées sur le contexte fourni.",
+    "source": "Диалог, резюме и ответы по переданному контексту."
+  },
+  "profileShortCodeSnippets": {
+    "en": "Completion and analysis of short code snippets on a small GPU or CPU.",
+    "de": "Vervollständigung und Analyse kurzer Codeausschnitte auf einer kleinen GPU oder CPU.",
+    "ru": "Дополнение и разбор коротких фрагментов кода на малой GPU или CPU.",
+    "zh": "在小型 GPU 或 CPU 上补全和分析短代码片段。",
+    "fr": "Complétion et analyse de courts extraits de code sur un petit GPU ou un CPU.",
+    "source": "Дополнение и разбор коротких фрагментов кода на малой GPU или CPU."
+  },
+  "profileCompactContextInstructions": {
+    "en": "Compact model for instructions and context-based answers.",
+    "de": "Kompaktes Modell für Anweisungen und Antworten mit Kontext.",
+    "ru": "Компактная модель для инструкций и ответов по контексту.",
+    "zh": "用于指令和基于上下文回答的紧凑模型。",
+    "fr": "Modèle compact pour les consignes et les réponses fondées sur le contexte.",
+    "source": "Компактная модель для инструкций и ответов по контексту."
+  },
+  "profileCompactSimpleChat": {
+    "en": "Compact model for simple chat and text processing.",
+    "de": "Kompaktes Modell für einfache Chats und Textverarbeitung.",
+    "ru": "Компактная модель для простого чата и обработки текста.",
+    "zh": "用于简单聊天和文本处理的紧凑模型。",
+    "fr": "Modèle compact pour la discussion simple et le traitement de texte.",
+    "source": "Компактная модель для простого чата и обработки текста."
+  },
+  "profileCompactSummarization": {
+    "en": "Compact text model for chat and summarization.",
+    "de": "Kompaktes Textmodell für Chat und Zusammenfassungen.",
+    "ru": "Компактная текстовая модель для чата и суммаризации.",
+    "zh": "用于聊天和摘要的紧凑文本模型。",
+    "fr": "Modèle de texte compact pour la discussion et le résumé.",
+    "source": "Компактная текстовая модель для чата и суммаризации."
+  },
+  "profileLightweightShortText": {
+    "en": "Lightweight chat and short-text processing.",
+    "de": "Ressourcenschonender Chat und Verarbeitung kurzer Texte.",
+    "ru": "Компактный чат и обработка коротких текстов.",
+    "zh": "轻量聊天和短文本处理。",
+    "fr": "Discussion légère et traitement de textes courts.",
+    "source": "Компактный чат и обработка коротких текстов."
+  },
+  "profileShortExplanations": {
+    "en": "Short explanations, written instructions, and coding tasks.",
+    "de": "Kurze Erklärungen, schriftliche Anweisungen und Programmieraufgaben.",
+    "ru": "Короткие объяснения, текстовые инструкции и задачи по коду.",
+    "zh": "简短解释、文本指令和编程任务。",
+    "fr": "Explications courtes, consignes écrites et tâches de programmation.",
+    "source": "Короткие объяснения, текстовые инструкции и задачи по коду."
+  },
+  "profileShortAnswers": {
+    "en": "Short answers and basic classification on a CPU or small GPU.",
+    "de": "Kurze Antworten und einfache Klassifizierung auf einer CPU oder kleinen GPU.",
+    "ru": "Короткие ответы и простая классификация на CPU или малой GPU.",
+    "zh": "在 CPU 或小型 GPU 上生成简短回答并进行简单分类。",
+    "fr": "Réponses courtes et classification simple sur un CPU ou un petit GPU.",
+    "source": "Короткие ответы и простая классификация на CPU или малой GPU."
+  },
+  "profileFourGiBInstructions": {
+    "en": "Short text instructions on a CPU or a GPU with 4 GiB.",
+    "de": "Kurze Textanweisungen auf einer CPU oder GPU mit 4 GiB.",
+    "ru": "Короткие текстовые инструкции на CPU или GPU с 4 ГиБ.",
+    "zh": "在 CPU 或配有 4 GiB 显存的 GPU 上处理简短文本指令。",
+    "fr": "Consignes textuelles courtes sur un CPU ou un GPU doté de 4 Gio.",
+    "source": "Короткие текстовые инструкции на CPU или GPU с 4 ГиБ."
+  },
+  "profileFourGiBChat": {
+    "en": "Lightweight chat on a CPU or GPU with 4 GiB.",
+    "de": "Ressourcenschonender Chat auf einer CPU oder GPU mit 4 GiB.",
+    "ru": "Лёгкий чат на CPU или GPU с 4 ГиБ.",
+    "zh": "在 CPU 或配有 4 GiB 显存的 GPU 上进行轻量聊天。",
+    "fr": "Discussion légère sur un CPU ou un GPU doté de 4 Gio.",
+    "source": "Лёгкий чат на CPU или GPU с 4 ГиБ."
+  },
+  "profileMultiStepReasoning": {
+    "en": "Multi-step reasoning, coding, and math tasks.",
+    "de": "Mehrstufiges Schlussfolgern sowie Programmier- und Mathematikaufgaben.",
+    "ru": "Многошаговые рассуждения, задачи по коду и математике.",
+    "zh": "多步推理、编程和数学任务。",
+    "fr": "Raisonnement en plusieurs étapes et tâches de programmation et de mathématiques.",
+    "source": "Многошаговые рассуждения, задачи по коду и математике."
+  },
+  "profileMultilingualContext": {
+    "en": "Multilingual chat and context-based answers.",
+    "de": "Mehrsprachiger Chat und Antworten auf Basis des Kontexts.",
+    "ru": "Многоязычный чат и ответы по контексту.",
+    "zh": "多语言聊天和基于上下文的回答。",
+    "fr": "Discussion multilingue et réponses fondées sur le contexte.",
+    "source": "Многоязычный чат и ответы по контексту."
+  },
+  "profileMultilingualGpuReasoning": {
+    "en": "Multilingual chat and reasoning on one GPU.",
+    "de": "Mehrsprachiger Chat und Schlussfolgern auf einer GPU.",
+    "ru": "Многоязычный чат и рассуждения на одной GPU.",
+    "zh": "在单块 GPU 上进行多语言聊天和推理。",
+    "fr": "Discussion multilingue et raisonnement sur un seul GPU.",
+    "source": "Многоязычный чат и рассуждения на одной GPU."
+  },
+  "profileFirstVllm": {
+    "en": "Small model for a first vLLM server launch.",
+    "de": "Kleines Modell für den ersten Start eines vLLM-Servers.",
+    "ru": "Небольшая модель для первого запуска сервера vLLM.",
+    "zh": "适合首次启动 vLLM 服务器的小模型。",
+    "fr": "Petit modèle pour un premier lancement du serveur vLLM.",
+    "source": "Небольшая модель для первого запуска сервера vLLM."
+  },
+  "profileHighMemoryChat": {
+    "en": "General chat and context-based answers on a high-memory GPU.",
+    "de": "Allgemeiner Chat und Antworten mit Kontext auf einer GPU mit viel Speicher.",
+    "ru": "Общий чат и ответы по контексту на GPU с большой памятью.",
+    "zh": "在大显存 GPU 上进行通用聊天和基于上下文的回答。",
+    "fr": "Discussion générale et réponses fondées sur le contexte sur un GPU à grande mémoire.",
+    "source": "Общий чат и ответы по контексту на GPU с большой памятью."
+  },
+  "profileShortCodeGeneration": {
+    "en": "Code explanations, fixes, and generation of short snippets.",
+    "de": "Code erklären, Fehler beheben und kurze Ausschnitte erzeugen.",
+    "ru": "Объяснение кода, исправления и генерация небольших фрагментов.",
+    "zh": "解释代码、修复问题和生成短代码片段。",
+    "fr": "Explication et correction de code, et génération de courts extraits.",
+    "source": "Объяснение кода, исправления и генерация небольших фрагментов."
+  },
+  "profileDenseReasoning": {
+    "en": "Dense reasoning model for a GPU with memory to spare.",
+    "de": "Dichtes Modell für Schlussfolgerungen auf einer GPU mit Speicherreserve.",
+    "ru": "Плотная модель для рассуждений на GPU с запасом памяти.",
+    "zh": "适用于有显存余量的 GPU 的稠密推理模型。",
+    "fr": "Modèle dense de raisonnement pour un GPU disposant d’une réserve de mémoire.",
+    "source": "Плотная модель для рассуждений на GPU с запасом памяти."
+  },
+  "profileFullSizeReasoning": {
+    "en": "Full-size reasoning and text profile for 96–128 GiB of VRAM.",
+    "de": "Vollständiges Profil für Schlussfolgern und Text mit 96–128 GiB VRAM.",
+    "ru": "Полноразмерный профиль для рассуждений и текста на 96–128 ГиБ VRAM.",
+    "zh": "适用于 96–128 GiB 显存的完整推理和文本配置。",
+    "fr": "Profil complet de raisonnement et de texte pour 96 à 128 Gio de VRAM.",
+    "source": "Полноразмерный профиль для рассуждений и текста на 96–128 ГиБ VRAM."
+  },
+  "profileStepByStep": {
+    "en": "Step-by-step problem solving and explanations of complex topics.",
+    "de": "Schrittweise Problemlösung und Erklärungen zu komplexen Themen.",
+    "ru": "Пошаговый разбор задач и объяснение сложных вопросов.",
+    "zh": "逐步解决问题并解释复杂主题。",
+    "fr": "Résolution pas à pas et explication de sujets complexes.",
+    "source": "Пошаговый разбор задач и объяснение сложных вопросов."
+  },
+  "profileRepositoryWork": {
+    "en": "Repository work, code explanations, and patch generation.",
+    "de": "Arbeit mit Repositorys, Codeerklärungen und Erzeugung von Änderungen.",
+    "ru": "Работа с репозиторием, объяснение кода и генерация правок.",
+    "zh": "处理代码仓库、解释代码并生成修改。",
+    "fr": "Travail sur des dépôts, explication de code et génération de modifications.",
+    "source": "Работа с репозиторием, объяснение кода и генерация правок."
+  },
+  "profileDetailedWithReserve": {
+    "en": "Detailed answers and reasoning with memory to spare.",
+    "de": "Ausführliche Antworten und Schlussfolgern bei ausreichender Speicherreserve.",
+    "ru": "Развёрнутые ответы и рассуждения с запасом памяти.",
+    "zh": "在内存有余量时生成详细回答并进行推理。",
+    "fr": "Réponses détaillées et raisonnement avec une réserve de mémoire.",
+    "source": "Развёрнутые ответы и рассуждения с запасом памяти."
+  },
+  "profileDetailedInstructions": {
+    "en": "Detailed answers and complex instructions.",
+    "de": "Ausführliche Antworten und komplexe Anweisungen.",
+    "ru": "Развёрнутые ответы и сложные инструкции.",
+    "zh": "详细回答和复杂指令。",
+    "fr": "Réponses détaillées et consignes complexes.",
+    "source": "Развёрнутые ответы и сложные инструкции."
+  },
+  "profileFullSizeCoding": {
+    "en": "Reasoning and coding on one GPU with 96–128 GiB of VRAM.",
+    "de": "Schlussfolgern und Programmieren auf einer GPU mit 96–128 GiB VRAM.",
+    "ru": "Рассуждения и задачи по коду на одной GPU с 96–128 ГиБ VRAM.",
+    "zh": "在一块配有 96–128 GiB 显存的 GPU 上进行推理和编程。",
+    "fr": "Raisonnement et programmation sur un seul GPU doté de 96 à 128 Gio de VRAM.",
+    "source": "Рассуждения и задачи по коду на одной GPU с 96–128 ГиБ VRAM."
+  },
+  "profileComplexTextInstructions": {
+    "en": "Reasoning and complex text instructions.",
+    "de": "Schlussfolgern und komplexe Textanweisungen.",
+    "ru": "Рассуждения и сложные текстовые инструкции.",
+    "zh": "推理和复杂文本指令。",
+    "fr": "Raisonnement et consignes textuelles complexes.",
+    "source": "Рассуждения и сложные текстовые инструкции."
+  },
+  "profileReasoningAndCoding": {
+    "en": "Reasoning, multi-step instructions, and coding tasks.",
+    "de": "Schlussfolgern, mehrstufige Anweisungen und Programmieraufgaben.",
+    "ru": "Рассуждения, многошаговые инструкции и задачи по коду.",
+    "zh": "推理、多步骤指令和编程任务。",
+    "fr": "Raisonnement, consignes en plusieurs étapes et tâches de programmation.",
+    "source": "Рассуждения, многошаговые инструкции и задачи по коду."
+  },
+  "profileHighMemoryCodeServer": {
+    "en": "Server for code generation and analysis on a high-memory GPU.",
+    "de": "Server für Codegenerierung und -analyse auf einer GPU mit viel Speicher.",
+    "ru": "Сервер для генерации и анализа кода на GPU с большой памятью.",
+    "zh": "在大显存 GPU 上运行的代码生成与分析服务器。",
+    "fr": "Serveur de génération et d’analyse de code sur un GPU à grande mémoire.",
+    "source": "Сервер для генерации и анализа кода на GPU с большой памятью."
+  },
+  "profileTextAndCodeHelp": {
+    "en": "Written instructions, short explanations, and help with code.",
+    "de": "Schriftliche Anweisungen, kurze Erklärungen und Hilfe beim Programmieren.",
+    "ru": "Текстовые инструкции, короткие объяснения и помощь с кодом.",
+    "zh": "文本指令、简短解释和编程帮助。",
+    "fr": "Consignes écrites, explications courtes et aide à la programmation.",
+    "source": "Текстовые инструкции, короткие объяснения и помощь с кодом."
+  },
+  "profileDocumentAssistant": {
+    "en": "Text assistant for chat, summaries, and answers based on supplied documents.",
+    "de": "Textassistent für Chat, Zusammenfassungen und Antworten auf Basis bereitgestellter Dokumente.",
+    "ru": "Текстовый помощник для чата, резюме и ответа по переданным документам.",
+    "zh": "用于聊天、摘要和基于所提供文档回答的文本助手。",
+    "fr": "Assistant textuel pour la discussion, les résumés et les réponses fondées sur les documents fournis.",
+    "source": "Текстовый помощник для чата, резюме и ответа по переданным документам."
+  },
+  "profileFullWeightMoe": {
+    "en": "Chat and document Q&A. MoE estimates account for the full weight size.",
+    "de": "Chat und Fragen zu Dokumenten. MoE-Schätzungen berücksichtigen die gesamte Größe der Gewichte.",
+    "ru": "Чат и ответы по документам. Для MoE учитывается полный размер весов.",
+    "zh": "聊天和文档问答。MoE 估算计入全部权重大小。",
+    "fr": "Discussion et questions sur des documents. L’estimation pour les modèles MoE tient compte de la taille totale des poids.",
+    "source": "Чат и ответы по документам. Для MoE учитывается полный размер весов."
+  },
+  "profileMidRangeReasoning": {
+    "en": "Chat and reasoning on a mid-range GPU.",
+    "de": "Chat und Schlussfolgern auf einer Mittelklasse-GPU.",
+    "ru": "Чат и рассуждения на GPU среднего класса.",
+    "zh": "在中端 GPU 上进行聊天和推理。",
+    "fr": "Discussion et raisonnement sur un GPU de milieu de gamme.",
+    "source": "Чат и рассуждения на GPU среднего класса."
   }
 }
