@@ -28,9 +28,9 @@ chmod +x llm-launcher-linux-amd64
 ./llm-launcher-linux-amd64 scan
 ```
 
-**Windows x64.** Open `LLM-Launcher-Windows-x64.exe`. Scan your PC, select a task and a model, then prepare and launch the plan. The desktop app and CLI currently display Russian labels. [Windows walkthrough](docs/USAGE.md#windows-desktop)
+**Windows x64.** Open `LLM-Launcher-Windows-x64.exe`. The desktop app starts in English. Use the language menu in the top right to switch to Deutsch, Русский, 简体中文, or Français. Scan your PC, select a task and a model, then prepare and launch the plan. [Windows walkthrough](docs/USAGE.md#windows-desktop)
 
-**Linux ARM64 or macOS Apple Silicon.** Make the downloaded binary executable, then run it with `wizard --dir ./my-model`. Both platforms use CPU containers in this release.
+**Linux ARM64 or macOS Apple Silicon.** Make the downloaded binary executable, then run it with `wizard --dir ./my-model`. Both platforms use CPU containers in this release. On Linux and macOS, use `--help` for the English command list or `COMMAND --help` for a command’s options.
 
 ## Models and hardware
 

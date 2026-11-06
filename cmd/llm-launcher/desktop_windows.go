@@ -5,8 +5,10 @@ import (
 	"context"
 	_ "embed"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"unsafe"
 
@@ -17,6 +19,9 @@ import (
 //go:embed desktop.ps1
 var desktopScript []byte
 
+//go:embed desktop_strings.json
+var desktopStrings []byte
+
 func runDesktop(ctx context.Context) {
 	go catalog.Refresh(ctx)
 	exe, err := os.Executable()
@@ -26,7 +31,14 @@ func runDesktop(ctx context.Context) {
 		const bootstrap = `[Console]::InputEncoding = [Text.Encoding]::UTF8; [Console]::OutputEncoding = [Text.Encoding]::UTF8; try { & ([scriptblock]::Create([Console]::In.ReadToEnd())) } catch { [Console]::Error.WriteLine($_.ToString()); exit 1 }`
 		cmd := process.Command(ctx, powershell, "-NoLogo", "-NoProfile", "-NonInteractive", "-STA", "-Command", bootstrap)
 		cmd.Env = append(os.Environ(), "LLM_LAUNCHER_DESKTOP_EXE="+exe)
-		cmd.Stdin = bytes.NewReader(desktopScript)
+		// The translation table is bundled with the executable and sent as a
+		// literal UTF-8 here-string before the script.
+		cmd.Stdin = io.MultiReader(
+			strings.NewReader("$desktopStringsJson = @'\n"),
+			bytes.NewReader(desktopStrings),
+			strings.NewReader("\n'@\n"),
+			bytes.NewReader(desktopScript),
+		)
 		var output []byte
 		output, err = cmd.CombinedOutput()
 		if err != nil && len(output) > 0 {
@@ -35,7 +47,7 @@ func runDesktop(ctx context.Context) {
 	}
 	if err != nil {
 		title, _ := syscall.UTF16PtrFromString("LLM Launcher")
-		message, _ := syscall.UTF16PtrFromString("Не удалось открыть мастер. Проверьте доступ к Windows PowerShell.\n\n" + err.Error())
+		message, _ := syscall.UTF16PtrFromString("Could not open the desktop launcher. Check that Windows PowerShell is available.\n\n" + err.Error())
 		messageBox := syscall.NewLazyDLL("user32.dll").NewProc("MessageBoxW")
 		_, _, _ = messageBox.Call(0, uintptr(unsafe.Pointer(message)), uintptr(unsafe.Pointer(title)), 0x10)
 	}

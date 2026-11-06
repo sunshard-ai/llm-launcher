@@ -21,10 +21,12 @@ Use `--gpu 0` or a GPU UUID to select a specific card. Use `inspect --compose --
 ## Windows desktop
 
 1. Start Docker Desktop with the WSL2 backend and Linux containers.
-2. Open `LLM-Launcher-Windows-x64.exe` and select the folder for deployments.
-3. Click **Сканировать компьютер** (Scan), choose a task and engine, then click **Подобрать модели** (Find models).
-4. Pick a model. **Проф. настройки…** opens advanced settings. **Подготовить план** saves the plan, **Посмотреть детали…** opens the Compose file, and **Запустить подготовленный план** starts the deployment.
-5. Use **Мои развёртывания** (My deployments) to inspect status, view logs, test, stop, archive, or restore a deployment.
+2. Open `LLM-Launcher-Windows-x64.exe` and select the folder for deployments. English is the default. The **Language** menu in the top right switches the interface immediately and remembers your choice for next time.
+3. Click **Scan computer**, choose a task and runtime, then click **Find models**.
+4. Pick a model. **Advanced settings…** opens advanced settings. **Prepare plan** saves the plan, **View details…** opens the Compose file, and **Launch plan** starts the deployment.
+5. Use **My deployments** to inspect status, view logs, test, stop, archive, or restore a deployment.
+
+The desktop interface supports English, German, Russian, Simplified Chinese, and French. The activity journal also includes raw diagnostics from the CLI and Docker, which can appear in their source language.
 
 The Windows CLI supports the same planning and management commands. In PowerShell, invoke it as `.\llm-launcher-windows-amd64.exe`.
 
@@ -42,13 +44,13 @@ llm-launcher hf-plan \
 llm-launcher up --dir ./my-gguf
 ```
 
-For vLLM, add `--runtime vllm` and use a repository URL such as `https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct`. The desktop app has a **Свой HF…** button when you select either engine. For gated or private weights, provide a Hugging Face read token with access. The CLI reads `LLM_LAUNCHER_HF_TOKEN` for planning and downloading. The app keeps it in the current session.
+For vLLM, add `--runtime vllm` and use a repository URL such as `https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct`. The desktop app has an **Import from HF…** button when you select either engine. For gated or private weights, provide a Hugging Face read token with access. The CLI reads `LLM_LAUNCHER_HF_TOKEN` for planning and downloading. The app keeps it in the current session.
 
 The import pins a commit and checks file sizes and hashes during download. The engine reads the verified files from `hf-model/` in the deployment directory.
 
 ## Advanced settings
 
-Pass JSON to `plan` or `hf-plan`. The desktop app exposes the same settings under **Проф. настройки…**.
+Pass JSON to `plan` or `hf-plan`. The desktop app exposes the same settings under **Advanced settings…**.
 
 ```bash
 llm-launcher plan --task code --runtime ollama --model ollama-qwen25-coder-1.5b \

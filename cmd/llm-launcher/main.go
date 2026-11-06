@@ -25,7 +25,7 @@ import (
 	"llmlauncher/internal/recommend"
 )
 
-var version = "0.3.1"
+var version = "0.3.2"
 var desktopMode string
 var hfToken string
 
@@ -76,34 +76,47 @@ func parseOptions(command string, args []string, errOut io.Writer) (options, err
 	f := flag.NewFlagSet(command, flag.ContinueOnError)
 	f.SetOutput(errOut)
 	if command == "list" {
-		f.StringVar(&o.dir, "dir", ".", "каталог с развёртываниями")
+		f.StringVar(&o.dir, "dir", ".", "directory containing deployments")
 	} else {
-		f.StringVar(&o.dir, "dir", "./llm-model", "каталог отдельного развёртывания")
+		f.StringVar(&o.dir, "dir", "./llm-model", "directory for a single deployment")
 	}
-	f.StringVar(&o.task, "task", "chat", "задача: chat, code, rag, embeddings")
-	f.StringVar(&o.runtime, "runtime", "", "движок: ollama или vllm; пусто = подбор")
-	f.StringVar(&o.model, "model", "", "ID модели из команды catalog/recommend")
-	f.StringVar(&o.catalog, "catalog", "", "свой JSON-каталог; по умолчанию кеш или встроенный каталог")
-	f.StringVar(&o.inventory, "inventory", "", "JSON-снимок железа для демонстрационного плана; запуск запрещён")
-	f.StringVar(&o.gpu, "gpu", "", "индекс или UUID одной NVIDIA GPU")
-	f.IntVar(&o.port, "port", 0, "локальный порт; 0 = 11434 для Ollama, 8000 для vLLM")
-	f.IntVar(&o.context, "context", 4096, "контекст в токенах; 512..32768, с проверкой памяти")
-	f.BoolVar(&o.cpu, "cpu", false, "использовать CPU (Ollama)")
-	f.BoolVar(&o.json, "json", false, "машиночитаемый JSON")
-	f.BoolVar(&o.interactive, "interactive", false, "запустить интерактивный подбор")
-	f.BoolVar(&o.infoOnly, "info", false, "только вывести инвентаризацию")
-	f.BoolVar(&o.dryRun, "dry-run", false, "в мастере только сохранить план, без загрузок и запуска")
-	f.BoolVar(&o.follow, "follow", false, "следить за логами до Ctrl+C")
-	f.BoolVar(&o.compose, "compose", false, "показать проверенный Compose")
-	f.StringVar(&o.settingsJSON, "settings-json", "", "JSON профиля генерации и переменных, без секретов")
-	f.StringVar(&o.image, "image", "", "vLLM: официальный тег, digest или latest с закреплением digest")
-	f.StringVar(&o.hfURL, "hf-url", "", "HTTPS ссылка на один GGUF-файл в Hugging Face")
-	f.DurationVar(&o.timeout, "timeout", 30*time.Minute, "таймаут развёртывания/проверки, например 45m")
+	taskHelp := "task (chat, code, rag, or embeddings)"
+	runtimeHelp := "runtime (ollama, vllm, or llama.cpp). Leave empty for automatic selection"
+	contextHelp := "context length in tokens (512–32768, subject to memory checks)"
+	if command == "hf-plan" {
+		taskHelp = "text task (chat, code, or rag)"
+		runtimeHelp = "runtime (llama.cpp on CPU by default, or vllm on NVIDIA)"
+		contextHelp = "context length in tokens (512–4096 for Hugging Face imports)"
+	}
+	f.StringVar(&o.task, "task", "chat", taskHelp)
+	f.StringVar(&o.runtime, "runtime", "", runtimeHelp)
+	f.StringVar(&o.model, "model", "", "model ID from catalog or recommend")
+	f.StringVar(&o.catalog, "catalog", "", "custom JSON catalog. Defaults to the cached or bundled catalog")
+	f.StringVar(&o.inventory, "inventory", "", "hardware snapshot in JSON for previews. Deployments require a live scan")
+	f.StringVar(&o.gpu, "gpu", "", "index or UUID of one NVIDIA GPU")
+	f.IntVar(&o.port, "port", 0, "local API port. 0 uses the runtime default (Ollama 11434, vLLM 8000, llama.cpp 8080)")
+	f.IntVar(&o.context, "context", 4096, contextHelp)
+	f.BoolVar(&o.cpu, "cpu", false, "select a CPU deployment")
+	f.BoolVar(&o.json, "json", false, "output machine-readable JSON")
+	f.BoolVar(&o.interactive, "interactive", false, "start interactive model selection")
+	f.BoolVar(&o.infoOnly, "info", false, "show hardware inventory only")
+	f.BoolVar(&o.dryRun, "dry-run", false, "save a plan without downloading or starting the model")
+	f.BoolVar(&o.follow, "follow", false, "stream logs until Ctrl+C")
+	f.BoolVar(&o.compose, "compose", false, "show the validated Compose configuration")
+	f.StringVar(&o.settingsJSON, "settings-json", "", "generation settings and non-secret environment variables in JSON")
+	f.StringVar(&o.image, "image", "", "official vLLM image tag or digest. The latest tag resolves to a pinned digest")
+	f.StringVar(&o.hfURL, "hf-url", "", "Hugging Face HTTPS URL for a GGUF file (llama.cpp) or a Safetensors repository (vLLM)")
+	f.DurationVar(&o.timeout, "timeout", 30*time.Minute, "operation timeout, for example 45m")
 	f.Usage = func() {
-		fmt.Fprintf(errOut, "llm-launcher %s — параметры:\n", command)
+		fmt.Fprintf(errOut, "Usage: llm-launcher %s", command)
+		if len(allowed) == 0 {
+			fmt.Fprintln(errOut, "\nThis command takes no options.")
+			return
+		}
+		fmt.Fprintln(errOut, " [options]\n\nOptions:")
 		f.VisitAll(func(v *flag.Flag) {
 			if allowed[v.Name] {
-				fmt.Fprintf(errOut, "  --%s\t%s (по умолчанию %q)\n", v.Name, v.Usage, v.DefValue)
+				fmt.Fprintf(errOut, "  --%s\t%s (default %q)\n", v.Name, v.Usage, v.DefValue)
 			}
 		})
 	}
@@ -686,44 +699,43 @@ func printStatus(w io.Writer, s domain.Status) {
 }
 
 func printHelp(w io.Writer) {
-	fmt.Fprintf(w, `llm-launcher %s — запуск локальной модели через Docker Compose.
+	fmt.Fprintf(w, `llm-launcher %s starts local models with Docker Compose.
 
-  llm-launcher                         Интерактивный мастер
-  llm-launcher wizard --dir ./my-model [--dry-run]
-  llm-launcher scan                   В терминале Linux: задача, модель и запуск
-  llm-launcher scan --info|--json     Только инвентаризация оборудования
-  llm-launcher doctor                  Диагностика окружения без загрузок
-  llm-launcher update                 Проверить подписанный каталог вручную
-  llm-launcher catalog [--json]        Текущий каталог моделей
-  llm-launcher recommend --task chat|code|rag|embeddings [--runtime ollama|vllm|llama.cpp]
-  llm-launcher plan --task code --runtime ollama --model ID --dir ./my-model
-  llm-launcher hf-plan --hf-url URL --dir ./my-model    GGUF из Hugging Face через llama.cpp CPU
-  llm-launcher hf-plan --runtime vllm --hf-url URL --dir ./my-model   HF safetensors на NVIDIA
-  llm-launcher inspect --dir ./my-model [--compose]    План или детали Compose
-  llm-launcher list --dir . [--json]    Найти планы и показать сохранённое состояние
-  llm-launcher run --dir ./my-model    То же действие, что up
-  llm-launcher up --dir ./my-model     Проверить, скачать, запустить и протестировать
-  llm-launcher status [--dir ./my-model] [--json]  Все запущенные модели или один план
-  llm-launcher test --dir ./my-model [--json]
-  llm-launcher logs --dir ./my-model [--follow]
-  llm-launcher down --dir ./my-model   Остановить; скачанные веса сохраняются
-  llm-launcher delete --dir ./my-model Остановить и архивировать; сохранить план и веса
-  llm-launcher restore --dir ./my-model Вернуть архивный план без запуска
-  llm-launcher gpu-check --dir ./my-model
+Usage: llm-launcher [command] [options]
 
-Подбор/план: --cpu, --gpu INDEX_OR_UUID, --context 4096, --port PORT,
---catalog PATH. Демонстрационный --inventory PATH разрешён для scan,
-recommend, plan и wizard; запуск по подставному снимку запрещён.
-vLLM: --image v0.33.0 или --image latest (сохраняет digest в новом плане).
-plan и hf-plan: --settings-json JSON (температура, токены, переменные без секретов).
-Доступ к закрытой модели HF: передайте LLM_LAUNCHER_HF_TOKEN только для hf-plan и up.
-Команды up/test/gpu-check: --timeout 30m. Флаги указывайте после команды.
-help, version; COMMAND --help выводит параметры.
+Commands:
+  wizard       Select a model interactively and review the plan (also the default).
+  scan         Scan hardware. In a Linux terminal, open the interactive picker.
+               Use --info or --json for inventory only.
+  doctor       Diagnose the environment without downloading anything.
+  update       Check for updates to the signed model catalog.
+  catalog      Show the current model catalog.
+  recommend    Find compatible models for chat, code, RAG, or embeddings.
+  plan         Save a deployment plan from the catalog.
+  hf-plan      Save a plan for a Hugging Face GGUF file (llama.cpp on CPU)
+               or a Safetensors repository (vLLM on NVIDIA).
+  inspect      Show a saved plan or its Compose configuration.
+  list         Find saved deployments and show their recorded state.
+  up, run      Verify, download, start, and test a deployment.
+  status       Check running deployments or one deployment selected with --dir.
+  test         Send a chat or embedding request to the model API.
+  logs         Show container logs. Use --follow to stream them.
+  down         Stop a deployment and keep its downloaded weights.
+  delete       Stop and archive a deployment, keeping the plan and weights.
+  restore      Restore an archived deployment for a later launch.
+  gpu-check    Check NVIDIA access from a deployment's container.
+  help         Show this command list.
+  version      Show the launcher version.
 
-Мастер проверяет обновления каталога в фоне до одного раза в сутки.
-Задача rag подбирает генеративную модель для приложения RAG; индексатор
-и поиск по документам в этот MVP не входят. Для Windows есть отдельный
-графический мастер LLM-Launcher-Windows-x64.exe.
+Use llm-launcher COMMAND --help for command options. Put flags after the command.
+Use --dir to select a deployment directory. The wizard supports --dry-run.
+Hardware snapshots (--inventory) are for scan, recommend, plan, and wizard previews.
+Set LLM_LAUNCHER_HF_TOKEN for hf-plan and up when using restricted Hugging Face weights.
+
+The wizard checks for catalog updates in the background at most once per day.
+The rag task selects a model for generating answers in a RAG app. Document
+indexing and retrieval are handled by the app. The Windows desktop wizard
+is available as LLM-Launcher-Windows-x64.exe.
 `, version)
 }
 

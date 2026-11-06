@@ -3,7 +3,7 @@ set -euo pipefail
 
 project_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 go_bin="${GO_BIN:-go}"
-build_version="${BUILD_VERSION:-0.3.1}"
+build_version="${BUILD_VERSION:-0.3.2}"
 
 if [[ ! "$build_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+([-+][A-Za-z0-9.-]+)?$ ]]; then
   echo 'BUILD_VERSION must be a semantic version, for example 0.3.0.' >&2

@@ -4,6 +4,31 @@ Add-Type -AssemblyName System.Drawing
 [Windows.Forms.Application]::EnableVisualStyles()
 [Windows.Forms.Application]::SetCompatibleTextRenderingDefault($false)
 
+$desktopStrings = ConvertFrom-Json $desktopStringsJson
+$languageIDs = @('en', 'de', 'ru', 'zh', 'fr')
+$appDir = Join-Path ([Environment]::GetFolderPath('LocalApplicationData')) 'LLM Launcher'
+$languagePreference = Join-Path $appDir 'language.txt'
+$script:language = 'en'
+try {
+    if ([IO.File]::Exists($languagePreference)) {
+        $savedLanguage = [IO.File]::ReadAllText($languagePreference).Trim()
+        if ($savedLanguage -cin $languageIDs) { $script:language = $savedLanguage }
+    }
+} catch { }
+
+function Get-Text([string]$key) {
+    $entry = $desktopStrings.PSObject.Properties[$key]
+    if (!$entry) { return $key }
+    $text = $entry.Value.($script:language)
+    if ($args.Count) { return $text -f $args }
+    $text
+}
+
+function Set-TextKey($control, [string]$key) {
+    $control.Tag = $key
+    $control.Text = Get-Text $key
+}
+
 $form = New-Object Windows.Forms.Form
 $form.Text = 'LLM Launcher'
 try { $form.Icon = [Drawing.Icon]::ExtractAssociatedIcon($env:LLM_LAUNCHER_DESKTOP_EXE) }
@@ -17,8 +42,8 @@ $layout = [Windows.Forms.TableLayoutPanel]::new()
 $layout.Dock = 'Fill'
 $layout.Padding = [Windows.Forms.Padding]::new(12)
 $layout.ColumnCount = 1
-$layout.RowCount = 5
-foreach ($height in @(48, 46, 282)) {
+$layout.RowCount = 6
+foreach ($height in @(48, 46, 282, 25)) {
     [void]$layout.RowStyles.Add([Windows.Forms.RowStyle]::new('Absolute', $height))
 }
 [void]$layout.RowStyles.Add([Windows.Forms.RowStyle]::new('Percent', 100))
@@ -32,21 +57,21 @@ function New-Row {
     $row
 }
 
-function Add-Label($parent, [string]$text, [int]$width = 0) {
+function Add-Label($parent, [string]$key, [int]$maxWidth = 0) {
     $label = [Windows.Forms.Label]::new()
-    $label.Text = $text
-    $label.AutoSize = $width -eq 0
-    if ($width) { $label.Width = $width }
+    Set-TextKey $label $key
+    $label.AutoSize = $true
+    if ($maxWidth) { $label.MaximumSize = [Drawing.Size]::new($maxWidth, 0) }
     $label.Margin = [Windows.Forms.Padding]::new(4, 7, 4, 0)
     $parent.Controls.Add($label)
     $label
 }
 
-function Add-Button($parent, [string]$text, [scriptblock]$action) {
+function Add-Button($parent, [string]$key, [scriptblock]$action) {
     $button = [Windows.Forms.Button]::new()
     $button.AutoSize = $true
     $button.Height = 31
-    $button.Text = $text
+    Set-TextKey $button $key
     $button.Add_Click($action)
     $parent.Controls.Add($button)
     $button
@@ -72,19 +97,33 @@ function Add-Number($parent, [int]$value, [int]$min, [int]$max) {
     $field
 }
 
-$header = New-Row
+$header = [Windows.Forms.TableLayoutPanel]::new()
+$header.Dock = 'Fill'
 $header.BackColor = [Drawing.Color]::FromArgb(14, 23, 43)
-$title = Add-Label $header 'LLM Launcher   /   Локальные модели'
+$header.ColumnCount = 2
+$header.RowCount = 1
+[void]$header.ColumnStyles.Add([Windows.Forms.ColumnStyle]::new('Percent', 100))
+[void]$header.ColumnStyles.Add([Windows.Forms.ColumnStyle]::new('AutoSize'))
+$title = Add-Label $header 'title'
 $title.ForeColor = [Drawing.Color]::White
 $title.Font = [Drawing.Font]::new('Segoe UI Semibold', 17)
+$languageRow = New-Row
+$languageRow.AutoSize = $true
+$languageRow.Padding = [Windows.Forms.Padding]::new(0, 3, 6, 0)
+$header.Controls.Add($languageRow, 1, 0)
+$languageLabel = Add-Label $languageRow 'language'
+$languageLabel.ForeColor = [Drawing.Color]::White
+$languagePicker = Add-Combo $languageRow 118 @('English', 'Deutsch', 'Русский', '简体中文', 'Français')
+$languagePicker.DropDownWidth = $languagePicker.Width
+$languagePicker.SelectedIndex = [Array]::IndexOf($languageIDs, $script:language)
+$languagePicker.AccessibleName = $languageLabel.Text
 $layout.Controls.Add($header, 0, 0)
 
 $storage = New-Row
-[void](Add-Label $storage 'Папка проектов')
+[void](Add-Label $storage 'projectsFolder')
 $root = [Windows.Forms.TextBox]::new()
 $root.ReadOnly = $true
 $root.Width = 550
-$appDir = Join-Path ([Environment]::GetFolderPath('LocalApplicationData')) 'LLM Launcher'
 $rootPreference = Join-Path $appDir 'projects-path.txt'
 $root.Text = Join-Path $appDir 'deployments'
 try {
@@ -94,9 +133,9 @@ try {
     }
 } catch { }
 $storage.Controls.Add($root)
-[void](Add-Button $storage 'Выбрать…' {
+[void](Add-Button $storage 'browse' {
     $picker = [Windows.Forms.FolderBrowserDialog]::new()
-    $picker.Description = 'Выберите папку для планов развёртывания'
+    $picker.Description = Get-Text 'browsePrompt'
     if ([IO.Directory]::Exists($root.Text)) { $picker.SelectedPath = $root.Text }
     try {
         if ($picker.ShowDialog($form) -eq 'OK') {
@@ -104,7 +143,7 @@ $storage.Controls.Add($root)
             try {
                 [void][IO.Directory]::CreateDirectory($appDir)
                 [IO.File]::WriteAllText($rootPreference, $root.Text)
-            } catch { Write-Log 'Выбранную папку не удалось сохранить для следующего запуска.' }
+            } catch { Write-Log (Get-Text 'folderSaveError') }
             Reset-Prepared
             $models.Items.Clear()
             $savePlan.Enabled = [bool](Hub-Selected)
@@ -116,8 +155,10 @@ $layout.Controls.Add($storage, 0, 1)
 
 $tabs = [Windows.Forms.TabControl]::new()
 $tabs.Dock = 'Fill'
-$setup = [Windows.Forms.TabPage]::new('Новое развёртывание')
-$manage = [Windows.Forms.TabPage]::new('Мои развёртывания')
+$setup = [Windows.Forms.TabPage]::new()
+$manage = [Windows.Forms.TabPage]::new()
+Set-TextKey $setup 'setupTab'
+Set-TextKey $manage 'manageTab'
 $tabs.TabPages.Add($setup)
 $tabs.TabPages.Add($manage)
 $layout.Controls.Add($tabs, 0, 2)
@@ -135,45 +176,47 @@ $rows = @(for ($i = 0; $i -lt 6; $i++) {
     $setupLayout.Controls.Add($row, 0, $i)
     $row
 })
-[void](Add-Button $rows[0] 'Сканировать компьютер' { Read-Hardware })
-[void](Add-Button $rows[0] 'Обновить список моделей' {
+[void](Add-Button $rows[0] 'scan' { Read-Hardware })
+[void](Add-Button $rows[0] 'updateCatalog' {
     Start-Launcher @('update') {
         param($code, $output)
         if ($code -eq 0) { & $invalidateChoices }
     }
 })
-$hardware = Add-Label $rows[0] 'CPU, память, GPU, Docker'
-[void](Add-Label $rows[1] 'Задача')
-$tasks = Add-Combo $rows[1] 255 @('Чат и тексты', 'Работа с кодом', 'Ответ по контексту (RAG)', 'Векторы для поиска')
+$hardware = Add-Label $rows[0] 'hardware'
+[void](Add-Label $rows[1] 'task')
+$taskLabels = @('taskChat', 'taskCode', 'taskRag', 'taskEmbeddings')
+$tasks = Add-Combo $rows[1] 255 @($taskLabels | ForEach-Object { Get-Text $_ })
 $taskIDs = @('chat', 'code', 'rag', 'embeddings')
-[void](Add-Label $rows[1] 'Движок')
-$engines = Add-Combo $rows[1] 245 @('Авто (каталог)', 'Ollama', 'vLLM / NVIDIA (эксп.)', 'llama.cpp / GGUF')
+[void](Add-Label $rows[1] 'engine')
+$engineLabels = @('engineAuto', 'Ollama', 'engineVllm', 'llama.cpp / GGUF')
+$engines = Add-Combo $rows[1] 245 @($engineLabels | ForEach-Object { Get-Text $_ })
 $engineIDs = @('', 'ollama', 'vllm', 'llama.cpp')
-$imageButton = Add-Button $rows[1] 'Образ vLLM…' { Edit-VLLMImage }
+$imageButton = Add-Button $rows[1] 'imageButton' { Edit-VLLMImage }
 $imageButton.Visible = $false
-[void](Add-Label $rows[2] 'Ускорение')
-$devices = Add-Combo $rows[2] 258 @('Авто', 'CPU')
-[void](Add-Label $rows[2] 'Контекст')
+[void](Add-Label $rows[2] 'acceleration')
+$devices = Add-Combo $rows[2] 258 @((Get-Text 'auto'), 'CPU')
+[void](Add-Label $rows[2] 'context')
 $context = Add-Number $rows[2] 4096 512 32768
-[void](Add-Label $rows[2] 'Порт (0 = по умолчанию)')
+[void](Add-Label $rows[2] 'port')
 $port = Add-Number $rows[2] 0 0 65535
-$pickModel = Add-Button $rows[3] 'Подобрать модели' {
+$pickModel = Add-Button $rows[3] 'findModels' {
     Read-Recommendations
 }
 $models = Add-Combo $rows[3] 490
-$importVLLM = Add-Button $rows[3] 'Свой HF…' { Edit-HubSource }
+$importVLLM = Add-Button $rows[3] 'importHf' { Edit-HubSource }
 $importVLLM.Visible = $false
-[void](Add-Label $rows[4] 'Имя папки проекта')
+[void](Add-Label $rows[4] 'projectName')
 $name = [Windows.Forms.TextBox]::new()
 $name.Width = 275
 $name.Text = 'model-' + [DateTime]::Now.ToString('yyyyMMdd-HHmmss')
 $rows[4].Controls.Add($name)
-$advancedButton = Add-Button $rows[4] 'Проф. настройки…' { Edit-Advanced }
-$savePlan = Add-Button $rows[5] 'Подготовить план' { Save-ReviewedPlan }
-$startPrepared = Add-Button $rows[5] 'Запустить подготовленный план' {
+$advancedButton = Add-Button $rows[4] 'advanced' { Edit-Advanced }
+$savePlan = Add-Button $rows[5] 'preparePlan' { Save-ReviewedPlan }
+$startPrepared = Add-Button $rows[5] 'launchPlan' {
     if ($script:preparedPath) { Run-Project 'up' $script:preparedPath }
 }
-$detailsButton = Add-Button $rows[5] 'Посмотреть детали…' {
+$detailsButton = Add-Button $rows[5] 'viewDetails' {
     if ($script:preparedPath) { Show-Compose $script:preparedPath }
 }
 $savePlan.Enabled = $false
@@ -191,22 +234,22 @@ $manageLayout.RowCount = 3
 $manage.Controls.Add($manageLayout)
 $manageTop = New-Row
 $manageLayout.Controls.Add($manageTop, 0, 0)
-[void](Add-Button $manageTop 'Обновить список' { Read-Projects })
-[void](Add-Label $manageTop 'Сохранённое состояние. Для проверки API нажмите «Статус».')
+[void](Add-Button $manageTop 'refreshProjects' { Read-Projects })
+[void](Add-Label $manageTop 'manageHint')
 $projectList = [Windows.Forms.ListBox]::new()
 $projectList.Dock = 'Fill'
 $projectList.HorizontalScrollbar = $true
 $manageLayout.Controls.Add($projectList, 0, 1)
 $actions = New-Row
 $manageLayout.Controls.Add($actions, 0, 2)
-[void](Add-Button $actions 'Запустить' { Invoke-Selected 'up' })
-[void](Add-Button $actions 'Статус' { Invoke-Selected 'status' })
-[void](Add-Button $actions 'Логи' { Invoke-Selected 'logs' })
-[void](Add-Button $actions 'Тест API' { Invoke-Selected 'test' })
-[void](Add-Button $actions 'Остановить' { Invoke-Selected 'down' })
-[void](Add-Button $actions 'Архивировать' { Invoke-Selected 'delete' })
-[void](Add-Button $actions 'Восстановить' { Invoke-Selected 'restore' })
-[void](Add-Button $actions 'Детали…' { Invoke-Selected 'inspect' })
+[void](Add-Button $actions 'launch' { Invoke-Selected 'up' })
+[void](Add-Button $actions 'status' { Invoke-Selected 'status' })
+[void](Add-Button $actions 'logs' { Invoke-Selected 'logs' })
+[void](Add-Button $actions 'testApi' { Invoke-Selected 'test' })
+[void](Add-Button $actions 'stop' { Invoke-Selected 'down' })
+[void](Add-Button $actions 'archive' { Invoke-Selected 'delete' })
+[void](Add-Button $actions 'restore' { Invoke-Selected 'restore' })
+[void](Add-Button $actions 'details' { Invoke-Selected 'inspect' })
 
 $log = [Windows.Forms.TextBox]::new()
 $log.Dock = 'Fill'
@@ -215,10 +258,11 @@ $log.ReadOnly = $true
 $log.ScrollBars = 'Both'
 $log.WordWrap = $false
 $log.Font = [Drawing.Font]::new('Consolas', 10)
-$layout.Controls.Add($log, 0, 3)
+[void](Add-Label $layout 'journal')
+$layout.Controls.Add($log, 0, 4)
 $footer = New-Row
-$layout.Controls.Add($footer, 0, 4)
-$cancel = Add-Button $footer 'Отменить команду' {
+$layout.Controls.Add($footer, 0, 5)
+$cancel = Add-Button $footer 'cancelCommand' {
     if ($script:job -and !$script:job.Process.HasExited) {
         try { $script:job.Process.StandardInput.Close() }
         catch { Write-Log $_.Exception.Message }
@@ -226,12 +270,14 @@ $cancel = Add-Button $footer 'Отменить команду' {
     $cancel.Enabled = $false
 }
 $cancel.Enabled = $false
-$progress = Add-Label $footer 'Готово к работе'
+$progress = Add-Label $footer 'idle'
 $script:job = $null
 $script:preparedPath = $null
 $script:choices = @()
 $script:projects = @()
-$script:gpuIDs = @()
+$script:hardwareInfo = $null
+$script:gpus = @()
+$script:changingLanguage = $false
 $script:advanced = @{}
 $script:hfURL = ''
 $script:hfEngine = ''
@@ -276,11 +322,13 @@ function Start-Launcher([string[]]$arguments, [scriptblock]$onDone = {}, [string
             OnDone = $onDone
             Capture = $capture.IsPresent
             Data = $data
+            Command = $arguments[0]
         }
         $storage.Enabled = $false
         $tabs.Enabled = $false
         $cancel.Enabled = $true
-        $progress.Text = 'Выполняется: ' + $arguments[0]
+        $progress.Tag = 'running'
+        $progress.Text = Get-Text 'running' $script:job.Command
         $timer.Start()
     } catch { Show-Message $_.Exception.Message }
 }
@@ -313,11 +361,35 @@ $timer.Add_Tick({
     $storage.Enabled = $true
     $tabs.Enabled = $true
     $cancel.Enabled = $false
-    if ($exitCode -eq 0) { $progress.Text = 'Команда завершена' }
-    else { $progress.Text = 'Команда завершилась с ошибкой. См. журнал.' }
+    if ($exitCode -eq 0) { Set-TextKey $progress 'completed' }
+    else { Set-TextKey $progress 'failed' }
     try { & $job.OnDone $exitCode $job.Output.ToString() $job.Data }
     catch { Write-Log $_.Exception.Message }
 })
+
+function Set-ComboItems($combo, [object[]]$items, [int]$index) {
+    $combo.BeginUpdate()
+    try {
+        $combo.Items.Clear()
+        $combo.Items.AddRange($items)
+        $combo.SelectedIndex = $index
+    } finally { $combo.EndUpdate() }
+}
+
+function Update-HardwareLabels([int]$deviceIndex) {
+    $hw = $script:hardwareInfo
+    if ($hw) {
+        $hardware.Text = Get-Text 'hardwareSummary' $hw.cpu_name ([Math]::Round($hw.ram_total_bytes / 1GB))
+    }
+    $items = @((Get-Text 'auto'), 'CPU') + @(foreach ($gpu in $script:gpus) {
+        Get-Text 'gpuSummary' $gpu.name ([Math]::Round($gpu.vram_free_bytes / 1GB, 1))
+    })
+    Set-ComboItems $devices $items $deviceIndex
+}
+
+function Availability([bool]$value) {
+    if ($value) { Get-Text 'available' } else { Get-Text 'unavailable' }
+}
 
 function Read-Hardware {
     $log.Clear()
@@ -325,19 +397,10 @@ function Read-Hardware {
         param($code, $json)
         if ($code -ne 0) { return }
         $hw = ConvertFrom-Json $json
-        $hardware.Text = "$($hw.cpu_name)   /   RAM $([Math]::Round($hw.ram_total_bytes / 1GB)) ГиБ"
-        $devices.Items.Clear()
-        $devices.Items.AddRange(@('Авто', 'CPU'))
-        $script:gpuIDs = @()
-        foreach ($gpu in $hw.gpus) {
-            if ($gpu.vendor -ne 'nvidia') { continue }
-            $id = $gpu.uuid
-            if (!$id) { $id = $gpu.index }
-            $script:gpuIDs += $id
-            [void]$devices.Items.Add("$($gpu.name) | свободно $([Math]::Round($gpu.vram_free_bytes / 1GB, 1)) ГиБ")
-        }
-        $devices.SelectedIndex = 0
-        Write-Log "Docker доступен: $($hw.docker.reachable) | Compose: $($hw.docker.compose) | RAM Docker: $([Math]::Round($hw.docker.memory_bytes / 1GB, 1)) ГиБ"
+        $script:hardwareInfo = $hw
+        $script:gpus = @($hw.gpus | Where-Object { $_.vendor -eq 'nvidia' })
+        Update-HardwareLabels 0
+        Write-Log (Get-Text 'dockerSummary' (Availability $hw.docker.reachable) (Availability $hw.docker.compose) ([Math]::Round($hw.docker.memory_bytes / 1GB, 1)))
         if ($hw.docker.error) { Write-Log $hw.docker.error }
         foreach ($note in $hw.warnings) { Write-Log $note }
     } -Capture
@@ -349,7 +412,11 @@ function Fit-Args {
     if ($engine) { '--runtime'; $engine }
     if ($engine -eq 'vllm' -and $script:vllmImage) { '--image'; $script:vllmImage }
     if ($devices.SelectedIndex -eq 1) { '--cpu' }
-    if ($devices.SelectedIndex -ge 2) { '--gpu'; $script:gpuIDs[$devices.SelectedIndex - 2] }
+    if ($devices.SelectedIndex -ge 2) {
+        $gpu = $script:gpus[$devices.SelectedIndex - 2]
+        '--gpu'
+        if ($gpu.uuid) { $gpu.uuid } else { $gpu.index }
+    }
 }
 
 function Read-Recommendations {
@@ -367,6 +434,7 @@ function Read-Recommendations {
             [void]$models.Items.Add("$($r.model.name)   |   $($r.model.runtime) / $($r.acceleration)   |   $($r.model.license)")
         }
         if ($script:choices.Count) { $models.SelectedIndex = 0; $savePlan.Enabled = $true }
+        else { Write-Log (Get-Text 'noModels') }
         foreach ($note in $result.notes) { Write-Log $note }
     } -Capture
 }
@@ -404,6 +472,7 @@ function Reset-Prepared {
 }
 
 $invalidateChoices = {
+    if ($script:changingLanguage) { return }
     Reset-Prepared
     $models.Items.Clear()
     $engine = Selected-Engine
@@ -421,13 +490,13 @@ $port.Add_ValueChanged({ Reset-Prepared })
 function Save-ReviewedPlan {
     $hub = Hub-Selected
     if ($hub -and (Selected-Engine) -eq 'vllm' -and $devices.SelectedIndex -eq 1) {
-        Show-Message 'Для vLLM выберите NVIDIA GPU или «Авто».'
+        Show-Message (Get-Text 'vllmNeedsGpu')
         return
     }
     if (!$hub -and $models.SelectedIndex -lt 0) { return }
     $projectName = $name.Text.Trim()
     if ($projectName -notmatch '^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$' -or $projectName -match '^(CON|PRN|AUX|NUL|COM[0-9]|LPT[0-9])$') {
-        Show-Message 'Имя папки должно содержать до 64 латинских букв, цифр, дефисов или подчёркиваний.'
+        Show-Message (Get-Text 'invalidFolderName')
         return
     }
     Reset-Prepared
@@ -458,16 +527,16 @@ function Save-ReviewedPlan {
         $script:preparedPath = $dir
         $startPrepared.Enabled = $true
         $detailsButton.Enabled = $true
-        Write-Log "$($p.model.name) | $($p.runtime) / $($p.acceleration) | контекст $($p.context)"
-        Write-Log "Папка: $dir"
-        Write-Log "API после запуска: http://127.0.0.1:$($p.port)/v1"
-        if ($p.runtime -eq 'vllm') { Write-Log "Образ: $($p.image)" }
+        Write-Log (Get-Text 'planSummary' $p.model.name $p.runtime $p.acceleration $p.context)
+        Write-Log (Get-Text 'planFolder' $dir)
+        Write-Log (Get-Text 'planApi' "http://127.0.0.1:$($p.port)/v1")
+        if ($p.runtime -eq 'vllm') { Write-Log (Get-Text 'planImage' $p.image) }
         if ($p.hf_source) {
             Write-Log "Hugging Face: $($p.hf_source.repo) | $($p.hf_source.revision)"
-            Write-Log "Размер весов и конфигурации: $([Math]::Round($p.hf_source.bytes / 1GB, 2)) ГиБ"
+            Write-Log (Get-Text 'planDownload' ([Math]::Round($p.hf_source.bytes / 1GB, 2)))
         }
-        if ($p.advanced) { Write-Log 'Проф. настройки применены к плану.' }
-        Write-Log 'План готов. Запуск начнётся после нажатия «Запустить».'
+        if ($p.advanced) { Write-Log (Get-Text 'planSettings') }
+        Write-Log (Get-Text 'planReady')
     } -Data $dir -HubToken $secret -Capture
 }
 
@@ -475,7 +544,7 @@ function Show-Compose([string]$dir) {
     Start-Launcher @('inspect', '--compose', '--dir', $dir) {
         param($code, $output)
         if ($code -ne 0) { return }
-        $dialog = New-Dialog 'Детали развёртывания · Docker Compose' 820 560
+        $dialog = New-Dialog (Get-Text 'composeTitle') 820 560
         $text = [Windows.Forms.TextBox]::new()
         $text.Multiline = $true
         $text.ReadOnly = $true
@@ -489,6 +558,20 @@ function Show-Compose([string]$dir) {
     } -Capture
 }
 
+function Update-ProjectList([string]$selectedDir) {
+    $projectList.BeginUpdate()
+    try {
+        $projectList.Items.Clear()
+        foreach ($p in $script:projects) {
+            $stateKey = "state_$($p.state)"
+            $state = $p.state
+            if ($desktopStrings.PSObject.Properties[$stateKey]) { $state = Get-Text $stateKey }
+            $index = $projectList.Items.Add("[$state]  $($p.model)   |   $($p.dir)")
+            if ($p.dir -eq $selectedDir) { $projectList.SelectedIndex = $index }
+        }
+    } finally { $projectList.EndUpdate() }
+}
+
 function Read-Projects {
     Start-Launcher @('list', '--json', '--dir', $root.Text) {
         param($code, $json)
@@ -498,10 +581,8 @@ function Read-Projects {
         $script:projects = @(foreach ($project in (ConvertFrom-Json $json)) {
             if ($null -ne $project) { $project }
         })
-        $projectList.Items.Clear()
+        Update-ProjectList $old
         foreach ($p in $script:projects) {
-            $index = $projectList.Items.Add("[$($p.state)]  $($p.model)   |   $($p.dir)")
-            if ($p.dir -eq $old) { $projectList.SelectedIndex = $index }
             if ($p.error) { Write-Log "$($p.dir): $($p.error)" }
         }
     } -Capture
@@ -509,6 +590,26 @@ function Read-Projects {
 
 function Run-Project([string]$command, [string]$dir) {
     $log.Clear()
+    if ($command -in @('status', 'test')) {
+        Start-Launcher @($command, '--json', '--dir', $dir) {
+            param($code, $json, $command)
+            if (!$json) { return }
+            $result = ConvertFrom-Json $json
+            if ($command -eq 'test' -and $result.kind) {
+                $key = if ($result.ok) { 'testPassed' } else { 'testFailed' }
+                Write-Log (Get-Text $key $result.kind $result.duration_ms)
+                if ($result.output) { Write-Log $result.output }
+            } elseif ($result.project) {
+                Write-Log "$($result.project) · $($result.runtime) / $($result.model)"
+                Write-Log (Get-Text 'apiReachable' $result.endpoint (Availability $result.reachable))
+                $loaded = if ($result.model_loaded) { Get-Text 'yes' } else { Get-Text 'no' }
+                Write-Log (Get-Text 'modelLoaded' $loaded)
+                if ($result.containers) { Write-Log $result.containers }
+                if ($result.error) { Write-Log $result.error }
+            }
+        } -Data $command -Capture
+        return
+    }
     $done = {}
     if ($command -in @('up', 'down', 'delete', 'restore')) {
         $done = { param($code, $output); if ($code -eq 0) { Read-Projects } }
@@ -519,14 +620,11 @@ function Run-Project([string]$command, [string]$dir) {
 }
 
 function Invoke-Selected([string]$command) {
-    if ($projectList.SelectedIndex -lt 0) { Show-Message 'Выберите развёртывание из списка.'; return }
+    if ($projectList.SelectedIndex -lt 0) { Show-Message (Get-Text 'selectProject'); return }
     $p = $script:projects[$projectList.SelectedIndex]
     if ($p.state -eq 'invalid') { Show-Message $p.error; return }
     if ($command -eq 'inspect') { Show-Compose $p.dir; return }
-    if ($command -eq 'delete') {
-        $answer = [Windows.Forms.MessageBox]::Show($form, 'Остановить и архивировать проект? План и скачанные веса сохранятся.', 'LLM Launcher', 'YesNo', 'Question')
-        if ($answer -ne 'Yes') { return }
-    }
+    if ($command -eq 'delete' -and !(Confirm-Archive)) { return }
     Run-Project $command $p.dir
 }
 
@@ -541,7 +639,7 @@ function New-Dialog([string]$caption, [int]$width, [int]$height) {
 }
 
 function Dialog-Text($parent, [string]$label, [string]$value = '', [int]$lines = 1) {
-    [void](Add-Label $parent $label)
+    [void](Add-Label $parent $label 610)
     $field = [Windows.Forms.TextBox]::new()
     $field.Width = 610
     $field.Text = $value
@@ -559,6 +657,22 @@ function Dialog-Panel($dialog) {
     $panel
 }
 
+function Confirm-Archive {
+    $dialog = New-Dialog (Get-Text 'archive') 550 150
+    $panel = Dialog-Panel $dialog
+    [void](Add-Label $panel 'archivePrompt' 490)
+    $buttons = New-Row
+    $buttons.AutoSize = $true
+    $panel.Controls.Add($buttons)
+    $cancelArchive = Add-Button $buttons 'cancel' {}
+    $cancelArchive.DialogResult = 'Cancel'
+    $dialog.CancelButton = $cancelArchive
+    Add-DialogOK $dialog $buttons 'archive'
+    $dialog.ActiveControl = $cancelArchive
+    try { return $dialog.ShowDialog($form) -eq 'OK' }
+    finally { $dialog.Dispose() }
+}
+
 function Add-DialogOK($dialog, $panel, [string]$text) {
     $ok = Add-Button $panel $text {}
     $ok.DialogResult = 'OK'
@@ -566,10 +680,10 @@ function Add-DialogOK($dialog, $panel, [string]$text) {
 }
 
 function Edit-VLLMImage {
-    $dialog = New-Dialog 'Образ vLLM' 680 170
+    $dialog = New-Dialog (Get-Text 'imageTitle') 680 170
     $panel = Dialog-Panel $dialog
-    $image = Dialog-Text $panel 'Пусто = стандартный, latest = текущий digest, либо официальный тег или digest' $script:vllmImage
-    Add-DialogOK $dialog $panel 'Выбрать образ'
+    $image = Dialog-Text $panel 'imageHint' $script:vllmImage
+    Add-DialogOK $dialog $panel 'chooseImage'
     try {
         if ($dialog.ShowDialog($form) -eq 'OK') {
             $script:vllmImage = $image.Text.Trim()
@@ -580,16 +694,16 @@ function Edit-VLLMImage {
 
 function Edit-HubSource {
     $engine = Selected-Engine
-    $dialog = New-Dialog "Модель с Hugging Face · $engine" 680 230
+    $dialog = New-Dialog (Get-Text 'hubTitle' $engine) 680 230
     $panel = Dialog-Panel $dialog
-    $label = 'Ссылка на отдельный файл .gguf (blob/resolve, main или commit)'
-    if ($engine -eq 'vllm') { $label = 'Ссылка на репозиторий модели Safetensors (или /tree/commit)' }
+    $label = 'ggufLink'
+    if ($engine -eq 'vllm') { $label = 'safetensorsLink' }
     $initial = ''
     if ($script:hfEngine -eq $engine) { $initial = $script:hfURL }
     $link = Dialog-Text $panel $label $initial
-    $token = Dialog-Text $panel 'Токен чтения (необязательно, только на время сеанса)' $script:hfToken
+    $token = Dialog-Text $panel 'readToken' $script:hfToken
     $token.UseSystemPasswordChar = $true
-    Add-DialogOK $dialog $panel 'Использовать файл'
+    Add-DialogOK $dialog $panel 'useSource'
     try {
         if ($dialog.ShowDialog($form) -eq 'OK') {
             $script:hfURL = $link.Text.Trim()
@@ -598,62 +712,62 @@ function Edit-HubSource {
             $models.Items.Clear()
             Reset-Prepared
             $savePlan.Enabled = [bool](Hub-Selected)
-            if ($script:hfURL) { Write-Log 'Источник выбран. Кнопка «Подготовить план» проверит источник и определит размер загрузки.' }
+            if ($script:hfURL) { Write-Log (Get-Text 'sourceSelected') }
         }
     } finally { $dialog.Dispose() }
 }
 
 function Edit-Advanced {
     $key = Profile-Key
-    if (!$key) { Show-Message 'Сначала выберите модель из списка или укажите источник Hugging Face.'; return }
+    if (!$key) { Show-Message (Get-Text 'selectModelFirst'); return }
     $parts = $key -split '/', 3
     $engine, $task = $parts[0], $parts[1]
-    $dialog = New-Dialog "Проф. настройки · $engine" 690 715
+    $dialog = New-Dialog (Get-Text 'advancedTitle' $engine) 690 715
     $panel = Dialog-Panel $dialog
-    [void](Add-Label $panel 'Пустое поле сохраняет значение движка или модели.')
+    [void](Add-Label $panel 'advancedHint')
     $stored = $script:advanced[$key]
     if (!$stored) { $stored = @{} }
     $fields = [ordered]@{}
     $floats = @('temperature', 'top_p', 'min_p', 'repeat_penalty', 'presence_penalty', 'frequency_penalty', 'gpu_memory_utilization')
     if ($task -ne 'embeddings') {
-        $fields.temperature = Dialog-Text $panel 'Температура (0–2)' $stored['temperature']
-        $fields.max_tokens = Dialog-Text $panel 'Максимум токенов ответа' $stored['max_tokens']
-        $fields.top_p = Dialog-Text $panel 'Top P (0.001–1)' $stored['top_p']
-        $fields.top_k = Dialog-Text $panel 'Top K (1–1000)' $stored['top_k']
-        $fields.repeat_penalty = Dialog-Text $panel 'Штраф за повторения (0.1–3)' $stored['repeat_penalty']
-        $fields.presence_penalty = Dialog-Text $panel 'Штраф за уже встречавшиеся токены (-2–2)' $stored['presence_penalty']
-        $fields.frequency_penalty = Dialog-Text $panel 'Штраф за частоту токенов (-2–2)' $stored['frequency_penalty']
-        $fields.min_p = Dialog-Text $panel 'Min P (0–1)' $stored['min_p']
+        $fields.temperature = Dialog-Text $panel 'temperature' $stored['temperature']
+        $fields.max_tokens = Dialog-Text $panel 'maxTokens' $stored['max_tokens']
+        $fields.top_p = Dialog-Text $panel 'topP' $stored['top_p']
+        $fields.top_k = Dialog-Text $panel 'topK' $stored['top_k']
+        $fields.repeat_penalty = Dialog-Text $panel 'repeatPenalty' $stored['repeat_penalty']
+        $fields.presence_penalty = Dialog-Text $panel 'presencePenalty' $stored['presence_penalty']
+        $fields.frequency_penalty = Dialog-Text $panel 'frequencyPenalty' $stored['frequency_penalty']
+        $fields.min_p = Dialog-Text $panel 'minP' $stored['min_p']
         if ($engine -ne 'vllm') {
-            $fields.repeat_last_n = Dialog-Text $panel 'Окно повторов (-1 = контекст)' $stored['repeat_last_n']
-            $fields.seed = Dialog-Text $panel 'Seed' $stored['seed']
+            $fields.repeat_last_n = Dialog-Text $panel 'repeatWindow' $stored['repeat_last_n']
+            $fields.seed = Dialog-Text $panel 'seed' $stored['seed']
         }
         if ($engine -eq 'ollama') {
-            $fields.stop = Dialog-Text $panel 'Стоп-строки, по одной на строку' ($stored['stop'] -join [Environment]::NewLine) 2
+            $fields.stop = Dialog-Text $panel 'stopStrings' ($stored['stop'] -join [Environment]::NewLine) 2
         }
     }
     if ($engine -eq 'vllm') {
-        $fields.gpu_memory_utilization = Dialog-Text $panel 'Доля VRAM (0.01–0.95, с проверкой бюджета)' $stored['gpu_memory_utilization']
-        [void](Add-Label $panel 'Тип вычислений (dtype)')
-        $dtype = Add-Combo $panel 180 @('По умолчанию', 'auto', 'half', 'bfloat16')
+        $fields.gpu_memory_utilization = Dialog-Text $panel 'vramFraction' $stored['gpu_memory_utilization']
+        [void](Add-Label $panel 'dtype')
+        $dtype = Add-Combo $panel 180 @((Get-Text 'default'), 'auto', 'half', 'bfloat16')
         if ($stored['dtype']) { $dtype.SelectedItem = $stored['dtype'] }
         $eager = [Windows.Forms.CheckBox]::new()
         $eager.AutoSize = $true
-        $eager.Text = 'Enforce eager (без CUDA Graphs)'
+        $eager.Text = (Get-Text 'enforceEager')
         $eager.Checked = [bool]$stored['enforce_eager']
         $panel.Controls.Add($eager)
     }
     if ($engine -eq 'ollama') {
-        [void](Add-Label $panel 'Ollama: FLASH_ATTENTION, KV_CACHE_TYPE, KEEP_ALIVE, LOAD_TIMEOUT, MAX_QUEUE (префикс OLLAMA_).')
+        [void](Add-Label $panel 'ollamaEnv' 610)
     } elseif ($engine -eq 'vllm') {
-        [void](Add-Label $panel 'vLLM: VLLM_LOGGING_LEVEL (DEBUG, INFO, WARNING, ERROR).')
+        [void](Add-Label $panel 'vllmEnv')
     }
     $previousEnv = @()
     if ($stored['environment']) {
         $previousEnv = @($stored['environment'].GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" })
     }
-    $envField = Dialog-Text $panel 'Переменные без секретов: ИМЯ=значение, свои имена с префиксом LLM_USER_' ($previousEnv -join [Environment]::NewLine) 4
-    Add-DialogOK $dialog $panel 'Сохранить настройки'
+    $envField = Dialog-Text $panel 'envHint' ($previousEnv -join [Environment]::NewLine) 4
+    Add-DialogOK $dialog $panel 'saveSettings'
     try {
         if ($dialog.ShowDialog($form) -ne 'OK') { return }
         $result = @{}
@@ -664,16 +778,21 @@ function Edit-Advanced {
         foreach ($entry in $fields.GetEnumerator()) {
             $value = $entry.Value.Text.Trim()
             if (!$value) { continue }
-            if ($entry.Key -eq 'stop') { $result[$entry.Key] = @($value -split '\r?\n' | Where-Object { $_ }) }
-            elseif ($entry.Key -in $floats) { $result[$entry.Key] = [double]::Parse($value.Replace(',', '.'), [Globalization.CultureInfo]::InvariantCulture) }
-            else { $result[$entry.Key] = [int]::Parse($value, [Globalization.CultureInfo]::InvariantCulture) }
+            if ($entry.Key -eq 'stop') {
+                $result[$entry.Key] = @($value -split '\r?\n' | Where-Object { $_ })
+                continue
+            }
+            try {
+                if ($entry.Key -in $floats) { $result[$entry.Key] = [double]::Parse($value.Replace(',', '.'), [Globalization.CultureInfo]::InvariantCulture) }
+                else { $result[$entry.Key] = [int]::Parse($value, [Globalization.CultureInfo]::InvariantCulture) }
+            } catch { throw (Get-Text 'invalidNumber') }
         }
         $environment = @{}
         foreach ($line in ($envField.Text -split '\r?\n')) {
             if (!$line.Trim()) { continue }
             $parts = $line -split '=', 2
             $envName = $parts[0].Trim().ToUpperInvariant()
-            if ($parts.Count -ne 2 -or !$envName -or $environment.ContainsKey($envName)) { throw 'Проверьте строки переменных: одно уникальное ИМЯ=значение на строку.' }
+            if ($parts.Count -ne 2 -or !$envName -or $environment.ContainsKey($envName)) { throw (Get-Text 'invalidEnv') }
             $environment[$envName] = $parts[1]
         }
         if ($environment.Count) { $result.environment = $environment }
@@ -683,13 +802,41 @@ function Edit-Advanced {
     finally { $dialog.Dispose() }
 }
 
-$tabs.Add_SelectedIndexChanged({ if ($tabs.SelectedTab -eq $manage) { Read-Projects } })
+function Update-LocalizedText($control) {
+    if ($control.Tag) { $control.Text = Get-Text $control.Tag }
+    foreach ($child in $control.Controls) { Update-LocalizedText $child }
+}
+
+$languagePicker.Add_SelectedIndexChanged({
+    if ($languagePicker.SelectedIndex -lt 0) { return }
+    $script:language = $languageIDs[$languagePicker.SelectedIndex]
+    $script:changingLanguage = $true
+    try {
+        Update-LocalizedText $layout
+        $languagePicker.AccessibleName = $languageLabel.Text
+        Set-ComboItems $tasks @($taskLabels | ForEach-Object { Get-Text $_ }) $tasks.SelectedIndex
+        Set-ComboItems $engines @($engineLabels | ForEach-Object { Get-Text $_ }) $engines.SelectedIndex
+        Update-HardwareLabels $devices.SelectedIndex
+        if ($script:job) { $progress.Text = Get-Text 'running' $script:job.Command }
+        $selectedDir = ''
+        if ($projectList.SelectedIndex -ge 0) { $selectedDir = $script:projects[$projectList.SelectedIndex].dir }
+        Update-ProjectList $selectedDir
+    } finally { $script:changingLanguage = $false }
+    try {
+        [void][IO.Directory]::CreateDirectory($appDir)
+        [IO.File]::WriteAllText($languagePreference, $script:language)
+    } catch { Write-Log (Get-Text 'languageSaveError') }
+})
+
+$tabs.Add_SelectedIndexChanged({
+    if (!$script:changingLanguage -and $tabs.SelectedTab -eq $manage) { Read-Projects }
+})
 $form.Add_Shown({ Read-Hardware })
 $form.Add_FormClosing({
     param($sender, $event)
     if ($script:job) {
         $event.Cancel = $true
-        Show-Message 'Дождитесь завершения команды или нажмите «Отменить команду».'
+        Show-Message (Get-Text 'waitOrCancel')
     }
 })
 try { [Windows.Forms.Application]::Run($form) }

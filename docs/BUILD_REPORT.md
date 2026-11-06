@@ -1,5 +1,12 @@
 # Build and test results
 
+## v0.3.2
+
+- `go test ./...`, `go vet ./...`, and `bash scripts/build.sh` passed on macOS ARM64. All five binaries passed SHA-256 verification.
+- The general help and 19 command help screens were checked in the macOS ARM64 binary and in Linux ARM64 and x64 containers.
+- PowerShell parsed the embedded desktop script and translation table. With mock controls, all five languages updated the labels, retained the selected model, GPU and prepared plan, and persisted across preference reloads. A fresh or invalid preference selected English.
+- The Windows executable was cross-compiled. Visual and interactive verification in Windows WinForms remains open.
+
 ## v0.3.1
 
 - Go tests, the race detector, and `go vet` passed on macOS ARM64. All five binaries were built and verified against their checksums.

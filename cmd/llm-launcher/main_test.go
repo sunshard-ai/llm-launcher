@@ -3,13 +3,17 @@ package main
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
+	"flag"
 	"io"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
+	"unicode"
 
 	"llmlauncher/internal/catalog"
 	"llmlauncher/internal/deploy"
@@ -129,6 +133,64 @@ func TestFlagsAndMachineOutput(t *testing.T) {
 	}
 	if !strings.HasPrefix(out.String(), "{\n") || strings.Contains(out.String(), "Система:") {
 		t.Fatal("JSON output mixed with prose")
+	}
+}
+
+func TestEnglishHelp(t *testing.T) {
+	var out, errOut bytes.Buffer
+	assertEnglish := func(t *testing.T, s string) {
+		t.Helper()
+		if strings.ContainsFunc(s, func(r rune) bool { return unicode.Is(unicode.Cyrillic, r) }) {
+			t.Fatalf("help contains untranslated text:\n%s", s)
+		}
+	}
+	if err := run(context.Background(), []string{"--help"}, nil, &out, &errOut); err != nil {
+		t.Fatal(err)
+	}
+	assertEnglish(t, out.String())
+	for _, command := range strings.Fields("wizard scan doctor update catalog recommend plan hf-plan inspect list up run status test logs down delete restore gpu-check") {
+		t.Run(command, func(t *testing.T) {
+			if !strings.Contains(out.String(), command) {
+				t.Errorf("general help omits %q", command)
+			}
+			var help bytes.Buffer
+			err := run(context.Background(), []string{command, "--help"}, nil, io.Discard, &help)
+			if !errors.Is(err, flag.ErrHelp) || !strings.Contains(help.String(), "Usage: llm-launcher") {
+				t.Fatalf("expected command help, got %v and %q", err, help.String())
+			}
+			assertEnglish(t, help.String())
+		})
+	}
+}
+
+func TestDesktopTranslationsCoverSupportedLanguages(t *testing.T) {
+	data, err := os.ReadFile("desktop_strings.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var messages map[string]map[string]string
+	if err := json.Unmarshal(data, &messages); err != nil {
+		t.Fatal(err)
+	}
+	placeholders := regexp.MustCompile(`\{\d+\}`)
+	for key, translations := range messages {
+		base := placeholders.FindAllString(translations["en"], -1)
+		for _, language := range []string{"en", "de", "ru", "zh", "fr"} {
+			value := translations[language]
+			if strings.TrimSpace(value) == "" {
+				t.Errorf("%s is missing a %s translation", key, language)
+			}
+			args := placeholders.FindAllString(value, -1)
+			if len(args) != len(base) {
+				t.Errorf("%s in %s has incorrect placeholders: %v", key, language, args)
+				continue
+			}
+			for _, arg := range base {
+				if !strings.Contains(value, arg) {
+					t.Errorf("%s in %s is missing placeholder %s", key, language, arg)
+				}
+			}
+		}
 	}
 }
 

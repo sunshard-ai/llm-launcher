@@ -1,0 +1,786 @@
+{
+  "title": {
+    "en": "LLM Launcher  /  Local models",
+    "de": "LLM Launcher  /  Lokale Modelle",
+    "ru": "LLM Launcher  /  Локальные модели",
+    "zh": "LLM Launcher  /  本地模型",
+    "fr": "LLM Launcher  /  Modèles locaux"
+  },
+  "language": {
+    "en": "Language",
+    "de": "Sprache",
+    "ru": "Язык",
+    "zh": "语言",
+    "fr": "Langue"
+  },
+  "projectsFolder": {
+    "en": "Project folder",
+    "de": "Projektordner",
+    "ru": "Папка проектов",
+    "zh": "项目文件夹",
+    "fr": "Dossier des projets"
+  },
+  "browse": {
+    "en": "Browse…",
+    "de": "Auswählen…",
+    "ru": "Выбрать…",
+    "zh": "浏览…",
+    "fr": "Parcourir…"
+  },
+  "browsePrompt": {
+    "en": "Choose a folder for deployment plans.",
+    "de": "Ordner für Bereitstellungspläne auswählen.",
+    "ru": "Выберите папку для планов развёртывания.",
+    "zh": "选择用于保存部署计划的文件夹。",
+    "fr": "Choisissez un dossier pour les plans de déploiement."
+  },
+  "folderSaveError": {
+    "en": "Could not save the selected folder for next time.",
+    "de": "Der ausgewählte Ordner konnte nicht für den nächsten Start gespeichert werden.",
+    "ru": "Выбранную папку не удалось сохранить для следующего запуска.",
+    "zh": "无法保存所选文件夹以供下次使用。",
+    "fr": "Impossible de mémoriser le dossier sélectionné pour le prochain démarrage."
+  },
+  "languageSaveError": {
+    "en": "Could not save the language for next time.",
+    "de": "Die Sprache konnte nicht für den nächsten Start gespeichert werden.",
+    "ru": "Не удалось сохранить язык для следующего запуска.",
+    "zh": "无法保存语言设置以供下次使用。",
+    "fr": "Impossible de mémoriser la langue pour le prochain démarrage."
+  },
+  "setupTab": {
+    "en": "New deployment",
+    "de": "Neue Bereitstellung",
+    "ru": "Новое развёртывание",
+    "zh": "新建部署",
+    "fr": "Nouveau déploiement"
+  },
+  "manageTab": {
+    "en": "My deployments",
+    "de": "Meine Bereitstellungen",
+    "ru": "Мои развёртывания",
+    "zh": "我的部署",
+    "fr": "Mes déploiements"
+  },
+  "scan": {
+    "en": "Scan computer",
+    "de": "Computer prüfen",
+    "ru": "Сканировать компьютер",
+    "zh": "扫描电脑",
+    "fr": "Analyser le PC"
+  },
+  "updateCatalog": {
+    "en": "Update model catalog",
+    "de": "Modellkatalog aktualisieren",
+    "ru": "Обновить список моделей",
+    "zh": "更新模型目录",
+    "fr": "Actualiser le catalogue"
+  },
+  "hardware": {
+    "en": "CPU, memory, GPU, Docker",
+    "de": "CPU, Speicher, GPU, Docker",
+    "ru": "CPU, память, GPU, Docker",
+    "zh": "CPU、内存、GPU、Docker",
+    "fr": "CPU, mémoire, GPU, Docker"
+  },
+  "hardwareSummary": {
+    "en": "{0}  /  {1} GiB RAM",
+    "de": "{0}  /  {1} GiB RAM",
+    "ru": "{0}  /  {1} ГиБ RAM",
+    "zh": "{0}  /  {1} GiB 内存",
+    "fr": "{0}  /  {1} Gio de RAM"
+  },
+  "task": {
+    "en": "Task",
+    "de": "Aufgabe",
+    "ru": "Задача",
+    "zh": "任务",
+    "fr": "Tâche"
+  },
+  "taskChat": {
+    "en": "Chat and writing",
+    "de": "Chat und Texte",
+    "ru": "Чат и тексты",
+    "zh": "聊天与写作",
+    "fr": "Discussion et rédaction"
+  },
+  "taskCode": {
+    "en": "Coding",
+    "de": "Programmieren",
+    "ru": "Работа с кодом",
+    "zh": "编程",
+    "fr": "Programmation"
+  },
+  "taskRag": {
+    "en": "Context-based answers (RAG)",
+    "de": "Antworten mit Kontext (RAG)",
+    "ru": "Ответ по контексту (RAG)",
+    "zh": "基于上下文的回答 (RAG)",
+    "fr": "Réponses avec contexte (RAG)"
+  },
+  "taskEmbeddings": {
+    "en": "Search embeddings",
+    "de": "Suchvektoren",
+    "ru": "Векторы для поиска",
+    "zh": "搜索向量",
+    "fr": "Vecteurs pour la recherche"
+  },
+  "engine": {
+    "en": "Runtime",
+    "de": "Laufzeit",
+    "ru": "Движок",
+    "zh": "推理引擎",
+    "fr": "Moteur"
+  },
+  "engineAuto": {
+    "en": "Automatic (catalog)",
+    "de": "Automatisch (Katalog)",
+    "ru": "Авто (каталог)",
+    "zh": "自动（从目录选择）",
+    "fr": "Automatique (catalogue)"
+  },
+  "engineVllm": {
+    "en": "vLLM / NVIDIA (exp.)",
+    "de": "vLLM / NVIDIA (exp.)",
+    "ru": "vLLM / NVIDIA (эксп.)",
+    "zh": "vLLM / NVIDIA（实验性）",
+    "fr": "vLLM / NVIDIA (exp.)"
+  },
+  "imageButton": {
+    "en": "vLLM image…",
+    "de": "vLLM-Image…",
+    "ru": "Образ vLLM…",
+    "zh": "vLLM 镜像…",
+    "fr": "Image vLLM…"
+  },
+  "acceleration": {
+    "en": "Acceleration",
+    "de": "Beschleunigung",
+    "ru": "Ускорение",
+    "zh": "加速方式",
+    "fr": "Accélération"
+  },
+  "auto": {
+    "en": "Automatic",
+    "de": "Automatisch",
+    "ru": "Авто",
+    "zh": "自动",
+    "fr": "Automatique"
+  },
+  "gpuSummary": {
+    "en": "{0} – {1} GiB free",
+    "de": "{0} – {1} GiB frei",
+    "ru": "{0} — свободно {1} ГиБ",
+    "zh": "{0} – 可用 {1} GiB",
+    "fr": "{0} – {1} Gio libres"
+  },
+  "context": {
+    "en": "Context",
+    "de": "Kontext",
+    "ru": "Контекст",
+    "zh": "上下文",
+    "fr": "Contexte"
+  },
+  "port": {
+    "en": "Port (0 = default)",
+    "de": "Port (0 = Standard)",
+    "ru": "Порт (0 = по умолчанию)",
+    "zh": "端口（0 = 默认）",
+    "fr": "Port (0 = par défaut)"
+  },
+  "findModels": {
+    "en": "Find models",
+    "de": "Modelle suchen",
+    "ru": "Подобрать модели",
+    "zh": "查找模型",
+    "fr": "Trouver des modèles"
+  },
+  "importHf": {
+    "en": "Import from HF…",
+    "de": "HF-Import…",
+    "ru": "Импорт из HF…",
+    "zh": "从 HF 导入…",
+    "fr": "Importer de HF…"
+  },
+  "projectName": {
+    "en": "Project folder name",
+    "de": "Name des Projektordners",
+    "ru": "Имя папки проекта",
+    "zh": "项目文件夹名称",
+    "fr": "Nom du dossier"
+  },
+  "advanced": {
+    "en": "Advanced settings…",
+    "de": "Erweiterte Optionen…",
+    "ru": "Проф. настройки…",
+    "zh": "高级设置…",
+    "fr": "Paramètres avancés…"
+  },
+  "preparePlan": {
+    "en": "Prepare plan",
+    "de": "Plan vorbereiten",
+    "ru": "Подготовить план",
+    "zh": "准备计划",
+    "fr": "Préparer le plan"
+  },
+  "launchPlan": {
+    "en": "Launch plan",
+    "de": "Plan starten",
+    "ru": "Запустить план",
+    "zh": "启动计划",
+    "fr": "Lancer le plan"
+  },
+  "viewDetails": {
+    "en": "View details…",
+    "de": "Details ansehen…",
+    "ru": "Посмотреть детали…",
+    "zh": "查看详情…",
+    "fr": "Voir les détails…"
+  },
+  "refreshProjects": {
+    "en": "Refresh list",
+    "de": "Liste aktualisieren",
+    "ru": "Обновить список",
+    "zh": "刷新列表",
+    "fr": "Actualiser la liste"
+  },
+  "manageHint": {
+    "en": "Saved state. Use Status to check the API.",
+    "de": "Gespeicherter Stand. Mit „Status“ die API prüfen.",
+    "ru": "Сохранённое состояние. Для проверки API нажмите «Статус».",
+    "zh": "此处显示已保存的状态。点击“状态”检查 API。",
+    "fr": "État enregistré. Cliquez sur État pour vérifier l’API."
+  },
+  "launch": {
+    "en": "Launch",
+    "de": "Starten",
+    "ru": "Запустить",
+    "zh": "启动",
+    "fr": "Lancer"
+  },
+  "status": {
+    "en": "Status",
+    "de": "Status",
+    "ru": "Статус",
+    "zh": "状态",
+    "fr": "État"
+  },
+  "logs": {
+    "en": "Logs",
+    "de": "Protokoll",
+    "ru": "Логи",
+    "zh": "日志",
+    "fr": "Journaux"
+  },
+  "testApi": {
+    "en": "Test API",
+    "de": "API testen",
+    "ru": "Тест API",
+    "zh": "测试 API",
+    "fr": "Tester l’API"
+  },
+  "stop": {
+    "en": "Stop",
+    "de": "Stoppen",
+    "ru": "Остановить",
+    "zh": "停止",
+    "fr": "Arrêter"
+  },
+  "archive": {
+    "en": "Archive",
+    "de": "Archivieren",
+    "ru": "Архивировать",
+    "zh": "归档",
+    "fr": "Archiver"
+  },
+  "restore": {
+    "en": "Restore",
+    "de": "Wiederherstellen",
+    "ru": "Восстановить",
+    "zh": "恢复",
+    "fr": "Restaurer"
+  },
+  "details": {
+    "en": "Details…",
+    "de": "Details…",
+    "ru": "Детали…",
+    "zh": "详情…",
+    "fr": "Détails…"
+  },
+  "journal": {
+    "en": "Activity and diagnostics",
+    "de": "Aktivität und Diagnose",
+    "ru": "Журнал и диагностика",
+    "zh": "操作与诊断",
+    "fr": "Activité et diagnostic"
+  },
+  "cancelCommand": {
+    "en": "Cancel command",
+    "de": "Befehl abbrechen",
+    "ru": "Отменить команду",
+    "zh": "取消命令",
+    "fr": "Annuler la commande"
+  },
+  "cancel": {
+    "en": "Cancel",
+    "de": "Abbrechen",
+    "ru": "Отмена",
+    "zh": "取消",
+    "fr": "Annuler"
+  },
+  "idle": {
+    "en": "Ready",
+    "de": "Bereit",
+    "ru": "Готово к работе",
+    "zh": "就绪",
+    "fr": "Prêt"
+  },
+  "running": {
+    "en": "Running {0}…",
+    "de": "{0} läuft…",
+    "ru": "Выполняется: {0}…",
+    "zh": "正在执行 {0}…",
+    "fr": "Exécution de {0}…"
+  },
+  "completed": {
+    "en": "Command completed",
+    "de": "Befehl abgeschlossen",
+    "ru": "Команда завершена",
+    "zh": "命令已完成",
+    "fr": "Commande terminée"
+  },
+  "failed": {
+    "en": "Command failed. See diagnostics.",
+    "de": "Befehl fehlgeschlagen. Siehe Diagnose.",
+    "ru": "Команда завершилась с ошибкой. См. журнал.",
+    "zh": "命令执行失败。请查看诊断信息。",
+    "fr": "La commande a échoué. Consultez le journal."
+  },
+  "dockerSummary": {
+    "en": "Docker: {0} · Compose: {1} · Docker RAM: {2} GiB",
+    "de": "Docker: {0} · Compose: {1} · Docker-RAM: {2} GiB",
+    "ru": "Docker: {0} · Compose: {1} · RAM Docker: {2} ГиБ",
+    "zh": "Docker：{0} · Compose：{1} · Docker 内存：{2} GiB",
+    "fr": "Docker : {0} · Compose : {1} · RAM Docker : {2} Gio"
+  },
+  "available": {
+    "en": "available",
+    "de": "verfügbar",
+    "ru": "доступно",
+    "zh": "可用",
+    "fr": "disponible"
+  },
+  "unavailable": {
+    "en": "unavailable",
+    "de": "nicht verfügbar",
+    "ru": "недоступно",
+    "zh": "不可用",
+    "fr": "indisponible"
+  },
+  "noModels": {
+    "en": "No models match these settings. See diagnostics for details.",
+    "de": "Keine passenden Modelle. Weitere Informationen stehen in der Diagnose.",
+    "ru": "Подходящих моделей нет. Подробности в журнале.",
+    "zh": "没有符合当前设置的模型。详情见诊断信息。",
+    "fr": "Aucun modèle compatible. Consultez le journal pour les détails."
+  },
+  "vllmNeedsGpu": {
+    "en": "Select an NVIDIA GPU or Automatic for vLLM.",
+    "de": "Für vLLM eine NVIDIA-GPU oder „Automatisch“ auswählen.",
+    "ru": "Для vLLM выберите NVIDIA GPU или «Авто».",
+    "zh": "vLLM 需要选择 NVIDIA GPU 或“自动”。",
+    "fr": "Pour vLLM, choisissez un GPU NVIDIA ou Automatique."
+  },
+  "invalidFolderName": {
+    "en": "Use up to 64 Latin letters, digits, hyphens, or underscores. Start with a letter or digit and avoid Windows reserved names.",
+    "de": "Bis zu 64 lateinische Buchstaben, Ziffern, Binde- oder Unterstriche. Mit einem Buchstaben oder einer Ziffer beginnen und reservierte Windows-Namen meiden.",
+    "ru": "Используйте до 64 латинских букв, цифр, дефисов или подчёркиваний. Начните с буквы или цифры и избегайте зарезервированных имён Windows.",
+    "zh": "最多使用 64 个拉丁字母、数字、连字符或下划线。请以字母或数字开头，并避开 Windows 保留名称。",
+    "fr": "Utilisez jusqu’à 64 lettres latines, chiffres, tirets ou tirets bas. Commencez par une lettre ou un chiffre et évitez les noms réservés par Windows."
+  },
+  "planSummary": {
+    "en": "{0} · {1} / {2} · {3} token context",
+    "de": "{0} · {1} / {2} · Kontext: {3} Token",
+    "ru": "{0} · {1} / {2} · контекст: {3} токенов",
+    "zh": "{0} · {1} / {2} · 上下文：{3} 个词元",
+    "fr": "{0} · {1} / {2} · contexte de {3} jetons"
+  },
+  "planFolder": {
+    "en": "Folder: {0}",
+    "de": "Ordner: {0}",
+    "ru": "Папка: {0}",
+    "zh": "文件夹：{0}",
+    "fr": "Dossier : {0}"
+  },
+  "planApi": {
+    "en": "API after launch: {0}",
+    "de": "API nach dem Start: {0}",
+    "ru": "API после запуска: {0}",
+    "zh": "启动后的 API：{0}",
+    "fr": "API après lancement : {0}"
+  },
+  "planImage": {
+    "en": "Image: {0}",
+    "de": "Image: {0}",
+    "ru": "Образ: {0}",
+    "zh": "镜像：{0}",
+    "fr": "Image : {0}"
+  },
+  "planDownload": {
+    "en": "Weights and configuration: {0} GiB",
+    "de": "Gewichte und Konfiguration: {0} GiB",
+    "ru": "Размер весов и конфигурации: {0} ГиБ",
+    "zh": "权重和配置：{0} GiB",
+    "fr": "Poids et configuration : {0} Gio"
+  },
+  "planSettings": {
+    "en": "The plan includes your advanced settings.",
+    "de": "Der Plan enthält die erweiterten Einstellungen.",
+    "ru": "Проф. настройки применены к плану.",
+    "zh": "计划已包含你的高级设置。",
+    "fr": "Le plan comprend vos paramètres avancés."
+  },
+  "planReady": {
+    "en": "Plan ready. Click Launch plan to start.",
+    "de": "Plan bereit. Zum Starten auf „Plan starten“ klicken.",
+    "ru": "План готов. Нажмите «Запустить план» для запуска.",
+    "zh": "计划已就绪。点击“启动计划”开始部署。",
+    "fr": "Plan prêt. Cliquez sur Lancer le plan pour démarrer."
+  },
+  "composeTitle": {
+    "en": "Deployment details · Docker Compose",
+    "de": "Bereitstellungsdetails · Docker Compose",
+    "ru": "Детали развёртывания · Docker Compose",
+    "zh": "部署详情 · Docker Compose",
+    "fr": "Détails du déploiement · Docker Compose"
+  },
+  "state_planned": {
+    "en": "Planned",
+    "de": "Geplant",
+    "ru": "Запланировано",
+    "zh": "已计划",
+    "fr": "Planifié"
+  },
+  "state_ready": {
+    "en": "Ready",
+    "de": "Bereit",
+    "ru": "Готово",
+    "zh": "就绪",
+    "fr": "Prêt"
+  },
+  "state_stopped": {
+    "en": "Stopped",
+    "de": "Gestoppt",
+    "ru": "Остановлено",
+    "zh": "已停止",
+    "fr": "Arrêté"
+  },
+  "state_archived": {
+    "en": "Archived",
+    "de": "Archiviert",
+    "ru": "В архиве",
+    "zh": "已归档",
+    "fr": "Archivé"
+  },
+  "state_invalid": {
+    "en": "Invalid",
+    "de": "Ungültig",
+    "ru": "Ошибка плана",
+    "zh": "无效",
+    "fr": "Invalide"
+  },
+  "selectProject": {
+    "en": "Select a deployment from the list.",
+    "de": "Eine Bereitstellung aus der Liste auswählen.",
+    "ru": "Выберите развёртывание из списка.",
+    "zh": "请从列表中选择一个部署。",
+    "fr": "Sélectionnez un déploiement dans la liste."
+  },
+  "archivePrompt": {
+    "en": "Stop and archive this deployment? The plan and downloaded weights will be kept.",
+    "de": "Diese Bereitstellung stoppen und archivieren? Der Plan und die heruntergeladenen Gewichte bleiben erhalten.",
+    "ru": "Остановить и архивировать проект? План и скачанные веса сохранятся.",
+    "zh": "停止并归档此部署？部署计划和已下载的权重将保留。",
+    "fr": "Arrêter et archiver ce déploiement ? Le plan et les poids téléchargés seront conservés."
+  },
+  "imageTitle": {
+    "en": "vLLM image",
+    "de": "vLLM-Image",
+    "ru": "Образ vLLM",
+    "zh": "vLLM 镜像",
+    "fr": "Image vLLM"
+  },
+  "imageHint": {
+    "en": "Leave blank for the default, or enter an official tag, digest, or latest.",
+    "de": "Leer lassen oder offizielles Tag, Digest oder latest eingeben.",
+    "ru": "Оставьте пустым для стандартного образа или укажите официальный тег, digest либо latest.",
+    "zh": "留空使用默认镜像，或输入官方标签、摘要或 latest。",
+    "fr": "Laissez vide pour l’image par défaut ou saisissez un tag officiel, un digest ou latest."
+  },
+  "chooseImage": {
+    "en": "Choose image",
+    "de": "Image auswählen",
+    "ru": "Выбрать образ",
+    "zh": "选择镜像",
+    "fr": "Choisir l’image"
+  },
+  "hubTitle": {
+    "en": "Hugging Face model · {0}",
+    "de": "Hugging-Face-Modell · {0}",
+    "ru": "Модель с Hugging Face · {0}",
+    "zh": "Hugging Face 模型 · {0}",
+    "fr": "Modèle Hugging Face · {0}"
+  },
+  "ggufLink": {
+    "en": "URL of one .gguf file (blob/resolve, main or commit)",
+    "de": "URL einer .gguf-Datei (blob/resolve, main oder Commit)",
+    "ru": "Ссылка на отдельный файл .gguf (blob/resolve, main или commit)",
+    "zh": "单个 .gguf 文件的链接（blob/resolve、main 或提交）",
+    "fr": "URL d’un fichier .gguf (blob/resolve, main ou commit)"
+  },
+  "safetensorsLink": {
+    "en": "URL of a Safetensors model repository (or /tree/commit)",
+    "de": "URL eines Safetensors-Modellrepositorys (oder /tree/commit)",
+    "ru": "Ссылка на репозиторий модели Safetensors (или /tree/commit)",
+    "zh": "Safetensors 模型仓库链接（也支持 /tree/commit）",
+    "fr": "URL d’un dépôt de modèle Safetensors (ou /tree/commit)"
+  },
+  "readToken": {
+    "en": "Read token (optional, for this session only)",
+    "de": "Lese-Token (optional, nur für diese Sitzung)",
+    "ru": "Токен чтения (необязательно, только на время сеанса)",
+    "zh": "读取令牌（可选，仅用于本次会话）",
+    "fr": "Jeton de lecture (facultatif, pour cette session)"
+  },
+  "useSource": {
+    "en": "Use source",
+    "de": "Quelle verwenden",
+    "ru": "Использовать источник",
+    "zh": "使用此来源",
+    "fr": "Utiliser la source"
+  },
+  "sourceSelected": {
+    "en": "Source selected. Prepare plan checks the source and estimates the download size.",
+    "de": "Quelle ausgewählt. „Plan vorbereiten“ prüft die Quelle und schätzt die Downloadgröße.",
+    "ru": "Источник выбран. Кнопка «Подготовить план» проверит источник и определит размер загрузки.",
+    "zh": "来源已选定。点击“准备计划”验证来源并估算下载大小。",
+    "fr": "Source sélectionnée. Préparer le plan vérifie la source et estime la taille du téléchargement."
+  },
+  "selectModelFirst": {
+    "en": "Select a model or specify a Hugging Face source first.",
+    "de": "Zuerst ein Modell auswählen oder eine Hugging-Face-Quelle angeben.",
+    "ru": "Сначала выберите модель из списка или укажите источник Hugging Face.",
+    "zh": "请先选择模型或指定 Hugging Face 来源。",
+    "fr": "Sélectionnez d’abord un modèle ou indiquez une source Hugging Face."
+  },
+  "advancedTitle": {
+    "en": "Advanced settings · {0}",
+    "de": "Erweiterte Optionen · {0}",
+    "ru": "Проф. настройки · {0}",
+    "zh": "高级设置 · {0}",
+    "fr": "Paramètres avancés · {0}"
+  },
+  "advancedHint": {
+    "en": "Leave a field blank to use the runtime or model default.",
+    "de": "Leere Felder übernehmen den Standard der Laufzeit oder des Modells.",
+    "ru": "Пустое поле сохраняет значение движка или модели.",
+    "zh": "留空时使用引擎或模型的默认值。",
+    "fr": "Laissez un champ vide pour utiliser la valeur par défaut du moteur ou du modèle."
+  },
+  "temperature": {
+    "en": "Temperature (0–2)",
+    "de": "Temperatur (0–2)",
+    "ru": "Температура (0–2)",
+    "zh": "温度 (0–2)",
+    "fr": "Température (0–2)"
+  },
+  "maxTokens": {
+    "en": "Maximum response tokens",
+    "de": "Maximale Antwortlänge in Token",
+    "ru": "Максимум токенов ответа",
+    "zh": "最大回复词元数",
+    "fr": "Nombre maximal de jetons de réponse"
+  },
+  "repeatPenalty": {
+    "en": "Repetition penalty (0.1–3)",
+    "de": "Wiederholungsstrafe (0.1–3)",
+    "ru": "Штраф за повторения (0.1–3)",
+    "zh": "重复惩罚 (0.1–3)",
+    "fr": "Pénalité de répétition (0.1–3)"
+  },
+  "presencePenalty": {
+    "en": "Presence penalty (-2 to 2)",
+    "de": "Präsenzstrafe (-2 bis 2)",
+    "ru": "Штраф за уже встречавшиеся токены (от -2 до 2)",
+    "zh": "存在惩罚 (-2 至 2)",
+    "fr": "Pénalité de présence (-2 à 2)"
+  },
+  "frequencyPenalty": {
+    "en": "Frequency penalty (-2 to 2)",
+    "de": "Häufigkeitsstrafe (-2 bis 2)",
+    "ru": "Штраф за частоту токенов (от -2 до 2)",
+    "zh": "频率惩罚 (-2 至 2)",
+    "fr": "Pénalité de fréquence (-2 à 2)"
+  },
+  "repeatWindow": {
+    "en": "Repetition window (-1 = context)",
+    "de": "Wiederholungsfenster (-1 = Kontext)",
+    "ru": "Окно повторов (-1 = контекст)",
+    "zh": "重复检测窗口（-1 = 上下文）",
+    "fr": "Fenêtre de répétition (-1 = contexte)"
+  },
+  "seed": {
+    "en": "Random seed",
+    "de": "Zufalls-Seed",
+    "ru": "Начальное значение (seed)",
+    "zh": "随机种子",
+    "fr": "Graine aléatoire"
+  },
+  "stopStrings": {
+    "en": "Stop strings, one per line",
+    "de": "Stoppsequenzen, eine pro Zeile",
+    "ru": "Стоп-строки, по одной на строку",
+    "zh": "停止字符串，每行一条",
+    "fr": "Séquences d’arrêt, une par ligne"
+  },
+  "vramFraction": {
+    "en": "VRAM fraction (0.01–0.95, subject to memory checks)",
+    "de": "VRAM-Anteil (0.01–0.95, mit Speicherprüfung)",
+    "ru": "Доля VRAM (0.01–0.95, с проверкой бюджета)",
+    "zh": "显存使用比例（0.01–0.95，需通过显存检查）",
+    "fr": "Fraction de VRAM (0.01–0.95, selon la mémoire disponible)"
+  },
+  "dtype": {
+    "en": "Compute data type (dtype)",
+    "de": "Datentyp für Berechnungen (dtype)",
+    "ru": "Тип вычислений (dtype)",
+    "zh": "计算数据类型 (dtype)",
+    "fr": "Type de données de calcul (dtype)"
+  },
+  "default": {
+    "en": "Default",
+    "de": "Standard",
+    "ru": "По умолчанию",
+    "zh": "默认",
+    "fr": "Par défaut"
+  },
+  "enforceEager": {
+    "en": "Enforce eager mode (disable CUDA Graphs)",
+    "de": "Eager-Modus erzwingen (CUDA Graphs deaktivieren)",
+    "ru": "Принудительный eager-режим (отключить CUDA Graphs)",
+    "zh": "强制即时执行模式（禁用 CUDA Graphs）",
+    "fr": "Forcer le mode eager (désactiver CUDA Graphs)"
+  },
+  "ollamaEnv": {
+    "en": "Ollama variables: FLASH_ATTENTION, KV_CACHE_TYPE, KEEP_ALIVE, LOAD_TIMEOUT, MAX_QUEUE (prefix OLLAMA_).",
+    "de": "Ollama-Variablen: FLASH_ATTENTION, KV_CACHE_TYPE, KEEP_ALIVE, LOAD_TIMEOUT, MAX_QUEUE (Präfix OLLAMA_).",
+    "ru": "Переменные Ollama: FLASH_ATTENTION, KV_CACHE_TYPE, KEEP_ALIVE, LOAD_TIMEOUT, MAX_QUEUE (префикс OLLAMA_).",
+    "zh": "Ollama 变量：FLASH_ATTENTION、KV_CACHE_TYPE、KEEP_ALIVE、LOAD_TIMEOUT、MAX_QUEUE（前缀 OLLAMA_）。",
+    "fr": "Variables Ollama : FLASH_ATTENTION, KV_CACHE_TYPE, KEEP_ALIVE, LOAD_TIMEOUT, MAX_QUEUE (préfixe OLLAMA_)."
+  },
+  "envHint": {
+    "en": "Non-secret variables: NAME=value. Prefix custom names with LLM_USER_.",
+    "de": "Variablen ohne Geheimnisse: NAME=Wert. Eigene Namen mit LLM_USER_ beginnen.",
+    "ru": "Переменные без секретов: ИМЯ=значение. Свои имена начинайте с LLM_USER_.",
+    "zh": "非敏感变量：名称=值。自定义名称请使用 LLM_USER_ 前缀。",
+    "fr": "Variables sans secrets : NOM=valeur. Préfixez les noms personnalisés par LLM_USER_."
+  },
+  "saveSettings": {
+    "en": "Save settings",
+    "de": "Einstellungen speichern",
+    "ru": "Сохранить настройки",
+    "zh": "保存设置",
+    "fr": "Enregistrer les paramètres"
+  },
+  "invalidEnv": {
+    "en": "Use one unique NAME=value entry per line.",
+    "de": "Pro Zeile einen eindeutigen Eintrag NAME=Wert angeben.",
+    "ru": "Укажите одно уникальное ИМЯ=значение на строку.",
+    "zh": "每行输入一条名称唯一的“名称=值”。",
+    "fr": "Saisissez une seule entrée NOM=valeur par ligne, avec un nom unique."
+  },
+  "invalidNumber": {
+    "en": "Enter a valid number for each numeric setting.",
+    "de": "Für jede numerische Einstellung eine gültige Zahl eingeben.",
+    "ru": "Проверьте числа в настройках.",
+    "zh": "请为每项数值设置输入有效的数字。",
+    "fr": "Saisissez un nombre valide pour chaque paramètre numérique."
+  },
+  "waitOrCancel": {
+    "en": "Wait for the command to finish or click Cancel command.",
+    "de": "Auf das Ende des Befehls warten oder auf „Befehl abbrechen“ klicken.",
+    "ru": "Дождитесь завершения команды или нажмите «Отменить команду».",
+    "zh": "请等待命令完成，或点击“取消命令”。",
+    "fr": "Attendez la fin de la commande ou cliquez sur Annuler la commande."
+  },
+  "apiReachable": {
+    "en": "API at {0}: {1}",
+    "de": "API unter {0}: {1}",
+    "ru": "API по адресу {0}: {1}",
+    "zh": "API 地址 {0}：{1}",
+    "fr": "API à l’adresse {0} : {1}"
+  },
+  "modelLoaded": {
+    "en": "Model loaded: {0}",
+    "de": "Modell geladen: {0}",
+    "ru": "Модель загружена: {0}",
+    "zh": "模型已加载：{0}",
+    "fr": "Modèle chargé : {0}"
+  },
+  "yes": {
+    "en": "Yes",
+    "de": "Ja",
+    "ru": "Да",
+    "zh": "是",
+    "fr": "Oui"
+  },
+  "no": {
+    "en": "No",
+    "de": "Nein",
+    "ru": "Нет",
+    "zh": "否",
+    "fr": "Non"
+  },
+  "testPassed": {
+    "en": "Model API test passed ({0}, {1} ms).",
+    "de": "Modell-API-Test erfolgreich ({0}, {1} ms).",
+    "ru": "Тест API модели пройден ({0}, {1} мс).",
+    "zh": "模型 API 测试通过（{0}，{1} 毫秒）。",
+    "fr": "Test de l’API du modèle réussi ({0}, {1} ms)."
+  },
+  "testFailed": {
+    "en": "Model API test failed ({0}, {1} ms).",
+    "de": "Modell-API-Test fehlgeschlagen ({0}, {1} ms).",
+    "ru": "Тест API модели не пройден ({0}, {1} мс).",
+    "zh": "模型 API 测试失败（{0}，{1} 毫秒）。",
+    "fr": "Échec du test de l’API du modèle ({0}, {1} ms)."
+  },
+  "topP": {
+    "en": "Top P (0.001–1)",
+    "de": "Top P (0.001–1)",
+    "ru": "Top P (0.001–1)",
+    "zh": "Top P (0.001–1)",
+    "fr": "Top P (0.001–1)"
+  },
+  "topK": {
+    "en": "Top K (1–1000)",
+    "de": "Top K (1–1000)",
+    "ru": "Top K (1–1000)",
+    "zh": "Top K (1–1000)",
+    "fr": "Top K (1–1000)"
+  },
+  "minP": {
+    "en": "Min P (0–1)",
+    "de": "Min P (0–1)",
+    "ru": "Min P (0–1)",
+    "zh": "Min P (0–1)",
+    "fr": "Min P (0–1)"
+  },
+  "vllmEnv": {
+    "en": "vLLM: VLLM_LOGGING_LEVEL (DEBUG, INFO, WARNING, ERROR).",
+    "de": "vLLM: VLLM_LOGGING_LEVEL (DEBUG, INFO, WARNING, ERROR).",
+    "ru": "vLLM: VLLM_LOGGING_LEVEL (DEBUG, INFO, WARNING, ERROR).",
+    "zh": "vLLM: VLLM_LOGGING_LEVEL (DEBUG, INFO, WARNING, ERROR).",
+    "fr": "vLLM: VLLM_LOGGING_LEVEL (DEBUG, INFO, WARNING, ERROR)."
+  }
+}

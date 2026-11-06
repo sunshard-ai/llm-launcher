@@ -13,6 +13,12 @@ bash scripts/build.sh
 
 Use `powershell -File scripts/build.ps1` on Windows. The scripts produce four CLI binaries and the Windows desktop executable in `dist/`. Add `go test -race ./...` where the host toolchain supports it.
 
+## Verify interface languages
+
+- Run `--help` and `hf-plan --help` on the Linux and macOS binaries and check that the command and flag descriptions are in English.
+- On Windows, launch the desktop app with a fresh user profile and confirm it opens in English. Switch through all five languages and check both tabs, the GPU list, the Hugging Face and advanced settings dialogs, and the archive confirmation.
+- Prepare a plan, change the language, and confirm that the selected options and **Launch plan** are still available. Close and reopen the app and verify it remembers the selected language.
+
 ## Review a plan without downloading weights
 
 ```bash
@@ -46,8 +52,8 @@ Add notes at `docs/releases/vMAJOR.MINOR.PATCH.md`. A tag push runs the **Releas
 To produce the same set of assets locally:
 
 ```bash
-bash scripts/package-release.sh v0.3.1
-(cd dist/release/v0.3.1 && shasum -a 256 -c SHA256SUMS.txt)
+bash scripts/package-release.sh v0.3.2
+(cd dist/release/v0.3.2 && shasum -a 256 -c SHA256SUMS.txt)
 ```
 
 The source archive and binaries are built from the tagged commit. The workflow attaches them and their checksums to the GitHub Release. The launcher fetches catalog updates separately from `main`. Manual runs take the release description from the selected workflow branch. [GitHub workflow dispatch](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflow_dispatch)
