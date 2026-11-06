@@ -1,0 +1,1386 @@
+{
+  "schema_version": 2,
+  "updated": "2026-11-07",
+  "runtimes": {
+    "ollama": "ollama/ollama:0.40.14",
+    "vllm": "vllm/vllm-openai@sha256:befccf0e7e4089aa23926bb6f887a85c0d46c2a99e6de5c5ffdf5cb7957c5b34",
+    "llama.cpp": "ghcr.io/ggml-org/llama.cpp@sha256:502fde462776339020cec39425525e9ce78f17cd9f7b14123f55f5197b1da00a"
+  },
+  "models": [
+    {
+      "id": "ollama-qwen25-0.5b",
+      "name": "Qwen2.5 0.5B Q4_K_M",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "ollama",
+      "ref": "qwen2.5:0.5b-instruct-q4_K_M",
+      "parameters_b": 0.49,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 2,
+      "min_vram_gib": 1.8,
+      "disk_gib": 2,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://ollama.com/library/qwen2.5:0.5b-instruct-q4_K_M"
+    },
+    {
+      "id": "ollama-qwen25-1.5b",
+      "name": "Qwen2.5 1.5B Q4_K_M",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "ollama",
+      "ref": "qwen2.5:1.5b-instruct-q4_K_M",
+      "parameters_b": 1.54,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 3,
+      "min_vram_gib": 3,
+      "disk_gib": 3,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://ollama.com/library/qwen2.5:1.5b-instruct-q4_K_M"
+    },
+    {
+      "id": "ollama-qwen25-7b",
+      "name": "Qwen2.5 7B Q4_K_M",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "ollama",
+      "ref": "qwen2.5:7b-instruct-q4_K_M",
+      "parameters_b": 7.62,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 7,
+      "min_vram_gib": 6.5,
+      "disk_gib": 10,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://ollama.com/library/qwen2.5:7b-instruct-q4_K_M"
+    },
+    {
+      "id": "ollama-qwen25-14b",
+      "name": "Qwen2.5 14B Q4_K_M",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "ollama",
+      "ref": "qwen2.5:14b-instruct-q4_K_M",
+      "parameters_b": 14.7,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 12,
+      "min_vram_gib": 11.5,
+      "disk_gib": 19,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://ollama.com/library/qwen2.5:14b-instruct-q4_K_M"
+    },
+    {
+      "id": "ollama-qwen25-32b",
+      "name": "Qwen2.5 32B Q4_K_M",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "ollama",
+      "ref": "qwen2.5:32b-instruct-q4_K_M",
+      "parameters_b": 32.5,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 26,
+      "min_vram_gib": 25,
+      "disk_gib": 42,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://ollama.com/library/qwen2.5:32b-instruct-q4_K_M"
+    },
+    {
+      "id": "ollama-qwen25-coder-0.5b",
+      "name": "Qwen2.5 Coder 0.5B Q4_K_M",
+      "tasks": [
+        "code"
+      ],
+      "runtime": "ollama",
+      "ref": "qwen2.5-coder:0.5b-instruct-q4_K_M",
+      "parameters_b": 0.49,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 2,
+      "min_vram_gib": 1.8,
+      "disk_gib": 1,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://ollama.com/library/qwen2.5-coder:0.5b-instruct-q4_K_M"
+    },
+    {
+      "id": "ollama-qwen25-coder-1.5b",
+      "name": "Qwen2.5 Coder 1.5B Q4_K_M",
+      "tasks": [
+        "code"
+      ],
+      "runtime": "ollama",
+      "ref": "qwen2.5-coder:1.5b-instruct-q4_K_M",
+      "parameters_b": 1.54,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 3,
+      "min_vram_gib": 3,
+      "disk_gib": 3,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://ollama.com/library/qwen2.5-coder:1.5b-instruct-q4_K_M"
+    },
+    {
+      "id": "ollama-qwen25-coder-7b",
+      "name": "Qwen2.5 Coder 7B Q4_K_M",
+      "tasks": [
+        "code"
+      ],
+      "runtime": "ollama",
+      "ref": "qwen2.5-coder:7b-instruct-q4_K_M",
+      "parameters_b": 7.62,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 7,
+      "min_vram_gib": 6.5,
+      "disk_gib": 10,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://ollama.com/library/qwen2.5-coder:7b-instruct-q4_K_M"
+    },
+    {
+      "id": "ollama-qwen25-coder-14b",
+      "name": "Qwen2.5 Coder 14B Q4_K_M",
+      "tasks": [
+        "code"
+      ],
+      "runtime": "ollama",
+      "ref": "qwen2.5-coder:14b-instruct-q4_K_M",
+      "parameters_b": 14.7,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 12,
+      "min_vram_gib": 11.5,
+      "disk_gib": 19,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://ollama.com/library/qwen2.5-coder:14b-instruct-q4_K_M"
+    },
+    {
+      "id": "ollama-qwen25-coder-32b",
+      "name": "Qwen2.5 Coder 32B Q4_K_M",
+      "tasks": [
+        "code"
+      ],
+      "runtime": "ollama",
+      "ref": "qwen2.5-coder:32b-instruct-q4_K_M",
+      "parameters_b": 32.5,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 26,
+      "min_vram_gib": 25,
+      "disk_gib": 42,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://ollama.com/library/qwen2.5-coder:32b-instruct-q4_K_M"
+    },
+    {
+      "id": "ollama-bge-m3",
+      "name": "BGE-M3 multilingual embeddings",
+      "tasks": [
+        "embeddings"
+      ],
+      "runtime": "ollama",
+      "ref": "bge-m3:567m",
+      "parameters_b": 0.567,
+      "quantization": "F16",
+      "min_ram_gib": 3,
+      "min_vram_gib": 3,
+      "disk_gib": 4,
+      "context": 8192,
+      "license": "MIT",
+      "url": "https://ollama.com/library/bge-m3:567m"
+    },
+    {
+      "id": "vllm-qwen25-1.5b",
+      "name": "Qwen2.5-1.5B-Instruct",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "vllm",
+      "ref": "Qwen/Qwen2.5-1.5B-Instruct",
+      "parameters_b": 1.54,
+      "quantization": "FP16",
+      "min_ram_gib": 6,
+      "min_vram_gib": 5,
+      "disk_gib": 8,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct"
+    },
+    {
+      "id": "vllm-qwen25-7b-awq",
+      "name": "Qwen2.5-7B-Instruct-AWQ",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "vllm",
+      "ref": "Qwen/Qwen2.5-7B-Instruct-AWQ",
+      "parameters_b": 7.62,
+      "quantization": "AWQ",
+      "min_ram_gib": 8,
+      "min_vram_gib": 8,
+      "disk_gib": 13,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://huggingface.co/Qwen/Qwen2.5-7B-Instruct-AWQ",
+      "revision": "b25037543e9394b818fdfca67ab2a00ecc7dd641"
+    },
+    {
+      "id": "vllm-qwen25-14b-awq",
+      "name": "Qwen2.5-14B-Instruct-AWQ",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "vllm",
+      "ref": "Qwen/Qwen2.5-14B-Instruct-AWQ",
+      "parameters_b": 14.7,
+      "quantization": "AWQ",
+      "min_ram_gib": 12,
+      "min_vram_gib": 14,
+      "disk_gib": 23,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://huggingface.co/Qwen/Qwen2.5-14B-Instruct-AWQ"
+    },
+    {
+      "id": "vllm-qwen25-coder-7b-awq",
+      "name": "Qwen2.5-Coder-7B-Instruct-AWQ",
+      "tasks": [
+        "code"
+      ],
+      "runtime": "vllm",
+      "ref": "Qwen/Qwen2.5-Coder-7B-Instruct-AWQ",
+      "parameters_b": 7.62,
+      "quantization": "AWQ",
+      "min_ram_gib": 8,
+      "min_vram_gib": 8,
+      "disk_gib": 13,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct-AWQ"
+    },
+    {
+      "id": "ollama-mistral-7b-v03",
+      "name": "Mistral 7B Instruct v0.3 Q4_K_M",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "ollama",
+      "ref": "mistral:7b-instruct-v0.3-q4_K_M",
+      "parameters_b": 7.25,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 7,
+      "min_vram_gib": 6.5,
+      "disk_gib": 7,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://ollama.com/library/mistral:7b-instruct-v0.3-q4_K_M"
+    },
+    {
+      "id": "ollama-llama32-3b",
+      "name": "Llama 3.2 3B Instruct Q4_K_M",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "ollama",
+      "ref": "llama3.2:3b-instruct-q4_K_M",
+      "parameters_b": 3.21,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 4,
+      "min_vram_gib": 3.5,
+      "disk_gib": 4,
+      "context": 32768,
+      "license": "llama3.2",
+      "url": "https://ollama.com/library/llama3.2:3b-instruct-q4_K_M"
+    },
+    {
+      "id": "ollama-deepseek-r1-0528-8b",
+      "name": "DeepSeek R1 0528 Qwen3 8B Q4_K_M",
+      "tasks": [
+        "chat",
+        "code"
+      ],
+      "runtime": "ollama",
+      "ref": "deepseek-r1:8b-0528-qwen3-q4_K_M",
+      "parameters_b": 8.19,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 8,
+      "min_vram_gib": 8,
+      "disk_gib": 8,
+      "context": 32768,
+      "license": "MIT",
+      "url": "https://ollama.com/library/deepseek-r1:8b-0528-qwen3-q4_K_M"
+    },
+    {
+      "id": "ollama-qwen3-0.6b",
+      "name": "Qwen3 0.6B Q4_K_M",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "ollama",
+      "ref": "qwen3:0.6b-q4_K_M",
+      "parameters_b": 0.6,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 2,
+      "min_vram_gib": 1.8,
+      "disk_gib": 1,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://ollama.com/library/qwen3:0.6b-q4_K_M"
+    },
+    {
+      "id": "ollama-qwen3-1.7b",
+      "name": "Qwen3 1.7B Q4_K_M",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "ollama",
+      "ref": "qwen3:1.7b-q4_K_M",
+      "parameters_b": 1.7,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 3,
+      "min_vram_gib": 2.6,
+      "disk_gib": 2,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://ollama.com/library/qwen3:1.7b-q4_K_M"
+    },
+    {
+      "id": "ollama-qwen3-4b-instruct",
+      "name": "Qwen3 4B Instruct 2507 Q4_K_M",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "ollama",
+      "ref": "qwen3:4b-instruct-2507-q4_K_M",
+      "parameters_b": 4,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 4,
+      "min_vram_gib": 3.9,
+      "disk_gib": 3,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://ollama.com/library/qwen3:4b-instruct-2507-q4_K_M"
+    },
+    {
+      "id": "ollama-qwen3-8b",
+      "name": "Qwen3 8B Q4_K_M",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "ollama",
+      "ref": "qwen3:8b-q4_K_M",
+      "parameters_b": 8.2,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 7,
+      "min_vram_gib": 7.5,
+      "disk_gib": 5,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://ollama.com/library/qwen3:8b-q4_K_M"
+    },
+    {
+      "id": "ollama-qwen3-14b",
+      "name": "Qwen3 14B Q4_K_M",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "ollama",
+      "ref": "qwen3:14b-q4_K_M",
+      "parameters_b": 14.8,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 10,
+      "min_vram_gib": 12.5,
+      "disk_gib": 9,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://ollama.com/library/qwen3:14b-q4_K_M"
+    },
+    {
+      "id": "ollama-qwen3-30b-a3b",
+      "name": "Qwen3 30B-A3B Instruct 2507 Q4_K_M",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "ollama",
+      "ref": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+      "parameters_b": 30.5,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 14,
+      "min_vram_gib": 22,
+      "disk_gib": 18,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://ollama.com/library/qwen3:30b-a3b-instruct-2507-q4_K_M"
+    },
+    {
+      "id": "ollama-qwen3-32b",
+      "name": "Qwen3 32B Q4_K_M",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "ollama",
+      "ref": "qwen3:32b-q4_K_M",
+      "parameters_b": 32.8,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 16,
+      "min_vram_gib": 26,
+      "disk_gib": 19,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://ollama.com/library/qwen3:32b-q4_K_M"
+    },
+    {
+      "id": "ollama-qwen3-coder-30b",
+      "name": "Qwen3-Coder 30B-A3B Q4_K_M",
+      "tasks": [
+        "code"
+      ],
+      "runtime": "ollama",
+      "ref": "qwen3-coder:30b-a3b-q4_K_M",
+      "parameters_b": 30.5,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 14,
+      "min_vram_gib": 22,
+      "disk_gib": 18,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://ollama.com/library/qwen3-coder:30b-a3b-q4_K_M"
+    },
+    {
+      "id": "ollama-gemma3-1b",
+      "name": "Gemma 3 1B IT Q4_K_M",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "ollama",
+      "ref": "gemma3:1b-it-q4_K_M",
+      "parameters_b": 1,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 2,
+      "min_vram_gib": 2,
+      "disk_gib": 1,
+      "context": 32768,
+      "license": "gemma",
+      "url": "https://ollama.com/library/gemma3:1b-it-q4_K_M"
+    },
+    {
+      "id": "ollama-phi4-mini",
+      "name": "Phi-4-mini Instruct Q4_K_M",
+      "tasks": [
+        "chat",
+        "code"
+      ],
+      "runtime": "ollama",
+      "ref": "phi4-mini:3.8b-q4_K_M",
+      "parameters_b": 3.8,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 4,
+      "min_vram_gib": 4,
+      "disk_gib": 3,
+      "context": 32768,
+      "license": "MIT",
+      "url": "https://ollama.com/library/phi4-mini:3.8b-q4_K_M"
+    },
+    {
+      "id": "ollama-nomic-embed-v15",
+      "name": "Nomic Embed Text v1.5",
+      "tasks": [
+        "embeddings"
+      ],
+      "runtime": "ollama",
+      "ref": "nomic-embed-text:v1.5",
+      "parameters_b": 0.137,
+      "quantization": "F16",
+      "min_ram_gib": 1.5,
+      "min_vram_gib": 1.2,
+      "disk_gib": 1,
+      "context": 8192,
+      "license": "Apache-2.0",
+      "url": "https://ollama.com/library/nomic-embed-text:v1.5"
+    },
+    {
+      "id": "vllm-qwen3-0.6b",
+      "name": "Qwen3 0.6B BF16",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "vllm",
+      "ref": "Qwen/Qwen3-0.6B",
+      "revision": "c1899de289a04d12100db370d81485cdf75e47ca",
+      "parameters_b": 0.6,
+      "quantization": "BF16",
+      "min_ram_gib": 5,
+      "min_vram_gib": 4.5,
+      "disk_gib": 2,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://huggingface.co/Qwen/Qwen3-0.6B"
+    },
+    {
+      "id": "vllm-qwen3-4b-instruct",
+      "name": "Qwen3 4B Instruct 2507 BF16",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "vllm",
+      "ref": "Qwen/Qwen3-4B-Instruct-2507",
+      "revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+      "parameters_b": 4,
+      "quantization": "BF16",
+      "min_ram_gib": 9,
+      "min_vram_gib": 11,
+      "disk_gib": 8,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507"
+    },
+    {
+      "id": "vllm-granite33-2b",
+      "name": "Granite 3.3 2B Instruct BF16",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "vllm",
+      "ref": "ibm-granite/granite-3.3-2b-instruct",
+      "revision": "707f574c62054322f6b5b04b6d075f0a8f05e0f0",
+      "parameters_b": 2.5,
+      "quantization": "BF16",
+      "min_ram_gib": 7,
+      "min_vram_gib": 8,
+      "disk_gib": 5,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://huggingface.co/ibm-granite/granite-3.3-2b-instruct"
+    },
+    {
+      "id": "vllm-qwen3-30b-a3b",
+      "name": "Qwen3 30B-A3B Instruct 2507 BF16",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "vllm",
+      "ref": "Qwen/Qwen3-30B-A3B-Instruct-2507",
+      "revision": "0d7cf23991f47feeb3a57ecb4c9cee8ea4a17bfe",
+      "parameters_b": 30.5,
+      "quantization": "BF16",
+      "min_ram_gib": 24,
+      "min_vram_gib": 63,
+      "disk_gib": 57,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://huggingface.co/Qwen/Qwen3-30B-A3B-Instruct-2507"
+    },
+    {
+      "id": "vllm-qwen3-coder-30b",
+      "name": "Qwen3-Coder 30B-A3B Instruct BF16",
+      "tasks": [
+        "code"
+      ],
+      "runtime": "vllm",
+      "ref": "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+      "revision": "b2cff646eb4bb1d68355c01b18ae02e7cf42d120",
+      "parameters_b": 30.5,
+      "quantization": "BF16",
+      "min_ram_gib": 24,
+      "min_vram_gib": 64,
+      "disk_gib": 57,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct"
+    },
+    {
+      "id": "vllm-qwen3-32b",
+      "name": "Qwen3 32B BF16",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "vllm",
+      "ref": "Qwen/Qwen3-32B",
+      "revision": "9216db5781bf21249d130ec9da846c4624c16137",
+      "parameters_b": 32.8,
+      "quantization": "BF16",
+      "min_ram_gib": 28,
+      "min_vram_gib": 72,
+      "disk_gib": 62,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://huggingface.co/Qwen/Qwen3-32B"
+    },
+    {
+      "id": "llamacpp-qwen3-0.6b",
+      "name": "Qwen3 0.6B Q8_0",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "llama.cpp",
+      "ref": "Qwen/Qwen3-0.6B-GGUF",
+      "revision": "23749fefcc72300e3a2ad315e1317431b06b590a",
+      "parameters_b": 0.6,
+      "quantization": "Q8_0",
+      "min_ram_gib": 2,
+      "min_vram_gib": 1.8,
+      "disk_gib": 1,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://huggingface.co/Qwen/Qwen3-0.6B-GGUF"
+    },
+    {
+      "id": "llamacpp-qwen3-1.7b",
+      "name": "Qwen3 1.7B Q8_0",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "llama.cpp",
+      "ref": "Qwen/Qwen3-1.7B-GGUF",
+      "revision": "90862c4b9d2787eaed51d12237eafdfe7c5f6077",
+      "parameters_b": 1.7,
+      "quantization": "Q8_0",
+      "min_ram_gib": 3.5,
+      "min_vram_gib": 3.6,
+      "disk_gib": 2,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://huggingface.co/Qwen/Qwen3-1.7B-GGUF"
+    },
+    {
+      "id": "llamacpp-qwen3-4b",
+      "name": "Qwen3 4B Q4_K_M",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "llama.cpp",
+      "ref": "Qwen/Qwen3-4B-GGUF",
+      "revision": "bc640142c66e1fdd12af0bd68f40445458f3869b",
+      "parameters_b": 4,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 4,
+      "min_vram_gib": 4,
+      "disk_gib": 3,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://huggingface.co/Qwen/Qwen3-4B-GGUF"
+    },
+    {
+      "id": "llamacpp-qwen3-8b",
+      "name": "Qwen3 8B Q4_K_M",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "llama.cpp",
+      "ref": "Qwen/Qwen3-8B-GGUF",
+      "revision": "7c41481f57cb95916b40956ab2f0b139b296d974",
+      "parameters_b": 8.2,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 7,
+      "min_vram_gib": 7.5,
+      "disk_gib": 5,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://huggingface.co/Qwen/Qwen3-8B-GGUF"
+    },
+    {
+      "id": "llamacpp-qwen3-14b",
+      "name": "Qwen3 14B Q4_K_M",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "llama.cpp",
+      "ref": "Qwen/Qwen3-14B-GGUF",
+      "revision": "530227a7d994db8eca5ab5ced2fb692b614357fd",
+      "parameters_b": 14.8,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 10,
+      "min_vram_gib": 12.5,
+      "disk_gib": 9,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://huggingface.co/Qwen/Qwen3-14B-GGUF"
+    },
+    {
+      "id": "llamacpp-qwen3-32b",
+      "name": "Qwen3 32B Q4_K_M",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "llama.cpp",
+      "ref": "Qwen/Qwen3-32B-GGUF",
+      "revision": "938a7432affaec9157f883a87164e2646ae17555",
+      "parameters_b": 32.8,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 17,
+      "min_vram_gib": 26,
+      "disk_gib": 19,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://huggingface.co/Qwen/Qwen3-32B-GGUF"
+    },
+    {
+      "id": "ollama-gpt-oss-20b",
+      "name": "gpt-oss 20B MXFP4",
+      "tasks": [
+        "chat",
+        "code"
+      ],
+      "runtime": "ollama",
+      "ref": "gpt-oss:20b",
+      "parameters_b": 20.9,
+      "quantization": "MXFP4",
+      "min_ram_gib": 12,
+      "min_vram_gib": 18,
+      "disk_gib": 13,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://ollama.com/library/gpt-oss:20b"
+    },
+    {
+      "id": "vllm-gpt-oss-20b",
+      "name": "gpt-oss 20B MXFP4",
+      "tasks": [
+        "chat",
+        "code"
+      ],
+      "runtime": "vllm",
+      "ref": "openai/gpt-oss-20b",
+      "revision": "6cee5e81ee83917806bbde320786a8fb61efebee",
+      "parameters_b": 20.9,
+      "quantization": "MXFP4",
+      "min_ram_gib": 16,
+      "min_vram_gib": 19,
+      "disk_gib": 13,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://huggingface.co/openai/gpt-oss-20b"
+    },
+    {
+      "id": "vllm-gpt-oss-120b",
+      "name": "gpt-oss 120B MXFP4",
+      "tasks": [
+        "chat",
+        "code"
+      ],
+      "runtime": "vllm",
+      "ref": "openai/gpt-oss-120b",
+      "revision": "b5c939de8f754692c1647ca79fbf85e8c1e70f8a",
+      "parameters_b": 116.8,
+      "quantization": "MXFP4",
+      "min_ram_gib": 28,
+      "min_vram_gib": 74,
+      "disk_gib": 61,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://huggingface.co/openai/gpt-oss-120b"
+    },
+    {
+      "id": "llamacpp-gpt-oss-20b",
+      "name": "gpt-oss 20B MXFP4 GGUF",
+      "tasks": [
+        "chat",
+        "code"
+      ],
+      "runtime": "llama.cpp",
+      "ref": "ggml-org/gpt-oss-20b-GGUF",
+      "revision": "15dcfc7e7c608c6161507211ed43c5b590801b4b",
+      "parameters_b": 20.9,
+      "quantization": "MXFP4",
+      "min_ram_gib": 12,
+      "min_vram_gib": 17,
+      "disk_gib": 12,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://huggingface.co/ggml-org/gpt-oss-20b-GGUF"
+    },
+    {
+      "id": "llamacpp-gemma3-1b",
+      "name": "Gemma 3 1B IT Q4_K_M GGUF",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "llama.cpp",
+      "ref": "ggml-org/gemma-3-1b-it-GGUF",
+      "revision": "f9c28bcd85737ffc5aef028638d3341d49869c27",
+      "parameters_b": 1,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 2,
+      "min_vram_gib": 2,
+      "disk_gib": 1,
+      "context": 32768,
+      "license": "gemma",
+      "url": "https://huggingface.co/ggml-org/gemma-3-1b-it-GGUF"
+    },
+    {
+      "id": "vllm-mistral-7b-v03",
+      "name": "Mistral 7B Instruct v0.3 BF16",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "vllm",
+      "ref": "mistralai/Mistral-7B-Instruct-v0.3",
+      "revision": "c170c708c41dac9275d15a8fff4eca08d52bab71",
+      "parameters_b": 7.25,
+      "quantization": "BF16",
+      "min_ram_gib": 13,
+      "min_vram_gib": 18,
+      "disk_gib": 14,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.3"
+    },
+    {
+      "id": "vllm-deepseek-r1-0528-8b",
+      "name": "DeepSeek R1 0528 Qwen3 8B BF16",
+      "tasks": [
+        "chat",
+        "code"
+      ],
+      "runtime": "vllm",
+      "ref": "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B",
+      "revision": "6e8885a6ff5c1dc5201574c8fd700323f23c25fa",
+      "parameters_b": 8.2,
+      "quantization": "BF16",
+      "min_ram_gib": 14,
+      "min_vram_gib": 20,
+      "disk_gib": 16,
+      "context": 32768,
+      "license": "MIT",
+      "url": "https://huggingface.co/deepseek-ai/DeepSeek-R1-0528-Qwen3-8B"
+    },
+    {
+      "id": "vllm-phi4-mini",
+      "name": "Phi-4-mini Instruct BF16",
+      "tasks": [
+        "chat",
+        "code"
+      ],
+      "runtime": "vllm",
+      "ref": "microsoft/Phi-4-mini-instruct",
+      "revision": "cfbefacb99257ffa30c83adab238a50856ac3083",
+      "parameters_b": 3.8,
+      "quantization": "BF16",
+      "min_ram_gib": 9,
+      "min_vram_gib": 11,
+      "disk_gib": 8,
+      "context": 32768,
+      "license": "MIT",
+      "url": "https://huggingface.co/microsoft/Phi-4-mini-instruct"
+    },
+    {
+      "id": "llamacpp-mistral-7b-v03",
+      "name": "Mistral 7B Instruct v0.3 Q4_K_M",
+      "tasks": [
+        "chat",
+        "rag"
+      ],
+      "runtime": "llama.cpp",
+      "ref": "bartowski/Mistral-7B-Instruct-v0.3-GGUF",
+      "revision": "61fd4167fff3ab01ee1cfe0da183fa27a944db48",
+      "parameters_b": 7.25,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 7,
+      "min_vram_gib": 6.5,
+      "disk_gib": 5,
+      "context": 32768,
+      "license": "Apache-2.0",
+      "url": "https://huggingface.co/bartowski/Mistral-7B-Instruct-v0.3-GGUF"
+    },
+    {
+      "id": "llamacpp-deepseek-r1-0528-8b",
+      "name": "DeepSeek R1 0528 Qwen3 8B Q4_K_M",
+      "tasks": [
+        "chat",
+        "code"
+      ],
+      "runtime": "llama.cpp",
+      "ref": "unsloth/DeepSeek-R1-0528-Qwen3-8B-GGUF",
+      "revision": "eb48357c179d34dbf515983f798dfb8752a0f261",
+      "parameters_b": 8.2,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 8,
+      "min_vram_gib": 8,
+      "disk_gib": 5,
+      "context": 32768,
+      "license": "MIT",
+      "url": "https://huggingface.co/unsloth/DeepSeek-R1-0528-Qwen3-8B-GGUF"
+    },
+    {
+      "id": "llamacpp-phi4-mini",
+      "name": "Phi-4-mini Instruct Q4_K_M",
+      "tasks": [
+        "chat",
+        "code"
+      ],
+      "runtime": "llama.cpp",
+      "ref": "lmstudio-community/Phi-4-mini-instruct-GGUF",
+      "revision": "009f2b81869a0afd6b9aae23d29fa7b7ee2dcac9",
+      "parameters_b": 3.8,
+      "quantization": "Q4_K_M",
+      "min_ram_gib": 4,
+      "min_vram_gib": 4.2,
+      "disk_gib": 3,
+      "context": 32768,
+      "license": "MIT",
+      "url": "https://huggingface.co/lmstudio-community/Phi-4-mini-instruct-GGUF"
+    }
+  ],
+  "profiles": {
+    "ollama-qwen25-0.5b": {
+      "purpose": "Диалог, резюме и ответы по переданному контексту.",
+      "format": "GGUF",
+      "source": "https://ollama.com/library/qwen2.5:0.5b-instruct-q4_K_M",
+      "verification": "estimated"
+    },
+    "ollama-qwen25-1.5b": {
+      "purpose": "Диалог, резюме и ответы по переданному контексту.",
+      "format": "GGUF",
+      "source": "https://ollama.com/library/qwen2.5:1.5b-instruct-q4_K_M",
+      "verification": "estimated"
+    },
+    "ollama-qwen25-7b": {
+      "purpose": "Диалог, резюме и ответы по переданному контексту.",
+      "format": "GGUF",
+      "source": "https://ollama.com/library/qwen2.5:7b-instruct-q4_K_M",
+      "verification": "estimated"
+    },
+    "ollama-qwen25-14b": {
+      "purpose": "Диалог, резюме и ответы по переданному контексту.",
+      "format": "GGUF",
+      "source": "https://ollama.com/library/qwen2.5:14b-instruct-q4_K_M",
+      "verification": "estimated"
+    },
+    "ollama-qwen25-32b": {
+      "purpose": "Диалог, резюме и ответы по переданному контексту.",
+      "format": "GGUF",
+      "source": "https://ollama.com/library/qwen2.5:32b-instruct-q4_K_M",
+      "verification": "estimated"
+    },
+    "ollama-qwen25-coder-1.5b": {
+      "purpose": "Объяснение кода, исправления и генерация небольших фрагментов.",
+      "format": "GGUF",
+      "source": "https://ollama.com/library/qwen2.5-coder:1.5b-instruct-q4_K_M",
+      "verification": "estimated"
+    },
+    "ollama-qwen25-coder-7b": {
+      "purpose": "Объяснение кода, исправления и генерация небольших фрагментов.",
+      "format": "GGUF",
+      "source": "https://ollama.com/library/qwen2.5-coder:7b-instruct-q4_K_M",
+      "verification": "estimated"
+    },
+    "ollama-qwen25-coder-14b": {
+      "purpose": "Объяснение кода, исправления и генерация небольших фрагментов.",
+      "format": "GGUF",
+      "source": "https://ollama.com/library/qwen2.5-coder:14b-instruct-q4_K_M",
+      "verification": "estimated"
+    },
+    "ollama-qwen25-coder-32b": {
+      "purpose": "Объяснение кода, исправления и генерация небольших фрагментов.",
+      "format": "GGUF",
+      "source": "https://ollama.com/library/qwen2.5-coder:32b-instruct-q4_K_M",
+      "verification": "estimated"
+    },
+    "ollama-bge-m3": {
+      "purpose": "Векторы для многоязычного семантического поиска.",
+      "format": "GGUF",
+      "source": "https://ollama.com/library/bge-m3:567m",
+      "verification": "estimated"
+    },
+    "vllm-qwen25-1.5b": {
+      "purpose": "Диалог, резюме и ответы по переданному контексту.",
+      "format": "Safetensors",
+      "source": "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct",
+      "verification": "estimated"
+    },
+    "vllm-qwen25-7b-awq": {
+      "purpose": "Диалог, резюме и ответы по переданному контексту.",
+      "format": "Safetensors",
+      "source": "https://huggingface.co/Qwen/Qwen2.5-7B-Instruct-AWQ",
+      "verification": "estimated"
+    },
+    "vllm-qwen25-14b-awq": {
+      "purpose": "Диалог, резюме и ответы по переданному контексту.",
+      "format": "Safetensors",
+      "source": "https://huggingface.co/Qwen/Qwen2.5-14B-Instruct-AWQ",
+      "verification": "estimated"
+    },
+    "vllm-qwen25-coder-7b-awq": {
+      "purpose": "Объяснение кода, исправления и генерация небольших фрагментов.",
+      "format": "Safetensors",
+      "source": "https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct-AWQ",
+      "verification": "estimated"
+    },
+    "ollama-mistral-7b-v03": {
+      "purpose": "Диалог, резюме и ответы по переданному контексту.",
+      "format": "GGUF",
+      "source": "https://ollama.com/library/mistral:7b-instruct-v0.3-q4_K_M",
+      "verification": "estimated"
+    },
+    "ollama-llama32-3b": {
+      "purpose": "Диалог, резюме и ответы по переданному контексту.",
+      "format": "GGUF",
+      "source": "https://ollama.com/library/llama3.2:3b-instruct-q4_K_M",
+      "verification": "estimated"
+    },
+    "ollama-deepseek-r1-0528-8b": {
+      "purpose": "Многошаговые рассуждения, задачи по коду и математике.",
+      "format": "GGUF",
+      "source": "https://ollama.com/library/deepseek-r1:8b-0528-qwen3-q4_K_M",
+      "verification": "estimated"
+    },
+    "ollama-qwen3-0.6b": {
+      "purpose": "Короткие ответы и простая классификация на CPU или малой GPU.",
+      "format": "GGUF",
+      "source": "https://huggingface.co/Qwen/Qwen3-0.6B",
+      "verification": "estimated",
+      "download_bytes": 522653277
+    },
+    "ollama-qwen3-1.7b": {
+      "purpose": "Компактная модель для простого чата и обработки текста.",
+      "format": "GGUF",
+      "source": "https://huggingface.co/Qwen/Qwen3-1.7B",
+      "verification": "estimated",
+      "download_bytes": 1359292957
+    },
+    "ollama-qwen3-4b-instruct": {
+      "purpose": "Диалог и резюме с коротким контекстом.",
+      "format": "GGUF",
+      "source": "https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507",
+      "verification": "estimated",
+      "download_bytes": 2497293316
+    },
+    "ollama-qwen3-8b": {
+      "purpose": "Многоязычный чат и рассуждения на одной GPU.",
+      "format": "GGUF",
+      "source": "https://huggingface.co/Qwen/Qwen3-8B",
+      "verification": "estimated",
+      "download_bytes": 5225387677
+    },
+    "ollama-qwen3-14b": {
+      "purpose": "Развёрнутые ответы и рассуждения с запасом памяти.",
+      "format": "GGUF",
+      "source": "https://huggingface.co/Qwen/Qwen3-14B",
+      "verification": "estimated",
+      "download_bytes": 9276198077
+    },
+    "ollama-qwen3-30b-a3b": {
+      "purpose": "Чат и ответы по документам. Для MoE учитывается полный размер весов.",
+      "format": "GGUF",
+      "source": "https://huggingface.co/Qwen/Qwen3-30B-A3B-Instruct-2507",
+      "verification": "estimated",
+      "download_bytes": 18556698692
+    },
+    "ollama-qwen3-32b": {
+      "purpose": "Рассуждения и сложные текстовые инструкции.",
+      "format": "GGUF",
+      "source": "https://huggingface.co/Qwen/Qwen3-32B",
+      "verification": "estimated",
+      "download_bytes": 20201253341
+    },
+    "ollama-qwen3-coder-30b": {
+      "purpose": "Работа с репозиторием, объяснение кода и генерация правок.",
+      "format": "GGUF",
+      "source": "https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct",
+      "verification": "estimated",
+      "download_bytes": 18556700222
+    },
+    "ollama-gemma3-1b": {
+      "purpose": "Компактная текстовая модель для чата и суммаризации.",
+      "format": "GGUF",
+      "source": "https://huggingface.co/google/gemma-3-1b-it",
+      "verification": "estimated",
+      "download_bytes": 806067267
+    },
+    "ollama-phi4-mini": {
+      "purpose": "Короткие объяснения, текстовые инструкции и задачи по коду.",
+      "format": "GGUF",
+      "source": "https://huggingface.co/microsoft/Phi-4-mini-instruct",
+      "verification": "estimated",
+      "download_bytes": 2491876363
+    },
+    "ollama-nomic-embed-v15": {
+      "purpose": "Векторный поиск по тексту. Клиент задаёт префиксы для запроса и документа.",
+      "format": "GGUF",
+      "source": "https://huggingface.co/nomic-ai/nomic-embed-text-v1.5",
+      "verification": "estimated",
+      "download_bytes": 274302030
+    },
+    "vllm-qwen3-0.6b": {
+      "purpose": "Небольшая модель для первого запуска сервера vLLM.",
+      "format": "Safetensors",
+      "source": "https://huggingface.co/Qwen/Qwen3-0.6B",
+      "verification": "estimated",
+      "download_bytes": 1503300328
+    },
+    "vllm-qwen3-4b-instruct": {
+      "purpose": "Диалог, резюме и ответы по документам через OpenAI API.",
+      "format": "Safetensors",
+      "source": "https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507",
+      "verification": "estimated",
+      "download_bytes": 8044982000
+    },
+    "vllm-granite33-2b": {
+      "purpose": "Компактная модель для инструкций и ответов по контексту.",
+      "format": "Safetensors",
+      "source": "https://huggingface.co/ibm-granite/granite-3.3-2b-instruct",
+      "verification": "estimated",
+      "download_bytes": 5067121552
+    },
+    "vllm-qwen3-30b-a3b": {
+      "purpose": "Общий чат и ответы по контексту на GPU с большой памятью.",
+      "format": "Safetensors",
+      "source": "https://huggingface.co/Qwen/Qwen3-30B-A3B-Instruct-2507",
+      "verification": "estimated",
+      "download_bytes": 61066575656
+    },
+    "vllm-qwen3-coder-30b": {
+      "purpose": "Сервер для генерации и анализа кода на GPU с большой памятью.",
+      "format": "Safetensors",
+      "source": "https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct",
+      "verification": "estimated",
+      "download_bytes": 61066575656
+    },
+    "vllm-qwen3-32b": {
+      "purpose": "Полноразмерный профиль для рассуждений и текста на 96–128 ГиБ VRAM.",
+      "format": "Safetensors",
+      "source": "https://huggingface.co/Qwen/Qwen3-32B",
+      "verification": "estimated",
+      "download_bytes": 65524328560
+    },
+    "llamacpp-qwen3-0.6b": {
+      "purpose": "Лёгкий чат на CPU или GPU с 4 ГиБ.",
+      "format": "GGUF",
+      "source": "https://huggingface.co/Qwen/Qwen3-0.6B-GGUF",
+      "verification": "estimated",
+      "download_bytes": 639446688,
+      "artifact": {
+        "repo": "Qwen/Qwen3-0.6B-GGUF",
+        "revision": "23749fefcc72300e3a2ad315e1317431b06b590a",
+        "file": "Qwen3-0.6B-Q8_0.gguf",
+        "bytes": 639446688,
+        "sha256": "9465e63a22add5354d9bb4b99e90117043c7124007664907259bd16d043bb031"
+      }
+    },
+    "llamacpp-qwen3-1.7b": {
+      "purpose": "Компактный чат и обработка коротких текстов.",
+      "format": "GGUF",
+      "source": "https://huggingface.co/Qwen/Qwen3-1.7B-GGUF",
+      "verification": "estimated",
+      "download_bytes": 1834426016,
+      "artifact": {
+        "repo": "Qwen/Qwen3-1.7B-GGUF",
+        "revision": "90862c4b9d2787eaed51d12237eafdfe7c5f6077",
+        "file": "Qwen3-1.7B-Q8_0.gguf",
+        "bytes": 1834426016,
+        "sha256": "061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a"
+      }
+    },
+    "llamacpp-qwen3-4b": {
+      "purpose": "Многоязычный чат и ответы по контексту.",
+      "format": "GGUF",
+      "source": "https://huggingface.co/Qwen/Qwen3-4B-GGUF",
+      "verification": "estimated",
+      "download_bytes": 2497280256,
+      "artifact": {
+        "repo": "Qwen/Qwen3-4B-GGUF",
+        "revision": "bc640142c66e1fdd12af0bd68f40445458f3869b",
+        "file": "Qwen3-4B-Q4_K_M.gguf",
+        "bytes": 2497280256,
+        "sha256": "7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5"
+      }
+    },
+    "llamacpp-qwen3-8b": {
+      "purpose": "Чат и рассуждения на GPU среднего класса.",
+      "format": "GGUF",
+      "source": "https://huggingface.co/Qwen/Qwen3-8B-GGUF",
+      "verification": "estimated",
+      "download_bytes": 5027783488,
+      "artifact": {
+        "repo": "Qwen/Qwen3-8B-GGUF",
+        "revision": "7c41481f57cb95916b40956ab2f0b139b296d974",
+        "file": "Qwen3-8B-Q4_K_M.gguf",
+        "bytes": 5027783488,
+        "sha256": "d98cdcbd03e17ce47681435b5150e34c1417f50b5c0019dd560e4882c5745785"
+      }
+    },
+    "llamacpp-qwen3-14b": {
+      "purpose": "Развёрнутые ответы и сложные инструкции.",
+      "format": "GGUF",
+      "source": "https://huggingface.co/Qwen/Qwen3-14B-GGUF",
+      "verification": "estimated",
+      "download_bytes": 9001752960,
+      "artifact": {
+        "repo": "Qwen/Qwen3-14B-GGUF",
+        "revision": "530227a7d994db8eca5ab5ced2fb692b614357fd",
+        "file": "Qwen3-14B-Q4_K_M.gguf",
+        "bytes": 9001752960,
+        "sha256": "500a8806e85ee9c83f3ae08420295592451379b4f8cf2d0f41c15dffeb6b81f0"
+      }
+    },
+    "llamacpp-qwen3-32b": {
+      "purpose": "Плотная модель для рассуждений на GPU с запасом памяти.",
+      "format": "GGUF",
+      "source": "https://huggingface.co/Qwen/Qwen3-32B-GGUF",
+      "verification": "estimated",
+      "download_bytes": 19762149024,
+      "artifact": {
+        "repo": "Qwen/Qwen3-32B-GGUF",
+        "revision": "938a7432affaec9157f883a87164e2646ae17555",
+        "file": "Qwen3-32B-Q4_K_M.gguf",
+        "bytes": 19762149024,
+        "sha256": "efd971561896866f0e910cce52761ca77b1b138090c7f15fe284676d57d1f689"
+      }
+    },
+    "ollama-gpt-oss-20b": {
+      "purpose": "Рассуждения, многошаговые инструкции и задачи по коду.",
+      "format": "GGUF",
+      "download_bytes": 13793441427,
+      "source": "https://huggingface.co/openai/gpt-oss-20b",
+      "verification": "estimated"
+    },
+    "vllm-gpt-oss-20b": {
+      "purpose": "Рассуждения, многошаговые инструкции и задачи по коду.",
+      "format": "Safetensors",
+      "download_bytes": 13761316904,
+      "source": "https://huggingface.co/openai/gpt-oss-20b",
+      "verification": "estimated"
+    },
+    "vllm-gpt-oss-120b": {
+      "purpose": "Рассуждения и задачи по коду на одной GPU с 96–128 ГиБ VRAM.",
+      "format": "Safetensors",
+      "download_bytes": 65248893184,
+      "source": "https://huggingface.co/openai/gpt-oss-120b",
+      "verification": "estimated"
+    },
+    "llamacpp-gpt-oss-20b": {
+      "purpose": "Рассуждения, многошаговые инструкции и задачи по коду.",
+      "format": "GGUF",
+      "download_bytes": 12109566624,
+      "source": "https://huggingface.co/ggml-org/gpt-oss-20b-GGUF",
+      "verification": "estimated",
+      "artifact": {
+        "repo": "ggml-org/gpt-oss-20b-GGUF",
+        "revision": "15dcfc7e7c608c6161507211ed43c5b590801b4b",
+        "file": "gpt-oss-20b-MXFP4.gguf",
+        "bytes": 12109566624,
+        "sha256": "27cd6c432c7672cb812a92f611cf3ba7bbc35928262bb1e1253ff4ee6ae35901"
+      }
+    },
+    "llamacpp-gemma3-1b": {
+      "purpose": "Короткие текстовые инструкции на CPU или GPU с 4 ГиБ.",
+      "format": "GGUF",
+      "download_bytes": 806058240,
+      "source": "https://huggingface.co/google/gemma-3-1b-it",
+      "verification": "estimated",
+      "artifact": {
+        "repo": "ggml-org/gemma-3-1b-it-GGUF",
+        "revision": "f9c28bcd85737ffc5aef028638d3341d49869c27",
+        "file": "gemma-3-1b-it-Q4_K_M.gguf",
+        "bytes": 806058240,
+        "sha256": "8ccc5cd1f1b3602548715ae25a66ed73fd5dc68a210412eea643eb20eb75a135"
+      }
+    },
+    "ollama-qwen25-coder-0.5b": {
+      "purpose": "Дополнение и разбор коротких фрагментов кода на малой GPU или CPU.",
+      "format": "GGUF",
+      "download_bytes": 397821516,
+      "source": "https://huggingface.co/Qwen/Qwen2.5-Coder-0.5B-Instruct",
+      "verification": "estimated"
+    },
+    "vllm-mistral-7b-v03": {
+      "purpose": "Текстовый помощник для чата, резюме и ответа по переданным документам.",
+      "format": "Safetensors",
+      "download_bytes": 14496080928,
+      "source": "https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.3",
+      "verification": "estimated"
+    },
+    "vllm-deepseek-r1-0528-8b": {
+      "purpose": "Пошаговый разбор задач и объяснение сложных вопросов.",
+      "format": "Safetensors",
+      "download_bytes": 16381516836,
+      "source": "https://huggingface.co/deepseek-ai/DeepSeek-R1-0528-Qwen3-8B",
+      "verification": "estimated"
+    },
+    "vllm-phi4-mini": {
+      "purpose": "Текстовые инструкции, короткие объяснения и помощь с кодом.",
+      "format": "Safetensors",
+      "download_bytes": 7672066216,
+      "source": "https://huggingface.co/microsoft/Phi-4-mini-instruct",
+      "verification": "estimated"
+    },
+    "llamacpp-mistral-7b-v03": {
+      "purpose": "Текстовый помощник для чата, резюме и ответа по переданным документам.",
+      "format": "GGUF",
+      "download_bytes": 4372812000,
+      "source": "https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.3",
+      "verification": "estimated",
+      "artifact": {
+        "repo": "bartowski/Mistral-7B-Instruct-v0.3-GGUF",
+        "revision": "61fd4167fff3ab01ee1cfe0da183fa27a944db48",
+        "file": "Mistral-7B-Instruct-v0.3-Q4_K_M.gguf",
+        "bytes": 4372812000,
+        "sha256": "1270d22c0fbb3d092fb725d4d96c457b7b687a5f5a715abe1e818da303e562b6"
+      }
+    },
+    "llamacpp-deepseek-r1-0528-8b": {
+      "purpose": "Пошаговый разбор задач и объяснение сложных вопросов.",
+      "format": "GGUF",
+      "download_bytes": 5027785216,
+      "source": "https://huggingface.co/deepseek-ai/DeepSeek-R1-0528-Qwen3-8B",
+      "verification": "estimated",
+      "artifact": {
+        "repo": "unsloth/DeepSeek-R1-0528-Qwen3-8B-GGUF",
+        "revision": "eb48357c179d34dbf515983f798dfb8752a0f261",
+        "file": "DeepSeek-R1-0528-Qwen3-8B-Q4_K_M.gguf",
+        "bytes": 5027785216,
+        "sha256": "a86349a4180c4e6bb43f874c29c404fa2be3f90b15509bd6d86f697dba724ec1"
+      }
+    },
+    "llamacpp-phi4-mini": {
+      "purpose": "Текстовые инструкции, короткие объяснения и помощь с кодом.",
+      "format": "GGUF",
+      "download_bytes": 2491874400,
+      "source": "https://huggingface.co/microsoft/Phi-4-mini-instruct",
+      "verification": "estimated",
+      "artifact": {
+        "repo": "lmstudio-community/Phi-4-mini-instruct-GGUF",
+        "revision": "009f2b81869a0afd6b9aae23d29fa7b7ee2dcac9",
+        "file": "Phi-4-mini-instruct-Q4_K_M.gguf",
+        "bytes": 2491874400,
+        "sha256": "3c4d3cbdf3006d81444f6c7a5a56eb93d8e0f2e2ba5963b8ab62f9fd42604233"
+      }
+    }
+  }
+}

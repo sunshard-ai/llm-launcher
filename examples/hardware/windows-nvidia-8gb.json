@@ -1,0 +1,38 @@
+{
+  "os": "windows",
+  "distro": "Windows 11 (fictional example)",
+  "arch": "amd64",
+  "wsl": false,
+  "cpu_name": "Example 8-core CPU",
+  "logical_cpus": 16,
+  "ram_total_bytes": 17179869184,
+  "ram_available_bytes": 12884901888,
+  "disk_free_bytes": 161061273600,
+  "disk_path": "C:\\",
+  "gpus": [
+    {
+      "index": "0",
+      "uuid": "GPU-87654321-abcd-1234-5678-0123456789ab",
+      "vendor": "nvidia",
+      "name": "NVIDIA GeForce RTX 4060 (example)",
+      "vram_total_bytes": 8589934592,
+      "vram_free_bytes": 7516192768,
+      "compute_capability": "8.9",
+      "driver_version": "580.95.05"
+    }
+  ],
+  "docker": {
+    "installed": true,
+    "reachable": true,
+    "compose": true,
+    "server_os": "linux",
+    "architecture": "x86_64",
+    "endpoint": "npipe:////./pipe/dockerDesktopLinuxEngine",
+    "context": "desktop-linux",
+    "memory_bytes": 10737418240,
+    "cpus": 16
+  },
+  "warnings": [
+    "DEMO_INVENTORY: synthetic fixture; not a measurement or a deployment-ready plan."
+  ]
+}

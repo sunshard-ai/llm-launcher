@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-label="LLM Launcher">
+  <defs>
+    <linearGradient id="base" x1="0" x2="1" y1="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop stop-color="#172745"/>
+      <stop offset="1" stop-color="#0A1224"/>
+    </linearGradient>
+    <linearGradient id="beam" x1="0" x2="1" y1="1" y2="0" gradientUnits="objectBoundingBox">
+      <stop stop-color="#5FA7FF"/>
+      <stop offset="1" stop-color="#77F8D2"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="240" height="240" rx="57" fill="url(#base)" stroke="#345270" stroke-width="3"/>
+  <g fill="none" stroke="#3C617F" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M61 105V72q0-12 12-12h34m44 0h32q12 0 12 12v34m0 44v32q0 12-12 12h-32m-44 0H73q-12 0-12-12v-33"/>
+    <path d="M48 119h13m-13 17h13m134-17h13m-13 17h13M119 47v13m17-13v13m-17 134v13m17-13v13"/>
+  </g>
+  <path d="M99 153 153 99m-29 0h29v29" fill="none" stroke="url(#beam)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="97" cy="154" r="10" fill="#68BCFA"/>
+  <circle cx="153" cy="98" r="10" fill="#77F8D2"/>
+</svg>

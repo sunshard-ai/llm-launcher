@@ -1,0 +1,27 @@
+{
+  "os": "linux",
+  "distro": "Ubuntu 24.04 (fictional example)",
+  "arch": "amd64",
+  "wsl": false,
+  "cpu_name": "Example 8-core CPU",
+  "logical_cpus": 8,
+  "ram_total_bytes": 17179869184,
+  "ram_available_bytes": 12884901888,
+  "disk_free_bytes": 161061273600,
+  "disk_path": "/example/local-disk",
+  "gpus": [],
+  "docker": {
+    "installed": true,
+    "reachable": true,
+    "compose": true,
+    "server_os": "linux",
+    "architecture": "x86_64",
+    "endpoint": "unix:///var/run/docker.sock",
+    "context": "default",
+    "memory_bytes": 17179869184,
+    "cpus": 8
+  },
+  "warnings": [
+    "DEMO_INVENTORY: synthetic fixture; not a measurement or a deployment-ready plan."
+  ]
+}

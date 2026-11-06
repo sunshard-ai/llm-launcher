@@ -1,0 +1,4 @@
+/catalog.json text eol=lf
+/catalog.json.sig binary
+/catalog.pub binary
+/start-windows.cmd text eol=crlf

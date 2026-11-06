@@ -1,0 +1,7 @@
+/dist/
+/llm-model/
+*.test
+coverage.out
+coverage.html
+.DS_Store
+*.log
