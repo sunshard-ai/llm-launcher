@@ -1,119 +1,26 @@
-# Отчёт проверки LLM Launcher
+# Build and test results
 
-## 0.3.0 — каталог, подбор и выпуск
+## v0.3.0
 
-- На macOS ARM64 с Go 1.27.3 прошли `go test ./...`, `go test -race ./...`, `go vet ./...` и `bash scripts/build.sh`. Собраны CLI для Linux x86-64 и ARM64, Windows x86-64 и macOS ARM64, а также Windows GUI EXE. Проверены SHA-256 всех пяти файлов и синтаксис скриптов PowerShell.
-- Тестовый HTTP-сервер проверил обновление каталога, повторную установку и сохранение предыдущей копии при неверной подписи. На тестовой инвентаризации проверены 12 уровней VRAM от 4 до 128 ГиБ для чата, кода, RAG и эмбеддингов, включая выбор совместимой карты для BF16.
-- Реальный CPU-запуск на Docker Desktop с Linux ARM64. Launcher скачал 609 МиБ Qwen3 0.6B Q8_0 из закреплённой ревизии Hugging Face, проверил GGUF, запустил llama.cpp b9935 с контекстом 1024 и получил ответ через `/v1/chat/completions`. Контейнер остановлен через `down`.
-- Новые параметры запуска. В планах llama.cpp для NVIDIA резервируется выбранная карта и применяется `--n-gpu-layers all`. CPU-профиль сохраняет `--n-gpu-layers 0`. DeepSeek R1 0528 использует температуру 0.6 и Top P 0.95 и в новых профилях vLLM и llama.cpp. Для моделей с рассуждениями увеличен бюджет проверочного ответа. Значения `dtype` сохранены.
-- Инференс новых NVIDIA-профилей и интерфейс Windows EXE требуют аппаратного прогона. Цифры 4–128 ГиБ описывают проверку подбора, а статус `estimated` относится к совместимости на целевых GPU.
+| Check | Result |
+| --- | --- |
+| Local build | Go 1.27.3 on macOS ARM64. `go test ./...`, `go test -race ./...`, `go vet ./...`, and `scripts/build.sh` passed. All five binaries passed SHA-256 verification. PowerShell scripts passed parsing. |
+| Release packaging | The package was rebuilt from the `v0.3.0` tag. The source archive, binaries, catalog, signature, and public key passed SHA-256 verification. |
+| Catalog update | A local test server served a signed catalog. The launcher installed it, accepted a repeat update, and kept the cached copy after receiving a bad signature. |
+| Model selection | Fixtures covered 12 VRAM sizes from 4 to 128 GiB and four tasks. Mixed-GPU cases verified that the BF16 profile selects a compatible card. |
+| CPU inference | Docker Desktop with Linux ARM64. The launcher downloaded and verified the pinned 609 MiB Qwen3 0.6B Q8_0 GGUF. llama.cpp b9935 returned text at a 1024-token context. A second run reused the file. |
+| NVIDIA inference and Windows GUI | Hardware verification remains open for the new profiles and desktop build. |
 
-## 0.2.0 — проф. настройки, vLLM на Windows и импорт Hugging Face
+New llama.cpp plans select `--n-gpu-layers all` for NVIDIA or `0` for CPU. DeepSeek R1 0528 defaults extend to the new llama.cpp and vLLM profiles. Reasoning models receive a larger smoke-test response budget. vLLM dtype defaults stayed the same.
 
-- Собраны четыре CLI и Windows x64 EXE на macOS ARM64. Проверены Go-тесты, `go vet` и синтаксис Windows PowerShell. Открытие нового интерфейса на Windows требует прогона на стенде.
-- Реальный CPU-запуск на Docker Desktop ARM64: `llama.cpp server-b9935`, публичный `SmolLM2-135M-Instruct.Q4_K_M.gguf`, контекст 1024, температура 0 и лимит 16 токенов. Launcher закрепил commit, скачал 105 454 144 байта, проверил SHA-256 и получил непустой ответ через `/v1/chat/completions`. Цикл `up → test → down → up → down` завершился успешно. Второй запуск использовал сохранённый GGUF.
-- Контракт Ollama `/api/create`, проверка параметров, запрет переопределения защищённых переменных, допуск Windows vLLM и контроль целостности файлов проверены автоматически. Проф. настройки Ollama на реальной модели, vLLM на NVIDIA и скачивание из закрытого репозитория с настоящим токеном требуют аппаратного прогона.
-- Добавления в запуске: у Ollama `/api/create` с отдельным именем и параметрами генерации, у vLLM опциональные `--override-generation-config`, `--enforce-eager`, значения `--dtype` и `--gpu-memory-utilization`, у llama.cpp отдельный закреплённый образ CPU и аргументы `llama-server`. Для импортированного vLLM ссылка и `--revision` заменены смонтированным снимком, `--load-format safetensors` и `HF_HUB_OFFLINE=1`. Это позволяет проверять файлы до запуска и держать токен вне контейнера. Для планов схемы 1 аргументы и формат Compose сохранены.
+## Earlier checks
 
-## Дополнение от 6 ноября 2026 года — графическая сборка и управление проектами
+| Version | Evidence |
+| --- | --- |
+| 0.2.3 | The Linux ARM64 CLI completed the interactive dry-run in a Linux container. An RTX 4080 fixture produced a plan with the DeepSeek defaults. |
+| 0.2.2 | On Docker Desktop, global `status` found the running llama.cpp deployment and stopped listing it after `down`. vLLM dtype changes were checked in generated plans. |
+| 0.2.1 | On Ubuntu/WSL2 with an RTX 4080 SUPER, the CUDA 12.9 vLLM image saw the GPU and failed while importing `torchcodec` before model loading. The launcher switched the default to a pinned CUDA 13.0 image and added an import probe. The new image selection was checked in plans. [Upstream issue](https://github.com/vllm-project/vllm/issues/63121) |
+| 0.2.0 | On Linux ARM64 in Docker Desktop, llama.cpp b9935 downloaded a 105,454,144-byte SmolLM2 135M GGUF, verified its hash, answered over the chat API, and reused the weights after restart. CLI lifecycle and PowerShell quoting were also exercised. |
+| 0.1.0 | Built all four CLI targets on Linux x64. The Linux x64 binary ran scanning, recommendation, and planning. Docker was unavailable in that build environment. |
 
-- На macOS ARM64 прошли `go test ./...`, `go test -race ./...`, `go vet ./...`, `bash scripts/build.sh` и сборка через `scripts/build.ps1` в PowerShell 7. Собраны четыре CLI и `LLM-Launcher-Windows-x64.exe`. Проверены SHA256, формат PE32+ x86-64 GUI и ресурс иконки.
-- Проверен синтаксис сценария мастера и экранирование пути с пробелами, кириллицей и завершающей обратной косой чертой. Это проверка PowerShell на macOS. Работа Windows Forms, запуск дочерних процессов и отмена из окна требуют прогона на Windows с Windows PowerShell 5.1.
-- На macOS с работающим Docker Desktop проверены сканирование, создание плана с кириллицей в пути, `compose config`, `list → delete → list → restore`. Архивированный план блокирует `up` до обращения к Docker. Linux ARM64 CLI выполнил `scan` в изолированном Linux-контейнере без доступа к Docker daemon.
-- Сохранение существующего тома при архивировании и восстановлении проверено через подставной Docker runner. Реальную модель на CPU или GPU при этой проверке не запускали. Полевые шаги для Windows и Linux описаны в [TESTING.md](TESTING.md#полевой-тест-windows-exe-и-linuxnvidia).
-- Аргументы Ollama, vLLM и схема сохранённого плана остались прежними. Мастер добавляет отдельный шаг просмотра Compose. В выводе подбора для длинного контекста показана оценка для выбранного профиля.
-
-## Первоначальная сборка на Linux
-
-Дата проверки: **6 ноября 2026 года**.
-
-## Результат
-
-Исходный код собран в четыре исполняемых файла. Автоматические проверки прошли: **55 тестов верхнего уровня, 96 тестовых случаев с учётом подтестов**, ошибок и обнаруженных гонок данных нет. Сборочный скрипт также успешно выполнил `go vet ./...`.
-
-**Полный запуск настоящей модели в Docker пока не проверен:** в среде сборки нет Docker daemon и доступной NVIDIA GPU. Эту часть необходимо проверить на компьютере пользователя по [TESTING.md](TESTING.md).
-
-## Сборки
-
-Сборка выполнена Go **1.27.3** на Linux x86-64. В `go.mod` указана минимальная версия языка 1.22; внешних Go-модулей нет. Для распространяемых бинарников установлен `CGO_ENABLED=0`, использованы `-trimpath`, `-buildvcs=false` и версия `main.version=0.1.0`.
-
-| Файл в `dist/` | Проверенный формат | Фактический запуск |
-| --- | --- | --- |
-| `llm-launcher-linux-amd64` | ELF, x86-64, статическая линковка | Да: версия, сканер, подбор, план, мастер |
-| `llm-launcher-linux-arm64` | ELF, ARM aarch64, статическая линковка | Только кросс-компиляция |
-| `llm-launcher-windows-amd64.exe` | PE32+, Windows console, x86-64 | Только кросс-компиляция |
-| `llm-launcher-darwin-arm64` | Mach-O, Apple arm64 | Только кросс-компиляция |
-
-Контрольные суммы всех четырёх бинарников находятся в `dist/SHA256SUMS.txt` и проверены после сборки. Реальное выполнение Windows PowerShell probes, macOS probes и ARM-инференса не заявляется.
-
-## Автоматические проверки
-
-Успешно выполнены:
-
-```bash
-go test -race ./...
-bash scripts/build.sh
-```
-
-Второй сценарий включает `go test ./...`, `go vet ./...`, сборку четырёх целей и запись SHA256.
-
-| Пакет | Успешных тестовых случаев, включая подтесты | Что проверяется |
-| --- | ---: | --- |
-| `internal/hardware` | 16 | NVIDIA CSV, неизвестная память, локальные Docker endpoints, Linux memory/disk, Windows JSON/BOM/Unicode и массивы GPU |
-| `internal/catalog` | 5 | Встроенный каталог, схема, версии, разрешённые image repositories и повреждённый ввод |
-| `internal/recommend` | 29 | CPU/GPU admission, RAM/VRAM, драйвер, занятая GPU, несколько карт, лимит Docker RAM, ОС, диск и задачи |
-| `internal/deploy` | 35 | Compose, целостность файлов, ownership, locks, state, локальный endpoint, OpenAI API, fallback и lifecycle |
-| `cmd/llm-launcher` | 11 | Мастер, EOF, отмена чтения, флаги команд, JSON, неизвестная модель, контекст и запрет перезаписи |
-
-Lifecycle тест воспроизводит **`Up → повторный Up → Status → Down`** через подставной Docker runner и настоящий локальный HTTP test server. Он проверяет последовательность действий и API-контракты. Docker-контейнер при этом не запускается.
-
-Тесты inference проверяют именно обещанные `/v1/chat/completions` и `/v1/embeddings`. HTTP 200 без текста, без вектора либо с нулевым вектором не считается успехом. Для Ollama GPU-режима дополнительно проверяется `/api/ps`: выбранная модель должна использовать ненулевой объём VRAM. Это не доказательство полного размещения всех слоёв на GPU.
-
-## Проверка Linux CLI
-
-Собранный Linux-бинарник выполнил реальный `scan --json`: определил ОС, CPU, доступную память и свободный диск; корректно сообщил, что Docker отсутствует.
-
-Отдельно проверены девять сценариев CLI:
-
-1. Подбор на синтетическом CPU-компьютере с 16 GiB RAM.
-2. Подбор на синтетическом Linux-компьютере с GPU класса RTX 4080 и 16 GiB VRAM.
-3. Подбор на синтетическом Windows-компьютере с NVIDIA 8 GiB VRAM и ограниченной RAM Docker.
-4. Генерация vLLM-плана из примера оборудования.
-5. Отказ запускать план с отметкой `DEMO_INVENTORY`.
-6. Завершение интерактивного мастера в режиме без загрузок.
-7. Подготовка CPU-плана по реальному сканированию среды.
-8. Понятный отказ `up` при отсутствии Docker.
-9. Отказ перезаписывать существующий проект.
-
-Примеры оборудования в `examples/hardware/` вымышленные. Их результаты проверяют правила подбора; они не являются benchmark видеокарт и не подтверждают запуск на соответствующих устройствах.
-
-## Что остаётся подтвердить
-
-Следующий обязательный шаг — один настоящий запуск Ollama на выбранном компьютере, затем отдельный запуск vLLM на совместимом Linux/NVIDIA стенде. Нужно проверить скачивание из реестров, драйвер и доступ GPU из контейнера, готовность API, ответ модели, расход памяти, `down` и повторный `up` с сохранёнными весами.
-
-Оценки ресурсов в каталоге относятся к 4096 токенам и одной последовательности. Для увеличенного контекста применяется консервативный коэффициент, а не измеренная формула KV-cache каждой архитектуры. Скорость токенов и качество ответа в этой поставке не измерялись.
-
-Теги образов и моделей могут изменяться у издателя. После успешного запуска launcher сохраняет image ID/digests и digest модели Ollama. Для Hugging Face полная revision зафиксирована в одной записи каталога; у остальных неприкреплённая revision явно отмечается в рекомендации. Поэтому полная воспроизводимость всех профилей пока не заявляется.
-
-Подготовлены [план развития с критериями готовности](PLAN.md), [процедура полевого теста](TESTING.md) и [разбор типовых ошибок](TROUBLESHOOTING.md).
-
-## 0.2.1 — выбор образа vLLM и ранняя проверка библиотек
-
-По полевому запуску на Ubuntu/WSL2 с RTX 4080 SUPER старый контейнер увидел GPU, затем vLLM завершился при импорте `torchcodec` с ошибкой `libnvrtc.so.13`. Это совпадает с [дефектом образа v0.32.0-cu129](https://github.com/vllm-project/vllm/issues/63121). Ошибка произошла до загрузки модели.
-
-- Заменён образ по умолчанию: официальный CUDA 13.0 build v0.32.0 с закреплённым digest вместо CUDA 12.9. Смена ветки требует NVIDIA R580 или новее. Аргументы запуска модели сохранены.
-- Добавлены `--image` и поле выбора в Windows, а также проверка импорта vLLM после контейнерной проверки GPU и до загрузки весов.
-- Проверены Go-тесты, vet, сборка, SHA256 и создание планов на демонстрационной RTX 4080 с явным тегом и с разрешением канала `latest` в digest. Реальный запуск нового образа на NVIDIA предстоит проверить на стенде.
-
-## 0.2.2 — общий status и dtype vLLM
-
-- `status` без `--dir` теперь находит активные сервисы LLM Launcher через локальный Docker. Проверены выбор двух управляемых проектов с Ollama и vLLM, фильтрация чужого контейнера и ответы подставного API.
-- Новые планы vLLM фиксируют `--dtype auto` для обычных моделей и `--dtype half` для AWQ. Явная настройка имеет приоритет. Формат сохранённых планов и их проверка целостности сохранены.
-- На реальном Docker Desktop общий `status` показал запущенный llama.cpp с отвечающим API и перестал показывать его после `down`. Тесты с проверкой гонок, vet, сборка и проверка SHA-256 прошли. Новый dtype проверен на уровне сформированного плана.
-
-## 0.2.3 — быстрый выбор на Linux
-
-- В терминале Linux `scan` открывает выбор задачи и модели. Запуск использует существующий Compose и проверку ответа. `run` добавлен как алиас `up`. `scan --info` и `scan --json` сохраняют сценарий инвентаризации.
-- Добавлены три точных профиля Ollama: Mistral 7B Instruct v0.3, Llama 3.2 3B Instruct и DeepSeek R1 0528 Qwen3 8B. Для DeepSeek добавлены модельные параметры генерации и увеличен бюджет тестового запроса. Изменения действуют для новых планов. Для Mistral и Llama сохранены шаблоны выбранных артефактов.
-- Проверены Go-тесты, race, vet, сборка и выбор модели в пробном сценарии. Реальная загрузка новых моделей и измерение параметров на NVIDIA ещё не проводились.
-- Пробный путь `scan --dry-run` прошёл в реальном Linux ARM64 терминале внутри контейнера. На демонстрационном профиле RTX 4080 проверено сохранение параметров DeepSeek. Контейнеры новых моделей в этих проверках не запускались.
+[Hardware test procedure](TESTING.md#verify-inference-on-hardware)

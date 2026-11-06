@@ -1,60 +1,58 @@
-# Каталог моделей
+# Choosing a model
 
-[catalog.json](../catalog.json) содержит 52 профиля. Профиль описывает конкретную модель, формат весов и движок. Одна модель может быть представлена несколькими профилями.
+[The catalog](../catalog.json) lists 52 profiles for specific combinations of model, weights, and engine. Use `llm-launcher recommend --task chat` to see the profiles that fit your machine. Set `--runtime` to filter by engine.
 
-## Что выбрать
-
-| Задача | Начальный вариант | При большем бюджете |
+| Task | Small starting point | More room for weights |
 | --- | --- | --- |
-| Чат, объяснения, резюме | Qwen3 0.6B или Gemma 3 1B | Qwen3 4B Instruct, Mistral 7B Instruct, Granite 3.3 |
-| Работа с кодом | Qwen2.5 Coder 0.5B или 1.5B | Qwen2.5 Coder 7B, Phi-4-mini, Qwen3 Coder 30B |
-| Рассуждения | Qwen3 1.7B или 8B | DeepSeek R1 0528 Qwen3 8B, gpt-oss-20b или 120b |
-| Ответ по документам | Gemma 3 1B, Qwen3 4B Instruct | Mistral 7B, Qwen3 14B или 32B |
-| Векторы для поиска | Nomic Embed Text v1.5 | BGE-M3 для многоязычного поиска |
+| Chat, summaries, and explanations | Qwen3 0.6B or Gemma 3 1B | Qwen3 4B Instruct, Mistral 7B Instruct, or Granite 3.3 |
+| Code | Qwen2.5 Coder 0.5B or 1.5B | Qwen2.5 Coder 7B, Phi-4-mini, or Qwen3 Coder 30B |
+| Multi-step reasoning | Qwen3 1.7B or 8B | DeepSeek R1 0528 Qwen3 8B, gpt-oss-20b, or gpt-oss-120b |
+| Answers over supplied passages (`rag`) | Gemma 3 1B or Qwen3 4B Instruct | Mistral 7B or Qwen3 14B/32B |
+| Search embeddings | Nomic Embed Text v1.5 | BGE-M3 for multilingual search |
 
-Для ответа по документам приложение передаёт модели найденные фрагменты. Для поиска используется отдельный профиль эмбеддингов в Ollama.
+For RAG, your application retrieves the relevant passages and passes them to the model. Use an Ollama embedding profile to build search vectors.
 
-## Ориентиры по VRAM
+## GPU memory
 
-Примеры ниже рассчитаны на одну совместимую NVIDIA, контекст 4096 токенов, один запрос, достаточную RAM и почти свободную карту. Подбор использует фактически свободную VRAM. В примерах более ёмкие карты также поддерживают варианты из предыдущих строк.
+The examples assume one compatible NVIDIA GPU, a 4096-token context, one request at a time, and enough free RAM and disk. The launcher uses the card's free VRAM after a reserve.
 
-| VRAM карты | Примеры подходящих профилей |
+| Total VRAM | Example profiles |
 | --- | --- |
-| 4 ГиБ | Qwen3 0.6B или Gemma 3 1B в llama.cpp/Ollama. Qwen2.5 Coder 0.5B и Nomic Embed Text в Ollama |
-| 6–8 ГиБ | Qwen3 4B в llama.cpp/Ollama. Qwen3 0.6B BF16 в vLLM на совместимой GPU |
-| 12–16 ГиБ | Mistral 7B, Qwen3 8B и DeepSeek R1 8B в GGUF. Qwen3 4B BF16 и Qwen2.5 Coder 7B AWQ в vLLM при достаточном запасе |
-| 24 ГиБ | Qwen3 14B GGUF. gpt-oss-20b MXFP4 в llama.cpp или vLLM при достаточной свободной VRAM |
-| 32–48 ГиБ | Qwen3 Coder 30B Q4_K_M в Ollama. Qwen3 32B Q4_K_M в llama.cpp на карте с большим запасом |
-| 64–80 ГиБ | Крупные GGUF. На 80 ГиБ при почти свободной карте также Qwen3 30B-A3B Instruct BF16 в vLLM |
-| 96–128 ГиБ | Qwen3 32B BF16, Qwen3 Coder 30B BF16 и gpt-oss-120b MXFP4 в vLLM |
+| 4 GiB | Qwen3 0.6B or Gemma 3 1B in Ollama or llama.cpp. Qwen2.5 Coder 0.5B and Nomic Embed in Ollama. |
+| 6–8 GiB | Qwen3 4B in Ollama or llama.cpp. Qwen3 0.6B BF16 in vLLM if the card meets its compute requirements. |
+| 12–16 GiB | Mistral 7B, Qwen3 8B, or DeepSeek R1 8B GGUF. Qwen3 4B BF16 and Qwen2.5 Coder 7B AWQ in vLLM as free VRAM allows. |
+| 24 GiB | Qwen3 14B GGUF or gpt-oss-20b MXFP4. |
+| 32–48 GiB | Qwen3 Coder 30B Q4_K_M in Ollama or Qwen3 32B Q4_K_M in llama.cpp with enough free memory. |
+| 64–80 GiB | Larger GGUF profiles. Qwen3 30B-A3B Instruct BF16 in vLLM can fit at the upper end. |
+| 96–128 GiB | Qwen3 32B BF16, Qwen3 Coder 30B BF16, or gpt-oss-120b MXFP4 in vLLM. |
 
-Оценки памяти учитывают веса и запас для движка и контекста. Файл весов может быть существенно меньше требуемой VRAM. На длинном контексте список подходящих моделей меняется. Фактическая готовность подтверждается после загрузки и запроса к модели. Профили нескольких GPU, изображения, аудио и реранкинг требуют отдельных адаптеров.
+Weights, the KV cache, and runtime allocations all consume memory. Longer contexts raise the estimate. The launcher checks one GPU per project. For the hardware and inference tests behind these examples, see the [build report](BUILD_REPORT.md).
 
-## Настройки движков
+## Engines
 
-| Движок | Стартовые настройки |
-| --- | --- |
-| Ollama | Тег с указанным квантованием и шаблон выбранных весов. CPU или одна NVIDIA. Эмбеддинги доступны в этом движке |
-| vLLM | Официальный образ, NVIDIA и один параллельный запрос. `dtype=auto` для BF16, FP16 и MXFP4, `half` для AWQ. Лимит контекста и доля VRAM задаются при планировании |
-| llama.cpp | Закреплённый GGUF с проверкой SHA-256. Отдельные образы CPU и CUDA, на GPU выгружаются все слои, подтверждение читается из журнала запуска |
+| Engine | Supported paths in this release | Launch defaults |
+| --- | --- | --- |
+| Ollama | CPU or one NVIDIA GPU. Text and embeddings. | Explicit quantization tag and the model's template. |
+| vLLM | One NVIDIA GPU on Linux x64 or Windows x64 with Docker Desktop/WSL2. Text models. | `dtype=auto` for ordinary weights and `half` for AWQ. BF16 and MXFP4 profiles require compute capability 8.0 or higher. |
+| llama.cpp | CPU or one NVIDIA GPU for catalog GGUF. Manual GGUF imports use CPU. | Pinned GGUF and CPU/CUDA images. CUDA plans offload layers to the GPU and check the startup log. |
 
-Для DeepSeek R1 0528 Qwen3 8B применяется температура 0.6 и Top P 0.95. Для Qwen3 Instruct 2507 и Coder используются отдельные записи с соответствующими весами. Проверочный запрос к моделям с рассуждениями получает увеличенный бюджет токенов. Явные настройки пользователя имеют приоритет.
+Linux ARM64 and macOS Apple Silicon use CPU containers. Each plan serves one request at a time. New plans for DeepSeek R1 0528 use temperature 0.6 and Top P 0.95 unless you override them.
 
-## Как обновлять
+## Update the catalog
 
-Для пользователя доступны `llm-launcher update` и кнопка «Обновить список моделей» в Windows. Launcher получает [каталог](../catalog.json) и [подпись](../catalog.json.sig) из корня ветки `main`. Встроенный открытый ключ проверяет оба файла перед заменой локальной копии.
+Run `llm-launcher update` or click **Обновить список моделей** in the Windows app. A successful update is used the next time you pick a model. If the server is unavailable or the signature fails, the launcher uses its last verified copy or the bundled list. Existing plans keep their saved settings.
 
-Для сопровождающего каталог:
+To try a local file, pass `--catalog /path/to/catalog.json` to `catalog`, `recommend`, or `plan`.
 
-1. Добавьте запись с точным ID, движком, задачами, форматом, лицензией, ссылкой на карточку и оценками RAM, VRAM и диска. В `profiles` укажите назначение, происхождение и статус проверки. Поле `download_bytes` заполняется при наличии подтверждённого размера. Для GGUF требуются ревизия, имя файла, число байтов и SHA-256.
-2. Для нового профиля используйте `estimated`. После аппаратной проверки запишите окружение и результат в [отчёт](BUILD_REPORT.md).
-3. Обновите дату каталога и пересоздайте подпись ключом издателя. Закрытый ключ хранится вне репозитория.
+### Maintainers
+
+1. Add an entry with a model ID, runtime, tasks, license, exact weight reference, and resource estimates. Under `profiles`, record its intended use, format, source, and verification status. For GGUF, include the commit, filename, byte count, and SHA-256 hash.
+2. Set new profiles to `estimated` and add hardware results to the [build report](BUILD_REPORT.md) once tested. Update the catalog date.
+3. Regenerate the signature with the publisher key and commit the catalog and signature together.
 
    ```bash
    openssl pkeyutl -sign -rawin -inkey "$CATALOG_SIGNING_KEY" -in catalog.json -out catalog.json.sig
    go test ./internal/catalog ./internal/recommend
    ```
 
-4. Опубликуйте JSON и подпись одним коммитом. После публикации запустите `llm-launcher update` на чистой машине и проверьте дату и число профилей.
-
-Схема каталога 2 добавляет метаданные и закреплённые файлы. Launcher 0.3.0 читает пользовательские каталоги схемы 1 через `--catalog`. Поддерживаемые форматы, платформы и движки определяет версия приложения. [Источники](SOURCES.md).
+Keep the publisher key outside the repository. Schema 2 adds profile metadata and pinned GGUF files. The launcher still accepts schema 1 via `--catalog`. [Model and runtime sources](SOURCES.md)

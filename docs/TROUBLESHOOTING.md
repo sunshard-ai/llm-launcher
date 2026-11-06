@@ -1,145 +1,38 @@
-# Диагностика
+# Troubleshooting
 
-Сначала выполните `doctor`, затем `status --dir <каталог>` и `logs --dir <каталог>`. Для текстовых примеров ниже используется Linux x86-64; на Windows замените бинарник на `.\dist\llm-launcher-windows-amd64.exe`.
+## Find the failing step
 
-## Docker не найден или не отвечает
-
-```bash
-docker version
-docker compose version
-docker info
-docker context ls
-```
-
-Если Docker не установлен, используйте [официальную инструкцию](https://docs.docker.com/engine/install/) для вашей ОС. Если установлен, проверьте доступность daemon и права текущего пользователя. На Windows запустите Docker Desktop и выберите Linux containers.
-
-Launcher не устанавливает Docker, не меняет группы пользователей и не перезапускает системный daemon. Это позволяет подготовить окружение отдельно и затем повторить `up`.
-
-## «Удалённый Docker context»
-
-Проверьте выбранный context и настройки `DOCKER_HOST`:
+Run these commands from the directory where you normally use the launcher. Point `--dir` at your deployment.
 
 ```bash
-docker context show
-docker context inspect
+llm-launcher doctor
+llm-launcher status --dir ./my-model
+llm-launcher logs --dir ./my-model
 ```
 
-Локальная инвентаризация не описывает ресурсы другого Docker-сервера. Выберите локальное окружение перед запуском либо запускайте launcher непосредственно на целевом сервере. Автоматического переключения context в MVP нет.
+| Symptom | Check |
+| --- | --- |
+| Docker or Compose is unavailable | Run `docker info` and `docker compose version`. Start Docker and select its local context. On Windows, use Linux containers with WSL2. |
+| Remote Docker context | Run `docker context show` and inspect the endpoint. Select the local daemon before planning. |
+| GPU appears in `scan` but fails at launch | Run `nvidia-smi` on the host, then `llm-launcher gpu-check --dir ./my-model`. Check the NVIDIA Container Toolkit on Linux or the WSL2 GPU path on Windows. |
+| Only CPU profiles appear | Check free VRAM, driver, and compute capability in `scan --info`. Try a smaller model or a shorter context. |
+| A port is in use | Choose another `--port` when creating a plan, or stop the earlier launcher project with `down --dir ...`. |
+| Compose or plan failed validation | Run `inspect --dir ./my-model` and create a fresh plan in a new directory. Managed files are checked against the saved plan. |
 
-## GPU найдена, но контейнер её не видит
+## vLLM fails before serving
 
-На Linux сначала проверьте:
+Check `logs` for the first error. If a CUDA library cannot load, confirm the driver matches the image in `inspect`. Use `--image` with an official compatible vLLM tag or digest when creating a new plan. If the container runs out of memory, free VRAM, reduce `--context`, or choose smaller weights. Review the result with `gpu-check` and `test`.
 
-```bash
-nvidia-smi
-./dist/llm-launcher-linux-amd64 doctor
-```
+On Windows, vLLM requires x64 Linux containers, working Compose, and a compatible NVIDIA device exposed to Docker Desktop. [Docker Desktop GPU support](https://docs.docker.com/desktop/features/gpu/) · [vLLM GPU setup](https://docs.vllm.ai/en/stable/getting_started/installation/gpu/)
 
-Для сохранённого GPU-плана предусмотрена отдельная проверка:
+## Download is slow or storage is full
 
-```bash
-./dist/llm-launcher-linux-amd64 gpu-check --dir ./my-model
-```
+The first `up` downloads the runtime image and model. Run `up --timeout 60m --dir ./my-model` if the connection needs more time. Docker volumes can live on a different disk from the deployment folder. On Docker Desktop they use its virtual disk. See [where weights are stored](USAGE.md#api-and-storage).
 
-В отличие от `scan`, эта команда использует контейнер: может потребоваться загрузка образа. Успех подтверждает доступ GPU контейнеру; работу конкретной модели подтверждает `test` после запуска.
+For a Hugging Face authentication error, check that your token has read access to the chosen repository. For `update` returning HTTP 404, check whether the catalog is publicly reachable. The built-in catalog remains available.
 
-На обычном Linux проверьте NVIDIA Container Toolkit и настройку runtime по [официальному руководству](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html). На Windows проверьте NVIDIA-драйвер, WSL2 backend Docker Desktop и состояние WSL:
+## The API responds but the test fails
 
-```powershell
-wsl --status
-wsl --version
-nvidia-smi
-```
+Run `llm-launcher test --dir ./my-model` and check the container logs. A health response can arrive before the model can generate text or embeddings. Check the served model name and look for GPU, memory, or tokenizer errors in the log.
 
-Не устанавливайте Linux-драйвер NVIDIA внутри WSL как способ исправить Windows GPU: Windows/WSL используют отдельный поддерживаемый путь. Следуйте [инструкции NVIDIA для WSL](https://docs.nvidia.com/cuda/wsl-user-guide/index.html).
-
-## Предлагается CPU, хотя видеокарта есть
-
-Возможные причины: GPU не поддержана стартовой матрицей, не определилась свободная VRAM, не хватает памяти, отсутствует `nvidia-smi` или драйвер, используется неподдерживаемая архитектура. AMD/Intel и Apple GPU не используются этим NVIDIA backend.
-
-Посмотрите `scan --json` и пояснения `recommend`. Не подставляйте вручную общий объём VRAM вместо неизвестного свободного. При нескольких GPU можно выбрать конкретный индекс или UUID через `--gpu` при подготовке плана.
-
-## vLLM не предлагается на Windows
-
-Windows `.exe` в первой версии ограничен Ollama. Для vLLM используйте Linux-бинарник в WSL2 и убедитесь, что Docker и NVIDIA видны из той же WSL-системы. vLLM также не предлагается для CPU или неподдержанного compute capability в стартовой матрице. [Требования vLLM](https://docs.vllm.ai/en/stable/getting_started/installation/gpu/).
-
-## Ошибка CUDA или недостаточно памяти
-
-Просмотрите журнал:
-
-```bash
-./dist/llm-launcher-linux-amd64 logs --dir ./my-model
-nvidia-smi
-```
-
-Сопоставьте свободную VRAM со снимком во время подбора: другая программа могла занять память. Уменьшите модель или контекст через создание нового плана. CPU fallback требует отдельного CPU-плана. Самостоятельная смена параметров vLLM в управляемом Compose блокируется проверкой целостности.
-
-Успех `nvidia-smi` не гарантирует совместимость всех CUDA-ядер выбранного образа с драйвером и GPU. Сообщения `CUDA driver version is insufficient`, `no kernel image` и ошибки загрузки библиотек требуют проверки конкретных версий по документации движка и NVIDIA; увеличение таймаута их не исправляет.
-
-## Docker Desktop показывает меньше RAM, чем установлено
-
-Сравните инвентаризацию хоста и `docker info`. Движок работает внутри VM/WSL и ограничен выделенной ей памятью. Сначала выберите меньшую модель или скорректируйте выделенные Docker/WSL ресурсы через настройки платформы. После изменения заново создайте план по реальному сканированию.
-
-## Порт 11434 или 8000 занят
-
-Не останавливайте незнакомый сервис. Подготовьте новый план с другим портом:
-
-```bash
-./dist/llm-launcher-linux-amd64 wizard --dir ./my-model-2 --port 11435
-```
-
-Если порт использует предыдущий проект launcher и вы хотите его остановить:
-
-```bash
-./dist/llm-launcher-linux-amd64 down --dir ./my-model
-```
-
-## Скачивание не завершается
-
-Проверьте журналы, интернет-доступ Docker и свободное место в Docker-хранилище. Образы и веса скачиваются разными компонентами: registry Docker обслуживает daemon, а веса получает контейнер Ollama или vLLM. Исправная сеть браузера не гарантирует доступ этих компонентов.
-
-Для медленного канала увеличьте таймаут:
-
-```bash
-./dist/llm-launcher-linux-amd64 up --dir ./my-model --timeout 60m
-```
-
-При корпоративном proxy нужны соответствующие настройки Docker и контейнерного окружения, иногда доверенный корпоративный CA. Прототип не переносит автоматически браузерный PAC, настройки VPN, токены и сертификаты в контейнер. Ошибки TLS исправляются цепочкой доверия, а не отключением проверки сертификата. [Ollama proxy FAQ](https://docs.ollama.com/faq#how-do-i-use-ollama-behind-a-proxy-in-docker).
-
-## В каталоге проекта место есть, а Docker пишет «no space left»
-
-Веса находятся в Docker volume. Этот том может располагаться на другом разделе или внутри диска Docker Desktop. Проверьте использование:
-
-```bash
-docker system df
-docker info
-```
-
-Не запускайте общую очистку Docker на рабочей машине в качестве первого действия: она может затронуть данные других проектов. Сначала определите конкретное хранилище и ненужные артефакты.
-
-## «Compose изменён» / ошибка целостности
-
-Сгенерированные план и Compose образуют управляемый набор. Если редактирование было намеренным, сохраните изменённую конфигурацию отдельно и подготовьте новый план через launcher. Если изменение неожиданное, сравните файл с резервной копией и проверьте, какой процесс его менял. Не исправляйте служебные хеши ради обхода защиты.
-
-Если нужен параметр, которого пока нет в CLI, добавьте его в версионированную схему, валидатор и генератор; затем пересоздайте план. Правила изменений описаны в [AGENTS.md](../AGENTS.md).
-
-## Команда прервалась или закончилась таймаутом
-
-Проверьте фактическое состояние:
-
-```bash
-./dist/llm-launcher-linux-amd64 status --dir ./my-model
-./dist/llm-launcher-linux-amd64 logs --dir ./my-model
-```
-
-Если контейнеры продолжают работать и их нужно остановить, выполните `down` для этого каталога. Веса сохраняются. Повторный запуск — `up`. При сообщении о занятой блокировке убедитесь, что другое окно launcher не выполняет операцию; принудительное снятие блокировки во время активного процесса недопустимо.
-
-## API отвечает, но тест не проходит
-
-Возможны неверная модель, ошибка генерации, пустой ответ, несовместимый формат или незавершённая загрузка. Проверьте `status`, `logs` и список моделей по адресу `/v1/models`. Для embeddings ожидается embedding API; запрос к chat endpoint не заменяет его.
-
-Запросы health/smoke самого launcher к loopback не должны отправляться через системный proxy. Для самостоятельных curl-проверок используйте `--noproxy '*'`.
-
-## Нужна помощь
-
-Приложите версию launcher, `scan --json`, выбранный ID модели, команду запуска и короткий фрагмент лога вокруг ошибки. Перед отправкой уберите личные пути, если они чувствительны, и любые добавленные вручную секреты. Отдельно укажите, был ли запуск внутри WSL, SSH, контейнера или обычного терминала ОС.
+After a timeout or cancellation, inspect `status`. Use `down` to stop that deployment and `up` to retry with the saved weights. When reporting an issue, share the launcher version, engine, model ID, OS, and the first relevant error. Remove tokens, private paths, and GPU UUIDs from copied logs.
