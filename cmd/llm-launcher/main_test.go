@@ -284,6 +284,54 @@ func TestVLLMDTypeDefaultsAreSavedWithoutOverridingExplicitSettings(t *testing.T
 	}
 }
 
+func TestLlamaGPUPlansEnableOffloadLogging(t *testing.T) {
+	inventory := filepath.Join("..", "..", "examples", "hardware", "linux-rtx4080-16gb.json")
+	for _, test := range []struct {
+		name, settings, want string
+		wantError            bool
+	}{
+		{"default", "", "4", false},
+		{"explicit debug", `{"environment":{"LLAMA_ARG_LOG_VERBOSITY":"5"}}`, "5", false},
+		{"quiet GPU logs", `{"environment":{"LLAMA_ARG_LOG_VERBOSITY":"3"}}`, "", true},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			dir := filepath.Join(t.TempDir(), "deployment")
+			args := []string{"plan", "--runtime", "llama.cpp", "--model", "llamacpp-qwen3-0.6b",
+				"--gpu", "0", "--inventory", inventory, "--dir", dir}
+			if test.settings != "" {
+				args = append(args, "--settings-json", test.settings)
+			}
+			err := run(context.Background(), args, strings.NewReader(""), io.Discard, io.Discard)
+			if test.wantError {
+				if err == nil || !strings.Contains(err.Error(), "VERBOSITY") {
+					t.Fatalf("expected an actionable logging error, got %v", err)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			plan, err := deploy.ReadPlan(dir)
+			if err != nil || plan.Advanced == nil || plan.Advanced.Environment["LLAMA_ARG_LOG_VERBOSITY"] != test.want {
+				t.Fatalf("GPU logging default did not reach the saved plan: %v", err)
+			}
+			compose, err := deploy.Render(plan)
+			if err != nil || !strings.Contains(string(compose), `LLAMA_ARG_LOG_VERBOSITY: "`+test.want+`"`) {
+				t.Fatalf("runtime environment did not receive the logging level: %v", err)
+			}
+			// Older saved plans retain their rendering and remain inspectable.
+			plan.Advanced = nil
+			oldDir := filepath.Join(t.TempDir(), "legacy")
+			if err := deploy.WritePlan(oldDir, plan); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := deploy.ReadPlan(oldDir); err != nil {
+				t.Fatalf("old plan became unreadable: %v", err)
+			}
+		})
+	}
+}
+
 func TestQuickScanSelectsModelWithoutAskingForEngine(t *testing.T) {
 	dir := filepath.Join(t.TempDir(), "quick")
 	var out bytes.Buffer

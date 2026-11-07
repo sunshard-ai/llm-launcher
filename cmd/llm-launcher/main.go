@@ -568,6 +568,17 @@ func makePlanWithSource(hw domain.Hardware, cat domain.Catalog, r domain.Recomme
 		return p, err
 	}
 	advanced = catalog.ApplyDefaults(p.Model, advanced)
+	if p.Runtime == "llama.cpp" && p.Acceleration == "nvidia" {
+		if advanced == nil {
+			advanced = &domain.AdvancedSettings{}
+		}
+		if advanced.Environment == nil {
+			advanced.Environment = make(map[string]string)
+		}
+		if _, set := advanced.Environment["LLAMA_ARG_LOG_VERBOSITY"]; !set {
+			advanced.Environment["LLAMA_ARG_LOG_VERBOSITY"] = "4"
+		}
+	}
 	if p.Runtime == "vllm" {
 		if advanced == nil {
 			advanced = &domain.AdvancedSettings{}

@@ -91,3 +91,15 @@ func TestLlamaOffloadPropagatesDockerError(t *testing.T) {
 		t.Fatal("accepted an unsuccessful Docker logs command")
 	}
 }
+
+func TestLlamaQuietStartupGivesRecoveryInstructions(t *testing.T) {
+	manager := Manager{runCommand: func(context.Context, []string, bool) (string, error) {
+		return "common_params_print_info: verbosity = 3 (adjust with the -lv N CLI arg)\nserver: model loaded\n", nil
+	}}
+	container := containerInfo{ID: "owned-model"}
+	container.State.StartedAt = "2026-11-07T19:15:00Z"
+	err := manager.verifyLlamaOffload(context.Background(), container)
+	if err == nil || !strings.Contains(err.Error(), "LLAMA_ARG_LOG_VERBOSITY=4") {
+		t.Fatalf("expected instructions for an older quiet plan, got %v", err)
+	}
+}

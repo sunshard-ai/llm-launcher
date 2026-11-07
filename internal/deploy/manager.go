@@ -717,11 +717,13 @@ func (m Manager) Status(ctx context.Context) (domain.Status, error) {
 }
 
 var llamaOffload = regexp.MustCompile(`offloaded [1-9][0-9]*/[1-9][0-9]* layers to GPU`)
+var llamaQuietLog = regexp.MustCompile(`verbosity = [0-3]([^0-9]|$)`)
 
 // Keep the match even when later output exceeds the command's diagnostic buffer.
 type offloadLog struct {
 	tail      []byte
 	confirmed bool
+	quiet     bool
 }
 
 func (l *offloadLog) Write(data []byte) (int, error) {
@@ -731,6 +733,7 @@ func (l *offloadLog) Write(data []byte) (int, error) {
 	}
 	l.tail = append(l.tail, data...)
 	l.confirmed = llamaOffload.Match(l.tail)
+	l.quiet = l.quiet || llamaQuietLog.Match(l.tail)
 	if len(l.tail) > 256 {
 		l.tail = append(l.tail[:0], l.tail[len(l.tail)-256:]...)
 	}
@@ -753,6 +756,9 @@ func (m Manager) verifyLlamaOffload(ctx context.Context, container containerInfo
 	// The injected Docker runner used by orchestration tests returns stdout directly.
 	_, _ = stdout.Write([]byte(logs))
 	if !stdout.confirmed && !stderr.confirmed {
+		if stdout.quiet || stderr.quiet {
+			return fmt.Errorf("llama.cpp startup logging hides GPU offload details; create a new plan with LLAMA_ARG_LOG_VERBOSITY=4, then inspect logs with --all")
+		}
 		return fmt.Errorf("llama.cpp answered but GPU layer offload was not confirmed; inspect logs with --all")
 	}
 	return nil

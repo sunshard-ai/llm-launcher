@@ -73,6 +73,14 @@ func validateAdvanced(p domain.Plan) error {
 			return fmt.Errorf("unsupported environment variable or value for %s: %s", p.Runtime, k)
 		}
 	}
+	if p.Runtime == "llama.cpp" && p.Acceleration == "nvidia" {
+		if value := a.Environment["LLAMA_ARG_LOG_VERBOSITY"]; value != "" {
+			level, _ := strconv.Atoi(value)
+			if level < 4 {
+				return fmt.Errorf("llama.cpp GPU verification requires LLAMA_ARG_LOG_VERBOSITY=4 or higher")
+			}
+		}
+	}
 	if p.Runtime == "ollama" {
 		cache := a.Environment["OLLAMA_KV_CACHE_TYPE"]
 		if cache != "" && cache != "f16" && a.Environment["OLLAMA_FLASH_ATTENTION"] != "true" {
@@ -96,6 +104,10 @@ func allowedEnvironment(runtime, key, value string) bool {
 	}
 	if runtime == "vllm" {
 		return key == "VLLM_LOGGING_LEVEL" && (value == "DEBUG" || value == "INFO" || value == "WARNING" || value == "ERROR")
+	}
+	if runtime == "llama.cpp" {
+		level, err := strconv.Atoi(value)
+		return key == "LLAMA_ARG_LOG_VERBOSITY" && err == nil && level >= 0 && level <= 5
 	}
 	if runtime != "ollama" {
 		return false

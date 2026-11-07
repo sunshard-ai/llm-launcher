@@ -19,6 +19,8 @@
 
 Release image references are recorded in [catalog.json](../catalog.json) and the [llama.cpp image constants](../internal/catalog/catalog.go). The pinned vLLM image uses CUDA 13.0. The earlier CUDA 12.9 image had a [torchcodec dependency failure](https://github.com/vllm-project/vllm/issues/63121).
 
+llama.cpp b9935 routes library INFO messages, including layer offload details, through the trace threshold (4). New GPU plans set `LLAMA_ARG_LOG_VERBOSITY=4` so the launcher can verify offload. [Log callback](https://github.com/ggml-org/llama.cpp/blob/b9935/common/log.cpp) · [Logging levels](https://github.com/ggml-org/llama.cpp/blob/b9935/common/log.h) · [Supported environment option](https://github.com/ggml-org/llama.cpp/blob/b9935/common/arg.cpp)
+
 ## Model provenance
 
 Use the `url` and `profiles.source` fields in [catalog.json](../catalog.json) for the weight artifact and upstream model card. Revisions and hashes are recorded where supported. [Catalog provenance](../internal/catalog/SOURCES.md) · [Hugging Face Hub API](https://huggingface.co/docs/hub/api)

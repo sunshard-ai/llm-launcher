@@ -61,7 +61,7 @@ llm-launcher plan --task code --runtime ollama --model ollama-qwen25-coder-1.5b 
 | --- | --- |
 | Ollama | Sampling, repetition controls, seed, stop strings, and selected `OLLAMA_*` variables. An Ollama plan with generation overrides creates an API alias. Use the name printed after launch. |
 | vLLM | Sampling, penalties, `dtype`, `enforce_eager`, `gpu_memory_utilization`, and `VLLM_LOGGING_LEVEL`. Use `--image` to select a supported official tag or digest. |
-| llama.cpp | Sampling, repetition controls, and seed. |
+| llama.cpp | Sampling, repetition controls, seed, and `LLAMA_ARG_LOG_VERBOSITY`. New NVIDIA plans use level 4 to expose GPU offload evidence. |
 
 Put runtime variables inside the JSON `environment` object. Ollama supports `OLLAMA_FLASH_ATTENTION`, `OLLAMA_KV_CACHE_TYPE`, `OLLAMA_KEEP_ALIVE`, `OLLAMA_LOAD_TIMEOUT`, and `OLLAMA_MAX_QUEUE`. Use the `LLM_USER_` prefix for non-secret custom variables. Generation defaults apply to text tasks.
 

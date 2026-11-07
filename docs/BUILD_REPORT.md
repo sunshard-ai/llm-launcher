@@ -2,6 +2,8 @@
 
 ## v0.3.4
 
+- The follow-up report contained only 14 runtime log lines at verbosity 3. The server became ready in about 40 seconds and generated 117 tokens in 636 ms, but hid the offload message. Source inspection confirmed that b9935 maps library INFO to level 4.
+- Reproduced the logging difference with the official b9935 macOS ARM64 binary and the same Qwen3 GGUF on CPU. Both runs reached the health endpoint. Level 3 produced 7 log lines and no loader messages, while level 4 produced 208 lines including loader details. This verifies the logging threshold on CPU. GPU confirmation requires the next field test.
 - A user report from Ubuntu 24.04.2 under WSL2 with an RTX 4080 SUPER and NVIDIA driver 610.88 confirmed two successful Ollama Qwen3 0.6B Q4_K_M launch/relaunch cycles. The runtime log showed 29/29 layers on GPU. Separate smoke requests took 488–606 ms in the first session and 1482–1646 ms in the second.
 - The first llama.cpp attempt spent its timeout downloading the runtime image. A later attempt downloaded the GGUF and answered the model request, then failed GPU verification. Its complete startup log was unavailable, so GPU offload for that run remains unconfirmed.
 - Fixed a verification path that searched only the final 300 log lines. The new check reads the owned container's current start using Docker `logs --since` and matches both output streams while reading them. Regression checks cover early messages, split writes, large stderr output, CPU-only starts, and previous-container evidence.

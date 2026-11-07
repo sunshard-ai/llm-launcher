@@ -23,6 +23,8 @@ llm-launcher logs --dir ./my-model
 
 Use `logs --all --dir ./my-model` to include startup messages before the last 200 lines. For llama.cpp CUDA, the launcher checks GPU offload messages from the current container start.
 
+If an older llama.cpp GPU plan reports that startup logging hides offload details, create a new plan. New plans set `LLAMA_ARG_LOG_VERBOSITY=4`, which the pinned server requires to print library INFO messages. You can reuse `hf-model/weights.gguf` by copying it into the new plan's `hf-model` directory before `up`. The launcher verifies the copied file against the new plan.
+
 | Symptom | Check |
 | --- | --- |
 | Docker or Compose is unavailable | Run `docker info` and `docker compose version`. Start Docker and select its local context. On Windows, use Linux containers with WSL2. |
