@@ -30,6 +30,7 @@ type Manager struct {
 	Out     io.Writer
 	Err     io.Writer
 	Timeout time.Duration
+	LogAll  bool
 	// Injection points are deliberately private: production commands always use
 	// the local Docker CLI, while tests can simulate failures without a daemon.
 	runCommand     func(context.Context, []string, bool) (string, error)
@@ -166,6 +167,7 @@ type containerInfo struct {
 		Running    bool   `json:"Running"`
 		Status     string `json:"Status"`
 		Restarting bool   `json:"Restarting"`
+		StartedAt  string `json:"StartedAt"`
 	} `json:"State"`
 }
 
@@ -531,11 +533,6 @@ func (m Manager) Up(ctx context.Context) error {
 			return err
 		}
 	}
-	if p.Runtime == "llama.cpp" && p.Acceleration == "nvidia" && (!anyRunning(containers) || s.LastReadyAt == "") {
-		if err := m.verifyLlamaOffload(ctx, p); err != nil {
-			return err
-		}
-	}
 	image, err := m.image(ctx, p)
 	if err != nil {
 		return err
@@ -550,6 +547,11 @@ func (m Manager) Up(ctx context.Context) error {
 	for _, container := range verifiedContainers {
 		if container.State.Running && container.Image != image.ID {
 			return fmt.Errorf("running container image differs from the selected runtime image; deployment is not marked ready")
+		}
+		if container.State.Running && p.Runtime == "llama.cpp" && p.Acceleration == "nvidia" && (!anyRunning(containers) || s.LastReadyAt == "") {
+			if err := m.verifyLlamaOffload(ctx, container); err != nil {
+				return err
+			}
 		}
 	}
 	// On an idempotent retry inspect the running image, not only its mutable tag.
@@ -642,7 +644,11 @@ func (m Manager) Logs(ctx context.Context, follow bool) error {
 		ctx, cancel = context.WithTimeout(ctx, 30*time.Second)
 		defer cancel()
 	}
-	args := []string{"logs", "--no-color", "--tail", "200"}
+	tail := "200"
+	if m.LogAll {
+		tail = "all"
+	}
+	args := []string{"logs", "--no-color", "--tail", tail}
 	if follow {
 		args = append(args, "--follow")
 	}
@@ -712,15 +718,42 @@ func (m Manager) Status(ctx context.Context) (domain.Status, error) {
 
 var llamaOffload = regexp.MustCompile(`offloaded [1-9][0-9]*/[1-9][0-9]* layers to GPU`)
 
-func (m Manager) verifyLlamaOffload(ctx context.Context, p domain.Plan) error {
-	stderr := &tailBuffer{limit: 1 << 20}
-	m.Out, m.Err = io.Discard, stderr
-	logs, err := m.command(ctx, m.composeArgs(p, "logs", "--no-color", "--tail", "300", "model"), true)
+// Keep the match even when later output exceeds the command's diagnostic buffer.
+type offloadLog struct {
+	tail      []byte
+	confirmed bool
+}
+
+func (l *offloadLog) Write(data []byte) (int, error) {
+	size := len(data)
+	if l.confirmed {
+		return size, nil
+	}
+	l.tail = append(l.tail, data...)
+	l.confirmed = llamaOffload.Match(l.tail)
+	if len(l.tail) > 256 {
+		l.tail = append(l.tail[:0], l.tail[len(l.tail)-256:]...)
+	}
+	return size, nil
+}
+
+func (m Manager) verifyLlamaOffload(ctx context.Context, container containerInfo) error {
+	started, err := time.Parse(time.RFC3339Nano, container.State.StartedAt)
+	if err != nil || started.IsZero() || container.ID == "" {
+		return fmt.Errorf("cannot verify llama.cpp GPU offload: current container start time is unavailable")
+	}
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+	stdout, stderr := &offloadLog{}, &offloadLog{}
+	m.Out, m.Err = stdout, stderr
+	logs, err := m.command(ctx, []string{"logs", "--since", container.State.StartedAt, container.ID}, true)
 	if err != nil {
 		return fmt.Errorf("check llama.cpp GPU offload: %w", err)
 	}
-	if !llamaOffload.MatchString(logs) && !llamaOffload.Match(stderr.data) {
-		return fmt.Errorf("llama.cpp answered but GPU layer offload was not confirmed; inspect logs")
+	// The injected Docker runner used by orchestration tests returns stdout directly.
+	_, _ = stdout.Write([]byte(logs))
+	if !stdout.confirmed && !stderr.confirmed {
+		return fmt.Errorf("llama.cpp answered but GPU layer offload was not confirmed; inspect logs with --all")
 	}
 	return nil
 }

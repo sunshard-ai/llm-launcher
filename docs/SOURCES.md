@@ -5,6 +5,7 @@
 - [Docker Engine installation](https://docs.docker.com/engine/install/) and [Compose GPU access](https://docs.docker.com/compose/how-tos/gpu-support/).
 - [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) for Linux.
 - [Docker Desktop GPU support](https://docs.docker.com/desktop/features/gpu/) and [NVIDIA CUDA on WSL](https://docs.nvidia.com/cuda/wsl-user-guide/index.html) for Windows.
+- [Docker container logs](https://docs.docker.com/reference/cli/docker/container/logs/) documents reading both output streams and filtering by the current container start with `--since`. [Compose logs](https://docs.docker.com/reference/cli/docker/compose/logs/) documents `--tail all` for full startup diagnostics.
 
 ## Runtime behavior
 

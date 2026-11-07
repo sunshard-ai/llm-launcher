@@ -72,6 +72,7 @@ Put runtime variables inside the JSON `environment` object. Ollama supports `OLL
 | `status` | Show running and restarting launcher projects in local Docker. Use `--dir` to inspect one project. |
 | `list --dir ./runs` | List saved deployment states under a directory. |
 | `logs --dir ./my-model --follow` | Stream runtime logs. |
+| `logs --dir ./my-model --all` | Include the complete retained startup log. |
 | `test --dir ./my-model` | Send a chat or embedding request. |
 | `down --dir ./my-model` | Stop and remove the project's containers while keeping weights. |
 | `delete --dir ./my-model` | Stop and archive the deployment while keeping the plan and weights. |

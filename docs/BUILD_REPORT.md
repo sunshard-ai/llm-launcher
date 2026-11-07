@@ -1,5 +1,13 @@
 # Build and test results
 
+## v0.3.4
+
+- A user report from Ubuntu 24.04.2 under WSL2 with an RTX 4080 SUPER and NVIDIA driver 610.88 confirmed two successful Ollama Qwen3 0.6B Q4_K_M launch/relaunch cycles. The runtime log showed 29/29 layers on GPU. Separate smoke requests took 488–606 ms in the first session and 1482–1646 ms in the second.
+- The first llama.cpp attempt spent its timeout downloading the runtime image. A later attempt downloaded the GGUF and answered the model request, then failed GPU verification. Its complete startup log was unavailable, so GPU offload for that run remains unconfirmed.
+- Fixed a verification path that searched only the final 300 log lines. The new check reads the owned container's current start using Docker `logs --since` and matches both output streams while reading them. Regression checks cover early messages, split writes, large stderr output, CPU-only starts, and previous-container evidence.
+- Added `logs --all` to collect retained startup messages.
+- Go tests, the race detector, vet, and the release build passed on macOS ARM64. A process fixture exercised large stderr output. NVIDIA verification on the user's machine is pending.
+
 ## v0.3.3
 
 - The desktop journal regression used mock controls to replay the Russian Docker summary and disk warning in French, German, Chinese, and English. It also checked a nested GPU warning, streamed API details, and separation of original diagnostic output.

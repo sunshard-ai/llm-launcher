@@ -21,6 +21,8 @@ llm-launcher status --dir ./my-model
 llm-launcher logs --dir ./my-model
 ```
 
+Use `logs --all --dir ./my-model` to include startup messages before the last 200 lines. For llama.cpp CUDA, the launcher checks GPU offload messages from the current container start.
+
 | Symptom | Check |
 | --- | --- |
 | Docker or Compose is unavailable | Run `docker info` and `docker compose version`. Start Docker and select its local context. On Windows, use Linux containers with WSL2. |

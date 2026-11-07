@@ -25,7 +25,7 @@ import (
 	"llmlauncher/internal/recommend"
 )
 
-var version = "0.3.3"
+var version = "0.3.4"
 var desktopMode string
 var hfToken string
 
@@ -35,7 +35,7 @@ type options struct {
 	cpu, json, dryRun, follow                          bool
 	timeout                                            time.Duration
 	settingsJSON, hfURL, image                         string
-	compose, interactive, infoOnly                     bool
+	compose, interactive, infoOnly, allLogs            bool
 	explicit                                           map[string]bool
 }
 
@@ -102,6 +102,7 @@ func parseOptions(command string, args []string, errOut io.Writer) (options, err
 	f.BoolVar(&o.infoOnly, "info", false, "show hardware inventory only")
 	f.BoolVar(&o.dryRun, "dry-run", false, "save a plan without downloading or starting the model")
 	f.BoolVar(&o.follow, "follow", false, "stream logs until Ctrl+C")
+	f.BoolVar(&o.allLogs, "all", false, "include all retained container logs")
 	f.BoolVar(&o.compose, "compose", false, "show the validated Compose configuration")
 	f.StringVar(&o.settingsJSON, "settings-json", "", "generation settings and non-secret environment variables in JSON")
 	f.StringVar(&o.image, "image", "", "official vLLM image tag or digest. The latest tag resolves to a pinned digest")
@@ -165,7 +166,7 @@ func allowedFlags(command string) map[string]bool {
 		"plan":      "dir task runtime model catalog inventory gpu cpu context port json settings-json image",
 		"hf-plan":   "dir hf-url task context port json timeout settings-json runtime gpu image", "inspect": "dir compose json",
 		"wizard": "dir catalog inventory gpu cpu context port dry-run timeout",
-		"up":     "dir timeout", "status": "dir json", "logs": "dir follow",
+		"up":     "dir timeout", "status": "dir json", "logs": "dir follow all",
 		"test": "dir json timeout", "down": "dir timeout", "gpu-check": "dir timeout",
 		"list": "dir json", "delete": "dir timeout", "restore": "dir",
 	}
@@ -338,7 +339,7 @@ func run(ctx context.Context, args []string, in io.Reader, out, errOut io.Writer
 		}
 		return nil
 	}
-	m := deploy.Manager{Dir: o.dir, Out: out, Err: errOut, Timeout: o.timeout, HFToken: hfToken}
+	m := deploy.Manager{Dir: o.dir, Out: out, Err: errOut, Timeout: o.timeout, HFToken: hfToken, LogAll: o.allLogs}
 	switch command {
 	case "list":
 		projects, err := deploy.List(o.dir)
@@ -719,7 +720,7 @@ Commands:
   up, run      Verify, download, start, and test a deployment.
   status       Check running deployments or one deployment selected with --dir.
   test         Send a chat or embedding request to the model API.
-  logs         Show container logs. Use --follow to stream them.
+  logs         Show container logs. Use --all for startup logs or --follow to stream.
   down         Stop a deployment and keep its downloaded weights.
   delete       Stop and archive a deployment, keeping the plan and weights.
   restore      Restore an archived deployment for a later launch.
