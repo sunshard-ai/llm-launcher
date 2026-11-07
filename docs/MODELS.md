@@ -42,7 +42,7 @@ Linux ARM64 and macOS Apple Silicon use CPU containers. Each plan serves one req
 
 The desktop app and interactive CLI check [this repository's catalog](../catalog.json) in the background. The first launch checks right away. Subsequent launches check at most once every 24 hours. The picker can open immediately with the latest verified local copy or the catalog built into the executable.
 
-Run `llm-launcher update` or click **Обновить список моделей** in Windows to check immediately. A successful check reports whether a newer catalog was installed. If the network or signature check fails, the launcher keeps the current list. New recommendations use the latest verified catalog, and saved deployments use their recorded plans.
+Run `llm-launcher update` or click **Update catalog** in Windows to check immediately. The catalog row shows its profile count and date. A successful check reports whether a newer catalog was installed and refreshes recommendations. If the network or signature check fails, the launcher keeps the current list. Saved deployments use their recorded plans.
 
 To try a local file, pass `--catalog /path/to/catalog.json` to `catalog`, `recommend`, or `plan`.
 

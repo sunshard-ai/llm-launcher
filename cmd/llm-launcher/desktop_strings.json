@@ -70,11 +70,11 @@
     "fr": "Analyser le PC"
   },
   "updateCatalog": {
-    "en": "Update model catalog",
-    "de": "Modellkatalog aktualisieren",
-    "ru": "Обновить список моделей",
-    "zh": "更新模型目录",
-    "fr": "Actualiser le catalogue"
+    "en": "Update catalog",
+    "de": "Katalog aktualisieren",
+    "ru": "Обновить каталог",
+    "zh": "更新目录",
+    "fr": "Mettre à jour le catalogue"
   },
   "hardware": {
     "en": "CPU, memory, GPU, Docker",
@@ -182,11 +182,11 @@
     "fr": "Contexte"
   },
   "port": {
-    "en": "Port (0 = default)",
-    "de": "Port (0 = Standard)",
-    "ru": "Порт (0 = по умолчанию)",
-    "zh": "端口（0 = 默认）",
-    "fr": "Port (0 = par défaut)"
+    "en": "Port (0 = automatic)",
+    "de": "Port (0 = automatisch)",
+    "ru": "Порт (0 = автоматически)",
+    "zh": "端口（0 = 自动）",
+    "fr": "Port (0 = automatique)"
   },
   "findModels": {
     "en": "Find models",
@@ -1608,5 +1608,162 @@
     "zh": "在中端 GPU 上进行聊天和推理。",
     "fr": "Discussion et raisonnement sur un GPU de milieu de gamme.",
     "source": "Чат и рассуждения на GPU среднего класса."
+  },
+  "catalogLoading": {
+    "en": "Model catalog: loading…",
+    "de": "Modellkatalog wird geladen…",
+    "ru": "Каталог моделей: загрузка…",
+    "zh": "模型目录：正在加载…",
+    "fr": "Catalogue de modèles : chargement…"
+  },
+  "catalogSummary": {
+    "en": "Model catalog: {0} profiles · updated {1}",
+    "de": "Modellkatalog: {0} Profile · Stand {1}",
+    "ru": "Каталог моделей: {0} профилей · обновлён {1}",
+    "zh": "模型目录：{0} 个配置 · 更新于 {1}",
+    "fr": "Catalogue : {0} profils · mis à jour le {1}"
+  },
+  "localModel": {
+    "en": "Model from disk…",
+    "de": "Modell vom Datenträger…",
+    "ru": "Модель с диска…",
+    "zh": "从磁盘导入模型…",
+    "fr": "Modèle sur disque…"
+  },
+  "importWeights": {
+    "en": "Attach weights…",
+    "de": "Gewichte hinzufügen…",
+    "ru": "Подключить веса…",
+    "zh": "导入权重…",
+    "fr": "Importer les poids…"
+  },
+  "workerMissing": {
+    "en": "The command file is unavailable. Reopen the launcher from an extracted folder.",
+    "de": "Die Befehlsdatei ist nicht verfügbar. Öffnen Sie den Launcher erneut aus einem entpackten Ordner.",
+    "ru": "Файл запуска команд недоступен. Откройте лаунчер заново из распакованной папки.",
+    "zh": "命令文件不可用。请从解压后的文件夹重新打开启动器。",
+    "fr": "Le fichier de commande est indisponible. Rouvrez le lanceur depuis un dossier extrait."
+  },
+  "commandStartFailed": {
+    "en": "Could not start the command. Reopen the launcher from an extracted folder; technical details are available below.",
+    "de": "Der Befehl konnte nicht gestartet werden. Öffnen Sie den Launcher erneut aus einem entpackten Ordner. Technische Details finden Sie unten.",
+    "ru": "Не удалось запустить команду. Откройте лаунчер заново из распакованной папки; подробности доступны ниже.",
+    "zh": "无法启动命令。请从解压后的文件夹重新打开启动器；技术详情见下方。",
+    "fr": "Impossible de lancer la commande. Rouvrez le lanceur depuis un dossier extrait ; les détails techniques sont disponibles ci-dessous."
+  },
+  "dockerStopped": {
+    "en": "Docker is not running or is inaccessible. Start Docker Desktop and scan again.",
+    "de": "Docker läuft nicht oder ist nicht erreichbar. Starten Sie Docker Desktop und scannen Sie erneut.",
+    "ru": "Docker не запущен или недоступен. Запустите Docker Desktop и повторите сканирование.",
+    "zh": "Docker 未运行或无法访问。请启动 Docker Desktop 后重新扫描。",
+    "fr": "Docker est arrêté ou inaccessible. Démarrez Docker Desktop puis relancez l’analyse."
+  },
+  "dockerUnknownOs": {
+    "en": "Could not determine the Docker server OS. Start Docker and scan again.",
+    "de": "Das Betriebssystem des Docker-Servers konnte nicht ermittelt werden. Starten Sie Docker und scannen Sie erneut.",
+    "ru": "Не удалось определить ОС Docker daemon. Запустите Docker и повторите сканирование.",
+    "zh": "无法确定 Docker 服务端操作系统。请启动 Docker 后重新扫描。",
+    "fr": "Impossible de déterminer le système du serveur Docker. Démarrez Docker puis relancez l’analyse.",
+    "source": "Не удалось определить ОС Docker daemon. Запустите Docker и повторите сканирование."
+  },
+  "weightsLocation": {
+    "en": "Model files will be stored in: {0}",
+    "de": "Modelldateien werden hier gespeichert: {0}",
+    "ru": "Файлы модели будут храниться здесь: {0}",
+    "zh": "模型文件将保存在：{0}",
+    "fr": "Les fichiers du modèle seront stockés dans : {0}"
+  },
+  "weightsVolume": {
+    "en": "Model weights are stored in the project Docker volume. For a downloaded safetensors folder, use Model from disk.",
+    "de": "Modellgewichte liegen im Docker-Volume des Projekts. Für einen heruntergeladenen Safetensors-Ordner wählen Sie Modell vom Datenträger.",
+    "ru": "Веса хранятся в томе Docker проекта. Для скачанной папки safetensors используйте «Модель с диска».",
+    "zh": "模型权重保存在项目的 Docker 卷中。已有 safetensors 文件夹请使用“从磁盘导入模型”。",
+    "fr": "Les poids sont stockés dans le volume Docker du projet. Pour un dossier safetensors téléchargé, utilisez Modèle sur disque."
+  },
+  "verifyingWeights": {
+    "en": "Verifying and copying local weights…",
+    "de": "Lokale Gewichte werden geprüft und kopiert…",
+    "ru": "Проверяем и копируем локальные веса…",
+    "zh": "正在验证并复制本地权重…",
+    "fr": "Vérification et copie des poids locaux…"
+  },
+  "weightsReady": {
+    "en": "Local weights are verified. The plan is ready to launch.",
+    "de": "Lokale Gewichte wurden geprüft. Der Plan kann gestartet werden.",
+    "ru": "Локальные веса проверены. План готов к запуску.",
+    "zh": "本地权重已验证，可以启动部署计划。",
+    "fr": "Les poids locaux sont vérifiés. Le plan est prêt à démarrer."
+  },
+  "weightsMismatch": {
+    "en": "Weights could not be attached. Check that the files match the model, format and revision in the plan; see technical details.",
+    "de": "Gewichte konnten nicht hinzugefügt werden. Prüfen Sie Modell, Format und Revision der Dateien. Siehe technische Details.",
+    "ru": "Не удалось подключить веса. Проверьте соответствие модели, формата и ревизии плану; причина указана в подробностях.",
+    "zh": "无法导入权重。请检查文件是否与计划中的模型、格式和版本一致；详见技术信息。",
+    "fr": "Impossible d’importer les poids. Vérifiez le modèle, le format et la révision des fichiers ; consultez les détails techniques."
+  },
+  "localWeightsHelp": {
+    "en": "Select Model from disk for a downloaded safetensors folder or GGUF file. Provide its original Hugging Face URL, then prepare the plan.",
+    "de": "Wählen Sie Modell vom Datenträger für Safetensors-Ordner oder GGUF-Dateien. Geben Sie die ursprüngliche Hugging-Face-URL an und erstellen Sie den Plan.",
+    "ru": "Для папки safetensors или файла GGUF нажмите «Модель с диска», укажите исходную ссылку Hugging Face и подготовьте план.",
+    "zh": "已有 safetensors 文件夹或 GGUF 文件请使用“从磁盘导入模型”，填写原始 Hugging Face 链接后创建计划。",
+    "fr": "Pour un dossier safetensors ou un fichier GGUF, utilisez Modèle sur disque, indiquez son URL Hugging Face d’origine puis préparez le plan."
+  },
+  "snapshotFolder": {
+    "en": "Hugging Face folder (safetensors) · vLLM",
+    "de": "Hugging-Face-Ordner (Safetensors) · vLLM",
+    "ru": "Папка Hugging Face (safetensors) · vLLM",
+    "zh": "Hugging Face 文件夹（safetensors）· vLLM",
+    "fr": "Dossier Hugging Face (safetensors) · vLLM"
+  },
+  "localSourceHint": {
+    "en": "Choose downloaded weights and their original Hugging Face URL. The launcher verifies the exact revision and copies model data into the plan folder.",
+    "de": "Wählen Sie heruntergeladene Gewichte und ihre ursprüngliche Hugging-Face-URL. Der Launcher prüft die Revision und kopiert die Modelldaten in den Planordner.",
+    "ru": "Выберите скачанные веса и их исходную ссылку Hugging Face. Лаунчер проверит точную ревизию и скопирует файлы в папку плана.",
+    "zh": "选择已下载的权重及其原始 Hugging Face 链接。启动器将验证准确版本，并将模型文件复制到计划文件夹。",
+    "fr": "Choisissez les poids téléchargés et leur URL Hugging Face d’origine. Le lanceur vérifie la révision et copie les fichiers dans le dossier du plan."
+  },
+  "localPath": {
+    "en": "Downloaded model file or folder",
+    "de": "Heruntergeladene Modelldatei oder -ordner",
+    "ru": "Скачанный файл или папка модели",
+    "zh": "已下载的模型文件或文件夹",
+    "fr": "Fichier ou dossier du modèle téléchargé"
+  },
+  "localSourceUrl": {
+    "en": "Original Hugging Face repository URL or GGUF file URL (a pinned revision URL also works)",
+    "de": "Ursprüngliche Hugging-Face-Repository- oder GGUF-Datei-URL, auch mit fester Revision",
+    "ru": "Исходная ссылка на репозиторий HF или файл GGUF; можно указать ссылку с точной ревизией",
+    "zh": "原始 Hugging Face 仓库或 GGUF 文件链接，也可使用指定版本的链接",
+    "fr": "URL Hugging Face du dépôt ou du fichier GGUF ; une révision précise peut être indiquée"
+  },
+  "localSourceRequired": {
+    "en": "Choose the downloaded file or folder and provide its original Hugging Face URL.",
+    "de": "Wählen Sie die Datei oder den Ordner und geben Sie die ursprüngliche Hugging-Face-URL an.",
+    "ru": "Выберите скачанный файл или папку и укажите исходную ссылку Hugging Face.",
+    "zh": "请选择已下载的文件或文件夹，并填写原始 Hugging Face 链接。",
+    "fr": "Choisissez le fichier ou dossier téléchargé et indiquez son URL Hugging Face d’origine."
+  },
+  "localSourceSelected": {
+    "en": "Downloaded model selected: {0}. Prepare the plan to verify and copy the files.",
+    "de": "Heruntergeladenes Modell gewählt: {0}. Erstellen Sie den Plan, um die Dateien zu prüfen und zu kopieren.",
+    "ru": "Выбрана скачанная модель: {0}. Подготовьте план для проверки и копирования файлов.",
+    "zh": "已选择下载的模型：{0}。请创建计划以验证并复制文件。",
+    "fr": "Modèle téléchargé sélectionné : {0}. Préparez le plan pour vérifier et copier les fichiers."
+  },
+  "localWeightsCopied": {
+    "en": "Local weights verified and copied to {0}",
+    "de": "Lokale Gewichte geprüft und nach {0} kopiert",
+    "ru": "Локальные веса проверены и скопированы в {0}",
+    "zh": "本地权重已验证并复制到 {0}",
+    "fr": "Poids locaux vérifiés et copiés vers {0}",
+    "sourcePattern": "Local weights verified and copied to (.+)"
+  },
+  "portUnavailable": {
+    "en": "Port {0} is busy. Choose another port or use 0 for automatic selection, then prepare a new plan.",
+    "de": "Port {0} ist belegt. Wählen Sie einen anderen Port oder 0 für automatische Auswahl und erstellen Sie einen neuen Plan.",
+    "ru": "Порт {0} занят. Выберите другой порт или 0 для автоматического выбора и подготовьте новый план.",
+    "zh": "端口 {0} 已占用。请选择其他端口或使用 0 自动选择，然后创建新计划。",
+    "fr": "Le port {0} est occupé. Choisissez un autre port ou 0 pour une sélection automatique, puis préparez un nouveau plan.",
+    "sourcePattern": "local port ([0-9]+) is busy or unavailable; (?:choose another port or use 0 for automatic selection|create a plan with another port: .+)"
   }
 }

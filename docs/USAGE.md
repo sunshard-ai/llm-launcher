@@ -22,13 +22,15 @@ Use `--gpu 0` or a GPU UUID to select a specific card. Use `inspect --compose --
 
 1. Start Docker Desktop with the WSL2 backend and Linux containers.
 2. Open `LLM-Launcher-Windows-x64.exe` and select the folder for deployments. English is the default. The **Language** menu in the top right switches the interface immediately and remembers your choice for next time.
-3. Click **Scan computer**, choose a task and runtime, then click **Find models**.
-4. Pick a model. **Advanced settings…** opens advanced settings. **Prepare plan** saves the plan, **View details…** opens the Compose file, and **Launch plan** starts the deployment.
+3. The catalog row shows the profile count and update date. **Update catalog** checks for a signed update and refreshes the recommended models. Click **Scan computer**, choose a task and runtime, then click **Find models**.
+4. Pick a model, or use **Model from disk…** for downloaded weights. Leave **Port** at `0` to select a free port. **Advanced settings…** opens advanced settings. **Prepare plan** saves the plan, **View details…** opens the Compose file, and **Launch plan** starts the deployment.
 5. Use **My deployments** to inspect status, view logs, test, stop, archive, or restore a deployment.
 
 The desktop interface supports English, German, Russian, Simplified Chinese, and French. Changing languages also translates existing activity entries, including the hardware scan and model selection notes. **Technical details…** shows the original output from Docker, the model, and any diagnostics that are specific to the environment.
 
 The Windows CLI supports the same planning and management commands. In PowerShell, invoke it as `.\llm-launcher-windows-amd64.exe`.
+
+If Docker Desktop is stopped, start it and scan again. The Linux-container message applies when the daemon actually reports Windows containers. After changing a prepared plan, **Prepare plan** selects a new folder when the previous one already exists. Earlier deployments remain available in **My deployments**.
 
 ## Import from Hugging Face
 
@@ -47,6 +49,20 @@ llm-launcher up --dir ./my-gguf
 For vLLM, add `--runtime vllm` and use a repository URL such as `https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct`. The desktop app has an **Import from HF…** button when you select either engine. For gated or private weights, provide a Hugging Face read token with access. The CLI reads `LLM_LAUNCHER_HF_TOKEN` for planning and downloading. The app keeps it in the current session.
 
 The import pins a commit and checks file sizes and hashes during download. The engine reads the verified files from `hf-model/` in the deployment directory.
+
+## Use downloaded weights
+
+In Windows, select **Model from disk…**, choose a Safetensors folder for vLLM or a GGUF file for llama.cpp, and provide the original Hugging Face repository or file URL. **Prepare plan** resolves the revision and verifies and copies the matching files. Planning still needs access to Hugging Face metadata. For a snapshot downloaded at an older revision, use `https://huggingface.co/OWNER/MODEL/tree/FULL_COMMIT_SHA`.
+
+For an existing compatible plan, **Attach weights…** in **My deployments** opens a file or folder picker. The CLI equivalent is:
+
+```bash
+llm-launcher import-weights --dir ./my-model --from /path/to/downloaded-snapshot
+# For a llama.cpp plan, --from points to its GGUF file instead.
+llm-launcher up --dir ./my-model
+```
+
+The launcher copies only the files pinned by the plan and checks their sizes and hashes. Original downloads remain in place. Existing cache files are verified and kept; mismatches are rejected. Ollama uses its own project Docker volume. To use a downloaded Safetensors folder, choose the vLLM import path. Putting unrelated weights next to the executable or plan does not select a model.
 
 ## Advanced settings
 
@@ -71,6 +87,7 @@ Put runtime variables inside the JSON `environment` object. Ollama supports `OLL
 | --- | --- |
 | `status` | Show running and restarting launcher projects in local Docker. Use `--dir` to inspect one project. |
 | `list --dir ./runs` | List saved deployment states under a directory. |
+| `import-weights --dir ./my-model --from PATH` | Verify and copy downloaded GGUF or snapshot files into a compatible saved plan. |
 | `logs --dir ./my-model --follow` | Stream runtime logs. |
 | `logs --dir ./my-model --all` | Include the complete retained startup log. |
 | `test --dir ./my-model` | Send a chat or embedding request. |
@@ -82,7 +99,7 @@ Put runtime variables inside the JSON `environment` object. Ollama supports `OLL
 
 ## API and storage
 
-Use the base URL and model name printed at launch. The default ports are 11434 for Ollama, 8000 for vLLM, and 8080 for llama.cpp. Set different ports when running several projects.
+Use the base URL and model name printed at launch. With `--port 0`, planning prefers 11434 for Ollama, 8000 for vLLM, or 8080 for llama.cpp and selects another free port if needed. An explicitly occupied port fails before saving the plan. Startup checks the saved port again because another application can claim it after planning.
 
 ```bash
 curl --noproxy '*' http://127.0.0.1:8080/v1/models

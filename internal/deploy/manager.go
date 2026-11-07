@@ -134,20 +134,8 @@ func (m *Manager) ensureDocker(ctx context.Context, p domain.Plan) error {
 		probe = hardware.ProbeDocker
 	}
 	d := probe(ctx)
-	if !d.Installed {
-		return fmt.Errorf("Docker CLI is missing; install Docker Engine + Compose v2 (Linux) or Docker Desktop with WSL2/Linux containers (Windows)")
-	}
-	if !d.Reachable {
-		return fmt.Errorf("Docker daemon is unavailable: %s", d.Error)
-	}
-	if !d.Compose {
-		return fmt.Errorf("Docker Compose v2 plugin is unavailable; check 'docker compose version'")
-	}
-	if d.ServerOS != "linux" {
-		return fmt.Errorf("this plan requires Linux containers; Docker reports %q", d.ServerOS)
-	}
-	if !localEndpoint(d.Endpoint) {
-		return fmt.Errorf("remote or unverified Docker endpoint %q is rejected: hardware was scanned on this computer; use a local unix/npipe Docker context", d.Endpoint)
+	if err := hardware.RequireLocalDocker(d); err != nil {
+		return err
 	}
 	if p.Hardware.Docker.Reachable && p.Hardware.Docker.Endpoint != "" && p.Hardware.Docker.Endpoint != d.Endpoint {
 		return fmt.Errorf("Docker endpoint changed since planning (%s -> %s); create a new plan for the current local context", p.Hardware.Docker.Endpoint, d.Endpoint)

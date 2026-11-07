@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/csv"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math"
 	"os"
@@ -188,6 +189,10 @@ func ProbeDocker(ctx context.Context) domain.DockerInfo {
 		d.Error = "Команда docker info вернула некорректный JSON."
 		return d
 	}
+	if raw.OSType == "" {
+		d.Error = "Не удалось определить ОС Docker daemon. Запустите Docker и повторите сканирование."
+		return d
+	}
 	d.Reachable = true
 	d.ServerOS = raw.OSType
 	d.Architecture = raw.Architecture
@@ -200,4 +205,30 @@ func ProbeDocker(ctx context.Context) domain.DockerInfo {
 		d.Error = "Плагин Docker Compose v2 не установлен."
 	}
 	return d
+}
+
+// RequireLocalDocker distinguishes an unavailable daemon from container mode.
+func RequireLocalDocker(d domain.DockerInfo) error {
+	message := ""
+	switch {
+	case !d.Installed:
+		message = "Docker CLI не установлен. Установите Docker Engine + Compose v2 (Linux) или Docker Desktop (Windows/macOS)."
+	case !d.Reachable:
+		message = d.Error
+		if message == "" {
+			message = "Docker daemon недоступен или не хватает прав. Запустите Docker и проверьте доступ вашей учётной записи."
+		}
+	case d.ServerOS == "":
+		message = "Не удалось определить ОС Docker daemon. Запустите Docker и повторите сканирование."
+	case d.ServerOS != "linux":
+		message = "Переключите Docker в режим Linux containers."
+	case !d.Compose:
+		message = "Плагин Docker Compose v2 не установлен."
+	case !LocalEndpoint(d.Endpoint):
+		message = "Выбран удалённый/TCP контекст Docker. Локальное железо не описывает этот сервер; переключитесь на локальный контекст Docker."
+	}
+	if message != "" {
+		return errors.New(message)
+	}
+	return nil
 }

@@ -10,6 +10,8 @@
 
 ## Runtime behavior
 
+Windows command startup uses a session-owned executable path and an explicit [ProcessStartInfo.WorkingDirectory](https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.processstartinfo.workingdirectory?view=netframework-4.8.1). Docker diagnostics distinguish a failed [docker info](https://docs.docker.com/reference/cli/docker/system/info/) probe from a reachable server reporting Windows containers. Local weight imports use the same pinned file hashes as the Hugging Face download path; no runtime arguments or model-data formats are added.
+
 | Runtime | Reference | Used for |
 | --- | --- | --- |
 | Ollama | [Docker](https://docs.ollama.com/docker) · [GPU support](https://docs.ollama.com/gpu) · [FAQ](https://docs.ollama.com/faq) | Container startup, NVIDIA admission, memory and context behavior |

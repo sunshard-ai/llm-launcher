@@ -3,9 +3,11 @@ package main
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"flag"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -17,6 +19,7 @@ import (
 
 	"llmlauncher/internal/catalog"
 	"llmlauncher/internal/deploy"
+	"llmlauncher/internal/huggingface"
 )
 
 func fixture() string { return filepath.Join("..", "..", "examples", "hardware", "cpu-16gb.json") }
@@ -58,6 +61,47 @@ func TestCLIRejectsInventoryForMutation(t *testing.T) {
 		if err == nil || !strings.Contains(err.Error(), "--inventory") {
 			t.Fatalf("%s: %v", cmd, err)
 		}
+	}
+}
+
+func TestCLIImportWeightsRetainsReviewedPlan(t *testing.T) {
+	o := options{inventory: fixture(), task: "chat", runtime: "llama.cpp", context: 1024, dir: filepath.Join(t.TempDir(), "deployment")}
+	hw, err := scan(context.Background(), o)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cat, err := catalog.Load("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	recs, _, err := choices(hw, cat, o)
+	if err != nil || len(recs) == 0 {
+		t.Fatalf("GGUF fixture unavailable: %v", err)
+	}
+	source := *cat.Profiles[recs[0].Model.ID].Artifact
+	data := []byte("GGUFimport fixture")
+	source.Bytes, source.SHA256 = int64(len(data)), fmt.Sprintf("%x", sha256.Sum256(data))
+	p, err := makePlanWithSource(hw, cat, recs[0], o, &source)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := deploy.WritePlan(o.dir, p); err != nil {
+		t.Fatal(err)
+	}
+	local := filepath.Join(t.TempDir(), "downloaded model.gguf")
+	if err := os.WriteFile(local, data, 0600); err != nil {
+		t.Fatal(err)
+	}
+	var out bytes.Buffer
+	if err := run(context.Background(), []string{"import-weights", "--dir", o.dir, "--from", local}, strings.NewReader(""), &out, &out); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := deploy.ReadPlan(o.dir); err != nil {
+		t.Fatalf("import changed the reviewed bundle: %v", err)
+	}
+	got, err := os.ReadFile(filepath.Join(o.dir, huggingface.CacheDir, huggingface.FileName))
+	if err != nil || !bytes.Equal(got, data) {
+		t.Fatalf("cache=%q, error=%v", got, err)
 	}
 }
 
@@ -148,7 +192,7 @@ func TestEnglishHelp(t *testing.T) {
 		t.Fatal(err)
 	}
 	assertEnglish(t, out.String())
-	for _, command := range strings.Fields("wizard scan doctor update catalog recommend plan hf-plan inspect list up run status test logs down delete restore gpu-check") {
+	for _, command := range strings.Fields("wizard scan doctor update catalog recommend plan hf-plan inspect list up run status test logs down delete restore gpu-check import-weights") {
 		t.Run(command, func(t *testing.T) {
 			if !strings.Contains(out.String(), command) {
 				t.Errorf("general help omits %q", command)

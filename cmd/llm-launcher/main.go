@@ -34,7 +34,7 @@ type options struct {
 	port, context                                      int
 	cpu, json, dryRun, follow                          bool
 	timeout                                            time.Duration
-	settingsJSON, hfURL, image                         string
+	settingsJSON, hfURL, image, weightsPath            string
 	compose, interactive, infoOnly, allLogs            bool
 	explicit                                           map[string]bool
 }
@@ -94,7 +94,7 @@ func parseOptions(command string, args []string, errOut io.Writer) (options, err
 	f.StringVar(&o.catalog, "catalog", "", "custom JSON catalog. Defaults to the cached or bundled catalog")
 	f.StringVar(&o.inventory, "inventory", "", "hardware snapshot in JSON for previews. Deployments require a live scan")
 	f.StringVar(&o.gpu, "gpu", "", "index or UUID of one NVIDIA GPU")
-	f.IntVar(&o.port, "port", 0, "local API port. 0 uses the runtime default (Ollama 11434, vLLM 8000, llama.cpp 8080)")
+	f.IntVar(&o.port, "port", 0, "local API port. 0 selects a free port, preferring the runtime default")
 	f.IntVar(&o.context, "context", 4096, contextHelp)
 	f.BoolVar(&o.cpu, "cpu", false, "select a CPU deployment")
 	f.BoolVar(&o.json, "json", false, "output machine-readable JSON")
@@ -108,6 +108,7 @@ func parseOptions(command string, args []string, errOut io.Writer) (options, err
 	f.StringVar(&o.image, "image", "", "official vLLM image tag or digest. The latest tag resolves to a pinned digest")
 	f.StringVar(&o.hfURL, "hf-url", "", "Hugging Face HTTPS URL for a GGUF file (llama.cpp) or a Safetensors repository (vLLM)")
 	f.DurationVar(&o.timeout, "timeout", 30*time.Minute, "operation timeout, for example 45m")
+	f.StringVar(&o.weightsPath, "from", "", "downloaded GGUF file or Hugging Face snapshot folder matching the saved plan")
 	f.Usage = func() {
 		fmt.Fprintf(errOut, "Usage: llm-launcher %s", command)
 		if len(allowed) == 0 {
@@ -169,6 +170,7 @@ func allowedFlags(command string) map[string]bool {
 		"up":     "dir timeout", "status": "dir json", "logs": "dir follow all",
 		"test": "dir json timeout", "down": "dir timeout", "gpu-check": "dir timeout",
 		"list": "dir json", "delete": "dir timeout", "restore": "dir",
+		"import-weights": "dir from timeout",
 	}
 	r := make(map[string]bool)
 	for _, name := range strings.Fields(byCommand[command]) {
@@ -194,6 +196,7 @@ func run(ctx context.Context, args []string, in io.Reader, out, errOut io.Writer
 		return nil
 	}
 	known := map[string]bool{"scan": true, "doctor": true, "catalog": true, "recommend": true, "plan": true, "wizard": true, "up": true, "status": true, "logs": true, "test": true, "down": true, "gpu-check": true, "list": true, "delete": true, "restore": true, "hf-plan": true, "inspect": true, "update": true}
+	known["import-weights"] = true
 	if !known[command] {
 		return fmt.Errorf("неизвестная команда %q; используйте help", command)
 	}
@@ -353,6 +356,11 @@ func run(ctx context.Context, args []string, in io.Reader, out, errOut io.Writer
 		for _, p := range projects {
 			fmt.Fprintf(out, "%s\t%s\t%s\t%s\t%s\n", p.State, p.Runtime, p.Model, p.Dir, p.Error)
 		}
+	case "import-weights":
+		if !o.explicit["dir"] || o.weightsPath == "" {
+			return fmt.Errorf("import-weights requires --dir PLAN and --from FILE_OR_FOLDER")
+		}
+		return m.ImportWeights(ctx, o.weightsPath)
 	case "delete":
 		if err := m.Archive(ctx); err != nil {
 			return err
@@ -550,6 +558,12 @@ func makePlanWithSource(hw domain.Hardware, cat domain.Catalog, r domain.Recomme
 		}
 	}
 	p := domain.Plan{SchemaVersion: 1, Project: fmt.Sprintf("llm-%s-%x", name, sum[:4]), CreatedAt: time.Now().UTC().Format(time.RFC3339), Runtime: r.Model.Runtime, Image: cat.Runtimes[r.Model.Runtime], Task: o.task, Acceleration: r.Acceleration, Model: r.Model, Context: o.context, Parallel: 1, Port: port, Host: "127.0.0.1", GPUUtilization: 0.85, Hardware: hw}
+	if o.inventory == "" {
+		p.Port, err = deploy.SelectPort(port, o.port == 0)
+		if err != nil {
+			return p, err
+		}
+	}
 	if p.Runtime == "llama.cpp" && p.Acceleration == "cpu" {
 		p.Image = catalog.LlamaCPUImage
 	}
@@ -727,6 +741,7 @@ Commands:
   hf-plan      Save a plan for a Hugging Face GGUF file (llama.cpp on CPU)
                or a Safetensors repository (vLLM on NVIDIA).
   inspect      Show a saved plan or its Compose configuration.
+  import-weights  Verify and copy downloaded weights into a saved plan (--from PATH).
   list         Find saved deployments and show their recorded state.
   up, run      Verify, download, start, and test a deployment.
   status       Check running deployments or one deployment selected with --dir.

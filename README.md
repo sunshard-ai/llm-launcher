@@ -32,6 +32,8 @@ chmod +x llm-launcher-linux-amd64
 
 **Linux ARM64 or macOS Apple Silicon.** Make the downloaded binary executable, then run it with `wizard --dir ./my-model`. Both platforms use CPU containers in this release. On Linux and macOS, use `--help` for the English command list or `COMMAND --help` for a command’s options.
 
+For a downloaded Safetensors folder or GGUF file, use **Model from disk…** in Windows. Supply the original Hugging Face URL so the launcher can verify the revision and copy the matching files. The CLI provides `import-weights` for an existing compatible plan. [Downloaded weights](docs/USAGE.md#use-downloaded-weights)
+
 ## Models and hardware
 
 The catalog has 52 profiles covering chat, coding, answers using supplied context, and embeddings. A model can have separate profiles for different engines and weight formats. GPU recommendations use free memory on one NVIDIA card. The 4–128 GiB range was tested with simulated hardware. Qwen3 0.6B was run in llama.cpp on CPU in Docker. [Model selection guide](docs/MODELS.md) · [Test results](docs/BUILD_REPORT.md)

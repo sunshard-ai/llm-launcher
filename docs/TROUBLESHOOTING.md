@@ -31,7 +31,9 @@ If an older llama.cpp GPU plan reports that startup logging hides offload detail
 | Remote Docker context | Run `docker context show` and inspect the endpoint. Select the local daemon before planning. |
 | GPU appears in `scan` but fails at launch | Run `nvidia-smi` on the host, then `llm-launcher gpu-check --dir ./my-model`. Check the NVIDIA Container Toolkit on Linux or the WSL2 GPU path on Windows. |
 | Only CPU profiles appear | Check free VRAM, driver, and compute capability in `scan --info`. Try a smaller model or a shorter context. |
-| A port is in use | Choose another `--port` when creating a plan, or stop the earlier launcher project with `down --dir ...`. |
+| A port is in use | Use `--port 0` to select a free port while planning, or choose an explicit free port. If it became busy after planning, prepare a new plan. The Windows app chooses a new folder and preserves the previous deployment. |
+| Windows reports that a command file cannot be found | Reopen the launcher from a normally extracted folder. The desktop app uses its own worker copy and working directory for the session. **Technical details…** retains the original process error. |
+| Downloaded weights are not detected | Use **Model from disk…** or `import-weights` with the matching plan. A Safetensors folder needs its configuration and tokenizer files, not just one weight shard. Files must match the selected revision. |
 | Compose or plan failed validation | Run `inspect --dir ./my-model` and create a fresh plan in a new directory. Managed files are checked against the saved plan. |
 | `error getting credentials` while downloading the runtime image | Docker could not read its registry credentials. Check `docker pull IMAGE` for the exact reference printed by `inspect`, in the same terminal. Repair the configured Docker credential helper if needed. The launcher reuses an inspectable local image without calling `pull`; it does not modify Docker authentication settings. |
 

@@ -15,6 +15,8 @@ Use `powershell -File scripts/build.ps1` on Windows. The scripts produce four CL
 
 ## Verify interface languages
 
+Run `pwsh -File scripts/test-desktop-workflow.ps1` for the journal checks and desktop workflow fixtures. It covers catalog refresh, local-weight command paths, automatic folder selection, process-start failure recovery and command retries with a changed working directory. These checks use mock controls and a native process fixture; they do not replace Windows WinForms testing.
+
 - Run `--help` and `hf-plan --help` on the Linux and macOS binaries and check that the command and flag descriptions are in English.
 - On Windows, launch the desktop app with a fresh user profile and confirm it opens in English. Switch through all five languages and check both tabs, the GPU list, the Hugging Face and advanced settings dialogs, and the archive confirmation.
 - Prepare a plan, change the language, and confirm that the selected options and **Launch plan** are still available. Close and reopen the app and verify it remembers the selected language.
