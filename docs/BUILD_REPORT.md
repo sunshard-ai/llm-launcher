@@ -2,13 +2,15 @@
 
 ## v0.3.4
 
+- The second NVIDIA field test confirmed llama.cpp b9935 on an RTX 4080 SUPER: 29/29 layers offloaded, Qwen3 0.6B Q8_0 at 4096 context, first cached-weight `up` completed in 63.671 seconds, and a separate chat request returned `OK` in 499 ms. Model loading reached the listening state at 42.48 seconds. Logged device buffers were 604.15 MiB for weights, 448.00 MiB for KV cache, and 30.01 MiB for compute. Total host GPU memory also included other activity and is not attributed to this model.
+- That test's restart stopped before container creation because Compose 2.38.2 attempted a pull of the cached digest and its Docker credential helper failed. The launcher now inspects the exact local image first and starts Compose with `--pull never`. Mock Docker plus a local HTTP server cover start/down/restart with broken registry credentials; separate cases cover cached tags and digests, downloads, credential errors, unresolved images, and cancellation. A real NVIDIA restart with this acquisition change remains pending.
 - The follow-up report contained only 14 runtime log lines at verbosity 3. The server became ready in about 40 seconds and generated 117 tokens in 636 ms, but hid the offload message. Source inspection confirmed that b9935 maps library INFO to level 4.
-- Reproduced the logging difference with the official b9935 macOS ARM64 binary and the same Qwen3 GGUF on CPU. Both runs reached the health endpoint. Level 3 produced 7 log lines and no loader messages, while level 4 produced 208 lines including loader details. This verifies the logging threshold on CPU. GPU confirmation requires the next field test.
+- Reproduced the logging difference with the official b9935 macOS ARM64 binary and the same Qwen3 GGUF on CPU. Both runs reached the health endpoint. Level 3 produced 7 log lines and no loader messages, while level 4 produced 208 lines including loader details. The NVIDIA field test above subsequently confirmed GPU offload with level 4.
 - A user report from Ubuntu 24.04.2 under WSL2 with an RTX 4080 SUPER and NVIDIA driver 610.88 confirmed two successful Ollama Qwen3 0.6B Q4_K_M launch/relaunch cycles. The runtime log showed 29/29 layers on GPU. Separate smoke requests took 488–606 ms in the first session and 1482–1646 ms in the second.
 - The first llama.cpp attempt spent its timeout downloading the runtime image. A later attempt downloaded the GGUF and answered the model request, then failed GPU verification. Its complete startup log was unavailable, so GPU offload for that run remains unconfirmed.
 - Fixed a verification path that searched only the final 300 log lines. The new check reads the owned container's current start using Docker `logs --since` and matches both output streams while reading them. Regression checks cover early messages, split writes, large stderr output, CPU-only starts, and previous-container evidence.
 - Added `logs --all` to collect retained startup messages.
-- Go tests, the race detector, vet, and the release build passed on macOS ARM64. A process fixture exercised large stderr output. NVIDIA verification on the user's machine is pending.
+- Go tests, the race detector, vet, and the release build passed on macOS ARM64. A process fixture exercised large stderr output. The latest image acquisition change still requires a field restart test.
 
 ## v0.3.3
 

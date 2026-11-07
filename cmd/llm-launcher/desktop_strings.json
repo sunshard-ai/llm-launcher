@@ -1130,12 +1130,20 @@
     "source": "This plan already has a running container; checking its model and API."
   },
   "pullRuntime": {
-    "en": "Downloading the runtime image if needed…",
-    "de": "Das Laufzeit-Image wird bei Bedarf heruntergeladen…",
-    "ru": "Загружаем образ движка при необходимости…",
-    "zh": "如有需要，正在下载引擎镜像…",
-    "fr": "Téléchargement de l’image du moteur si nécessaire…",
-    "source": "Downloading runtime image if it is not cached..."
+    "en": "Downloading the runtime image…",
+    "de": "Das Laufzeit-Image wird heruntergeladen…",
+    "ru": "Загружаем образ движка…",
+    "zh": "正在下载引擎镜像…",
+    "fr": "Téléchargement de l’image du moteur…",
+    "source": "Downloading the runtime image..."
+  },
+  "cachedRuntime": {
+    "en": "Using the cached runtime image.",
+    "de": "Das lokal gespeicherte Laufzeit-Image wird verwendet.",
+    "ru": "Используем сохранённый образ движка.",
+    "zh": "正在使用已缓存的引擎镜像。",
+    "fr": "Utilisation de l’image du moteur en cache.",
+    "source": "Using the cached runtime image."
   },
   "startService": {
     "en": "Starting the model service…",

@@ -352,6 +352,26 @@ func (m Manager) image(ctx context.Context, p domain.Plan) (imageInfo, error) {
 	return result[0], nil
 }
 
+func (m Manager) ensureRuntimeImage(ctx context.Context, p domain.Plan) (imageInfo, error) {
+	// Inspect the exact reviewed reference before asking Compose to pull it.
+	// Compose 2.38.2's pull --policy missing only recognizes tagged cache entries.
+	if image, err := m.image(ctx, p); err == nil {
+		fmt.Fprintln(m.output(), "Using the cached runtime image.")
+		return image, nil
+	}
+	if err := ctx.Err(); err != nil {
+		return imageInfo{}, err
+	}
+	fmt.Fprintln(m.output(), "Downloading the runtime image...")
+	if _, err := m.command(ctx, m.composeArgs(p, "pull", "--policy", "missing"), true); err != nil {
+		if strings.Contains(err.Error(), "error getting credentials") {
+			return imageInfo{}, fmt.Errorf("runtime image download: Docker credential helper failed; check registry access with 'docker pull %s' in the same terminal, then retry up: %w", p.Image, err)
+		}
+		return imageInfo{}, fmt.Errorf("runtime image download: %w", err)
+	}
+	return m.image(ctx, p)
+}
+
 func (m Manager) gpuCheck(ctx context.Context, p domain.Plan, pull string) error {
 	if p.Acceleration != "nvidia" {
 		return nil
@@ -465,11 +485,7 @@ func (m Manager) Up(ctx context.Context) error {
 		if _, err := m.command(ctx, m.composeArgs(p, "config", "--quiet"), false); err != nil {
 			return fmt.Errorf("Compose validation: %w", err)
 		}
-		fmt.Fprintln(m.output(), "Downloading runtime image if it is not cached...")
-		if _, err := m.command(ctx, m.composeArgs(p, "pull", "--policy", "missing"), true); err != nil {
-			return fmt.Errorf("runtime image download: %w", err)
-		}
-		image, err := m.image(ctx, p)
+		image, err := m.ensureRuntimeImage(ctx, p)
 		if err != nil {
 			return err
 		}
@@ -490,7 +506,7 @@ func (m Manager) Up(ctx context.Context) error {
 			}
 		}
 		fmt.Fprintln(m.output(), "Starting the model service...")
-		if _, err := m.command(ctx, m.composeArgs(p, "up", "--detach"), true); err != nil {
+		if _, err := m.command(ctx, m.composeArgs(p, "up", "--detach", "--pull", "never"), true); err != nil {
 			return fmt.Errorf("Compose startup: %w", err)
 		}
 	}

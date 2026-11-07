@@ -6,6 +6,7 @@
 - [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) for Linux.
 - [Docker Desktop GPU support](https://docs.docker.com/desktop/features/gpu/) and [NVIDIA CUDA on WSL](https://docs.nvidia.com/cuda/wsl-user-guide/index.html) for Windows.
 - [Docker container logs](https://docs.docker.com/reference/cli/docker/container/logs/) documents reading both output streams and filtering by the current container start with `--since`. [Compose logs](https://docs.docker.com/reference/cli/docker/compose/logs/) documents `--tail all` for full startup diagnostics.
+- Runtime image acquisition first uses [image inspect](https://docs.docker.com/reference/cli/docker/image/inspect/) for the exact saved reference, then downloads only if that inspection fails. Startup uses [Compose up `--pull never`](https://docs.docker.com/reference/cli/docker/compose/up/) after inspection. Compose 2.38.2's [`imageAlreadyPresent`](https://github.com/docker/compose/blob/v2.38.2/pkg/compose/pull.go#L147-L158) requires a tagged reference, so `pull --policy missing` can contact the registry for an already cached digest. [Docker credential helpers](https://docs.docker.com/reference/cli/docker/login/#credential-helpers)
 
 ## Runtime behavior
 

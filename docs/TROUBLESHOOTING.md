@@ -33,6 +33,7 @@ If an older llama.cpp GPU plan reports that startup logging hides offload detail
 | Only CPU profiles appear | Check free VRAM, driver, and compute capability in `scan --info`. Try a smaller model or a shorter context. |
 | A port is in use | Choose another `--port` when creating a plan, or stop the earlier launcher project with `down --dir ...`. |
 | Compose or plan failed validation | Run `inspect --dir ./my-model` and create a fresh plan in a new directory. Managed files are checked against the saved plan. |
+| `error getting credentials` while downloading the runtime image | Docker could not read its registry credentials. Check `docker pull IMAGE` for the exact reference printed by `inspect`, in the same terminal. Repair the configured Docker credential helper if needed. The launcher reuses an inspectable local image without calling `pull`; it does not modify Docker authentication settings. |
 
 ## vLLM fails before serving
 

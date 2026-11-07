@@ -91,3 +91,5 @@ curl --noproxy '*' http://127.0.0.1:8080/v1/models
 All three engines expose `/v1/chat/completions` for chat. Ollama embedding profiles also expose `/v1/embeddings`. Use the engine's API reference for request options. [Ollama](https://docs.ollama.com/api/openai-compatibility) · [vLLM](https://docs.vllm.ai/en/stable/serving/openai_compatible_server/) · [llama.cpp](https://github.com/ggml-org/llama.cpp/blob/b9935/tools/server/README.md)
 
 Catalog weights for Ollama and vLLM live in the deployment's Docker volume. Docker Desktop keeps those volumes in its virtual disk. Catalog GGUF files and manual Hugging Face imports live in `hf-model/` next to the plan. Both `down` and `delete` retain the downloaded files.
+
+`up` reuses the exact runtime image from the local Docker cache when available. It downloads an image only when local inspection cannot resolve that reference, then starts Compose with image pulling disabled. The recorded image ID is still checked before startup. Missing model weights can require a separate download.
