@@ -32,9 +32,15 @@ chmod +x llm-launcher-linux-amd64
 
 **Linux ARM64 or macOS Apple Silicon.** Make the downloaded binary executable, then run it with `wizard --dir ./my-model`. Both platforms use CPU containers in this release. On Linux and macOS, use `--help` for the English command list or `COMMAND --help` for a command’s options.
 
+For a downloaded Safetensors folder or GGUF file, use **Model from disk…** in Windows. Supply the original Hugging Face URL so the launcher can verify the revision and copy the matching files. The CLI provides `import-weights` for an existing compatible plan. [Downloaded weights](docs/USAGE.md#use-downloaded-weights)
+
 ## Models and hardware
 
-The catalog has 52 profiles covering chat, coding, answers using supplied context, and embeddings. A model can have separate profiles for different engines and weight formats. GPU recommendations use free memory on one NVIDIA card. The 4–128 GiB range was tested with simulated hardware. Qwen3 0.6B was run in llama.cpp on CPU in Docker. [Model selection guide](docs/MODELS.md) · [Test results](docs/BUILD_REPORT.md)
+To display the model list, run `./llm-launcher-linux-amd64 catalog` on Linux or `.\llm-launcher-windows-amd64.exe catalog` in Windows PowerShell. This lists every profile in the launcher's catalog and works without Docker. Run `recommend --task chat` with the same binary to see the profiles that fit your computer. `status` shows running deployments. [Step-by-step model list instructions](docs/USAGE.md#display-the-model-list)
+
+In the Windows app, open **New deployment**, choose a task, and click **Find models** (**Подобрать модели** in Russian). The model dropdown to the right opens when results are ready. Select one of its rows. **Update catalog** refreshes catalog metadata and recommendations. [Windows model picker](docs/USAGE.md#display-models-in-the-windows-app)
+
+The catalog has 52 profiles covering chat, coding, answers using supplied context, and embeddings. A model can have separate profiles for different engines and weight formats. GPU recommendations use free memory on one NVIDIA card. The 4–128 GiB range was tested with simulated hardware. Qwen3 0.6B was run in llama.cpp on CPU and on an RTX 4080 SUPER. [Model selection guide](docs/MODELS.md) · [Test results](docs/BUILD_REPORT.md)
 
 The launcher includes a model catalog and checks for signed updates in the background when you open the desktop app or interactive wizard. [How updates work](docs/MODELS.md#update-the-catalog)
 

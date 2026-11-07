@@ -30,6 +30,7 @@ type Manager struct {
 	Out     io.Writer
 	Err     io.Writer
 	Timeout time.Duration
+	LogAll  bool
 	// Injection points are deliberately private: production commands always use
 	// the local Docker CLI, while tests can simulate failures without a daemon.
 	runCommand     func(context.Context, []string, bool) (string, error)
@@ -133,20 +134,8 @@ func (m *Manager) ensureDocker(ctx context.Context, p domain.Plan) error {
 		probe = hardware.ProbeDocker
 	}
 	d := probe(ctx)
-	if !d.Installed {
-		return fmt.Errorf("Docker CLI is missing; install Docker Engine + Compose v2 (Linux) or Docker Desktop with WSL2/Linux containers (Windows)")
-	}
-	if !d.Reachable {
-		return fmt.Errorf("Docker daemon is unavailable: %s", d.Error)
-	}
-	if !d.Compose {
-		return fmt.Errorf("Docker Compose v2 plugin is unavailable; check 'docker compose version'")
-	}
-	if d.ServerOS != "linux" {
-		return fmt.Errorf("this plan requires Linux containers; Docker reports %q", d.ServerOS)
-	}
-	if !localEndpoint(d.Endpoint) {
-		return fmt.Errorf("remote or unverified Docker endpoint %q is rejected: hardware was scanned on this computer; use a local unix/npipe Docker context", d.Endpoint)
+	if err := hardware.RequireLocalDocker(d); err != nil {
+		return err
 	}
 	if p.Hardware.Docker.Reachable && p.Hardware.Docker.Endpoint != "" && p.Hardware.Docker.Endpoint != d.Endpoint {
 		return fmt.Errorf("Docker endpoint changed since planning (%s -> %s); create a new plan for the current local context", p.Hardware.Docker.Endpoint, d.Endpoint)
@@ -166,6 +155,7 @@ type containerInfo struct {
 		Running    bool   `json:"Running"`
 		Status     string `json:"Status"`
 		Restarting bool   `json:"Restarting"`
+		StartedAt  string `json:"StartedAt"`
 	} `json:"State"`
 }
 
@@ -350,6 +340,26 @@ func (m Manager) image(ctx context.Context, p domain.Plan) (imageInfo, error) {
 	return result[0], nil
 }
 
+func (m Manager) ensureRuntimeImage(ctx context.Context, p domain.Plan) (imageInfo, error) {
+	// Inspect the exact reviewed reference before asking Compose to pull it.
+	// Compose 2.38.2's pull --policy missing only recognizes tagged cache entries.
+	if image, err := m.image(ctx, p); err == nil {
+		fmt.Fprintln(m.output(), "Using the cached runtime image.")
+		return image, nil
+	}
+	if err := ctx.Err(); err != nil {
+		return imageInfo{}, err
+	}
+	fmt.Fprintln(m.output(), "Downloading the runtime image...")
+	if _, err := m.command(ctx, m.composeArgs(p, "pull", "--policy", "missing"), true); err != nil {
+		if strings.Contains(err.Error(), "error getting credentials") {
+			return imageInfo{}, fmt.Errorf("runtime image download: Docker credential helper failed; check registry access with 'docker pull %s' in the same terminal, then retry up: %w", p.Image, err)
+		}
+		return imageInfo{}, fmt.Errorf("runtime image download: %w", err)
+	}
+	return m.image(ctx, p)
+}
+
 func (m Manager) gpuCheck(ctx context.Context, p domain.Plan, pull string) error {
 	if p.Acceleration != "nvidia" {
 		return nil
@@ -463,11 +473,7 @@ func (m Manager) Up(ctx context.Context) error {
 		if _, err := m.command(ctx, m.composeArgs(p, "config", "--quiet"), false); err != nil {
 			return fmt.Errorf("Compose validation: %w", err)
 		}
-		fmt.Fprintln(m.output(), "Downloading runtime image if it is not cached...")
-		if _, err := m.command(ctx, m.composeArgs(p, "pull", "--policy", "missing"), true); err != nil {
-			return fmt.Errorf("runtime image download: %w", err)
-		}
-		image, err := m.image(ctx, p)
+		image, err := m.ensureRuntimeImage(ctx, p)
 		if err != nil {
 			return err
 		}
@@ -488,7 +494,7 @@ func (m Manager) Up(ctx context.Context) error {
 			}
 		}
 		fmt.Fprintln(m.output(), "Starting the model service...")
-		if _, err := m.command(ctx, m.composeArgs(p, "up", "--detach"), true); err != nil {
+		if _, err := m.command(ctx, m.composeArgs(p, "up", "--detach", "--pull", "never"), true); err != nil {
 			return fmt.Errorf("Compose startup: %w", err)
 		}
 	}
@@ -531,11 +537,6 @@ func (m Manager) Up(ctx context.Context) error {
 			return err
 		}
 	}
-	if p.Runtime == "llama.cpp" && p.Acceleration == "nvidia" && (!anyRunning(containers) || s.LastReadyAt == "") {
-		if err := m.verifyLlamaOffload(ctx, p); err != nil {
-			return err
-		}
-	}
 	image, err := m.image(ctx, p)
 	if err != nil {
 		return err
@@ -550,6 +551,11 @@ func (m Manager) Up(ctx context.Context) error {
 	for _, container := range verifiedContainers {
 		if container.State.Running && container.Image != image.ID {
 			return fmt.Errorf("running container image differs from the selected runtime image; deployment is not marked ready")
+		}
+		if container.State.Running && p.Runtime == "llama.cpp" && p.Acceleration == "nvidia" && (!anyRunning(containers) || s.LastReadyAt == "") {
+			if err := m.verifyLlamaOffload(ctx, container); err != nil {
+				return err
+			}
 		}
 	}
 	// On an idempotent retry inspect the running image, not only its mutable tag.
@@ -642,7 +648,11 @@ func (m Manager) Logs(ctx context.Context, follow bool) error {
 		ctx, cancel = context.WithTimeout(ctx, 30*time.Second)
 		defer cancel()
 	}
-	args := []string{"logs", "--no-color", "--tail", "200"}
+	tail := "200"
+	if m.LogAll {
+		tail = "all"
+	}
+	args := []string{"logs", "--no-color", "--tail", tail}
 	if follow {
 		args = append(args, "--follow")
 	}
@@ -711,16 +721,49 @@ func (m Manager) Status(ctx context.Context) (domain.Status, error) {
 }
 
 var llamaOffload = regexp.MustCompile(`offloaded [1-9][0-9]*/[1-9][0-9]* layers to GPU`)
+var llamaQuietLog = regexp.MustCompile(`verbosity = [0-3]([^0-9]|$)`)
 
-func (m Manager) verifyLlamaOffload(ctx context.Context, p domain.Plan) error {
-	stderr := &tailBuffer{limit: 1 << 20}
-	m.Out, m.Err = io.Discard, stderr
-	logs, err := m.command(ctx, m.composeArgs(p, "logs", "--no-color", "--tail", "300", "model"), true)
+// Keep the match even when later output exceeds the command's diagnostic buffer.
+type offloadLog struct {
+	tail      []byte
+	confirmed bool
+	quiet     bool
+}
+
+func (l *offloadLog) Write(data []byte) (int, error) {
+	size := len(data)
+	if l.confirmed {
+		return size, nil
+	}
+	l.tail = append(l.tail, data...)
+	l.confirmed = llamaOffload.Match(l.tail)
+	l.quiet = l.quiet || llamaQuietLog.Match(l.tail)
+	if len(l.tail) > 256 {
+		l.tail = append(l.tail[:0], l.tail[len(l.tail)-256:]...)
+	}
+	return size, nil
+}
+
+func (m Manager) verifyLlamaOffload(ctx context.Context, container containerInfo) error {
+	started, err := time.Parse(time.RFC3339Nano, container.State.StartedAt)
+	if err != nil || started.IsZero() || container.ID == "" {
+		return fmt.Errorf("cannot verify llama.cpp GPU offload: current container start time is unavailable")
+	}
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+	stdout, stderr := &offloadLog{}, &offloadLog{}
+	m.Out, m.Err = stdout, stderr
+	logs, err := m.command(ctx, []string{"logs", "--since", container.State.StartedAt, container.ID}, true)
 	if err != nil {
 		return fmt.Errorf("check llama.cpp GPU offload: %w", err)
 	}
-	if !llamaOffload.MatchString(logs) && !llamaOffload.Match(stderr.data) {
-		return fmt.Errorf("llama.cpp answered but GPU layer offload was not confirmed; inspect logs")
+	// The injected Docker runner used by orchestration tests returns stdout directly.
+	_, _ = stdout.Write([]byte(logs))
+	if !stdout.confirmed && !stderr.confirmed {
+		if stdout.quiet || stderr.quiet {
+			return fmt.Errorf("llama.cpp startup logging hides GPU offload details; create a new plan with LLAMA_ARG_LOG_VERBOSITY=4, then inspect logs with --all")
+		}
+		return fmt.Errorf("llama.cpp answered but GPU layer offload was not confirmed; inspect logs with --all")
 	}
 	return nil
 }

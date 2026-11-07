@@ -26,10 +26,18 @@ func runDesktop(ctx context.Context) {
 	go catalog.Refresh(ctx)
 	exe, err := os.Executable()
 	if err == nil {
+		var cleanup func()
+		exe, cleanup, err = desktopWorker(exe)
+		if err == nil {
+			defer cleanup()
+		}
+	}
+	if err == nil {
 		systemRoot := os.Getenv("SystemRoot")
 		powershell := filepath.Join(systemRoot, "System32", "WindowsPowerShell", "v1.0", "powershell.exe")
 		const bootstrap = `[Console]::InputEncoding = [Text.Encoding]::UTF8; [Console]::OutputEncoding = [Text.Encoding]::UTF8; try { & ([scriptblock]::Create([Console]::In.ReadToEnd())) } catch { [Console]::Error.WriteLine($_.ToString()); exit 1 }`
 		cmd := process.Command(ctx, powershell, "-NoLogo", "-NoProfile", "-NonInteractive", "-STA", "-Command", bootstrap)
+		cmd.Dir = filepath.Dir(exe)
 		cmd.Env = append(os.Environ(), "LLM_LAUNCHER_DESKTOP_EXE="+exe)
 		// The translation table is bundled with the executable and sent as a
 		// literal UTF-8 here-string before the script.

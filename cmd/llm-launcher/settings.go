@@ -50,8 +50,8 @@ func planHF(ctx context.Context, o options, out io.Writer) error {
 	if err != nil {
 		return err
 	}
-	if !h.Docker.Reachable || !h.Docker.Compose || h.Docker.ServerOS != "linux" || !hardware.LocalEndpoint(h.Docker.Endpoint) {
-		return fmt.Errorf("для импорта нужен локальный Docker с Compose и Linux-контейнерами")
+	if err := hardware.RequireLocalDocker(h.Docker); err != nil {
+		return err
 	}
 	ctx, cancel := context.WithTimeout(ctx, min(o.timeout, 30*time.Second))
 	defer cancel()

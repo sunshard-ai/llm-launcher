@@ -1,4 +1,5 @@
 $ErrorActionPreference = 'Stop'
+$script:launcherExecutable = [IO.Path]::GetFullPath($env:LLM_LAUNCHER_DESKTOP_EXE)
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 [Windows.Forms.Application]::EnableVisualStyles()
@@ -54,7 +55,7 @@ $layout.Dock = 'Fill'
 $layout.Padding = [Windows.Forms.Padding]::new(12)
 $layout.ColumnCount = 1
 $layout.RowCount = 6
-foreach ($height in @(48, 46, 282, 25)) {
+foreach ($height in @(48, 46, 320, 25)) {
     [void]$layout.RowStyles.Add([Windows.Forms.RowStyle]::new('Absolute', $height))
 }
 [void]$layout.RowStyles.Add([Windows.Forms.RowStyle]::new('Percent', 100))
@@ -177,23 +178,22 @@ $setupLayout = [Windows.Forms.TableLayoutPanel]::new()
 $setupLayout.Dock = 'Fill'
 $setupLayout.Padding = [Windows.Forms.Padding]::new(6)
 $setupLayout.ColumnCount = 1
-$setupLayout.RowCount = 6
-foreach ($height in @(38, 37, 37, 38, 38, 39)) {
+$setupLayout.RowCount = 7
+foreach ($height in @(38, 38, 37, 37, 38, 38, 39)) {
     [void]$setupLayout.RowStyles.Add([Windows.Forms.RowStyle]::new('Absolute', $height))
 }
 $setup.Controls.Add($setupLayout)
-$rows = @(for ($i = 0; $i -lt 6; $i++) {
+$rows = @(for ($i = 0; $i -lt 7; $i++) {
     $row = New-Row
     $setupLayout.Controls.Add($row, 0, $i)
     $row
 })
+$catalogLabel = Add-Label $rows[0] 'catalogLoading'
+$catalogLabel.AutoSize = $false
+$catalogLabel.Width = 530
+[void](Add-Button $rows[0] 'updateCatalog' { Update-ModelCatalog })
+$rows = @($rows[1..6])
 [void](Add-Button $rows[0] 'scan' { Read-Hardware })
-[void](Add-Button $rows[0] 'updateCatalog' {
-    Start-Launcher @('update') {
-        param($code, $output)
-        if ($code -eq 0) { & $invalidateChoices }
-    }
-})
 $hardware = Add-Label $rows[0] 'hardware'
 [void](Add-Label $rows[1] 'task')
 $taskLabels = @('taskChat', 'taskCode', 'taskRag', 'taskEmbeddings')
@@ -214,9 +214,13 @@ $port = Add-Number $rows[2] 0 0 65535
 $pickModel = Add-Button $rows[3] 'findModels' {
     Read-Recommendations
 }
-$models = Add-Combo $rows[3] 490
+$models = Add-Combo $rows[3] 390
+$models.DropDownWidth = 720
+$models.IntegralHeight = $false
+$models.DropDownHeight = 300
 $importVLLM = Add-Button $rows[3] 'importHf' { Edit-HubSource }
 $importVLLM.Visible = $false
+[void](Add-Button $rows[3] 'localModel' { Edit-LocalSource })
 [void](Add-Label $rows[4] 'projectName')
 $name = [Windows.Forms.TextBox]::new()
 $name.Width = 275
@@ -252,6 +256,7 @@ $projectList.Dock = 'Fill'
 $projectList.HorizontalScrollbar = $true
 $manageLayout.Controls.Add($projectList, 0, 1)
 $actions = New-Row
+$actions.AutoScroll = $true
 $manageLayout.Controls.Add($actions, 0, 2)
 [void](Add-Button $actions 'launch' { Invoke-Selected 'up' })
 [void](Add-Button $actions 'status' { Invoke-Selected 'status' })
@@ -261,6 +266,7 @@ $manageLayout.Controls.Add($actions, 0, 2)
 [void](Add-Button $actions 'archive' { Invoke-Selected 'delete' })
 [void](Add-Button $actions 'restore' { Invoke-Selected 'restore' })
 [void](Add-Button $actions 'details' { Invoke-Selected 'inspect' })
+[void](Add-Button $actions 'importWeights' { Invoke-Selected 'import-weights' })
 
 $log = [Windows.Forms.TextBox]::new()
 $log.Dock = 'Fill'
@@ -291,6 +297,7 @@ $script:preparedPath = $null
 $script:choices = @()
 $script:projects = @()
 $script:hardwareInfo = $null
+$script:catalogInfo = $null
 $script:gpus = @()
 $script:changingLanguage = $false
 $script:advanced = @{}
@@ -298,6 +305,7 @@ $script:hfURL = ''
 $script:hfEngine = ''
 $script:hfToken = ''
 $script:vllmImage = ''
+$script:localWeights = ''
 
 function Show-Message([string]$text) {
     [void][Windows.Forms.MessageBox]::Show($form, $text, 'LLM Launcher', 'OK', 'Information')
@@ -368,6 +376,7 @@ function Write-TechnicalOutput([string]$line) {
 
 function Write-Diagnostic([string]$line) {
     $line = [regex]::Replace($line, '\x1B\[[0-?]*[ -/]*[@-~]', '')
+    $line = $line -replace '^Ошибка: ', ''
     if (!$line.Trim()) { return }
     $entry = Find-Diagnostic $line
     if ($entry) {
@@ -386,8 +395,11 @@ function Quote-Arg([string]$value) {
 
 function Start-Launcher([string[]]$arguments, [scriptblock]$onDone = {}, [string]$data = '', [switch]$capture, [string]$hubToken = '') {
     if ($script:job) { return }
+    $process = $null
     try {
-        $info = [Diagnostics.ProcessStartInfo]::new($env:LLM_LAUNCHER_DESKTOP_EXE)
+        if (![IO.File]::Exists($script:launcherExecutable)) { throw (Get-Text 'workerMissing') }
+        $info = [Diagnostics.ProcessStartInfo]::new($script:launcherExecutable)
+        $info.WorkingDirectory = [IO.Path]::GetDirectoryName($script:launcherExecutable)
         $info.Arguments = ((@('--desktop-child') + $arguments) | ForEach-Object { Quote-Arg $_ }) -join ' '
         $info.UseShellExecute = $false
         $info.CreateNoWindow = $true
@@ -415,8 +427,19 @@ function Start-Launcher([string[]]$arguments, [scriptblock]$onDone = {}, [string
         $progress.Text = Get-Text 'running' $script:job.Command
         $timer.Start()
     } catch {
-        Write-Journal 'failed'
-        Write-Diagnostic $_.Exception.Message
+        $failure = $_.Exception
+        if ($process) {
+            try { $process.StandardInput.Close() } catch { }
+            $process.Dispose()
+        }
+        $script:job = $null
+        $timer.Stop()
+        $storage.Enabled = $true
+        $tabs.Enabled = $true
+        $cancel.Enabled = $false
+        Set-TextKey $progress 'failed'
+        Write-Journal 'commandStartFailed'
+        Write-TechnicalOutput $failure.ToString()
     }
 }
 
@@ -424,6 +447,7 @@ $timer = [Windows.Forms.Timer]::new()
 $timer.Interval = 100
 $timer.Add_Tick({
     $job = $script:job
+    if (!$job) { $timer.Stop(); return }
     foreach ($key in @('StdOut', 'StdErr')) {
         for ($i = 0; $i -lt 100 -and $job[$key] -and $job[$key].IsCompleted; $i++) {
             $task = $job[$key]
@@ -494,7 +518,33 @@ function Read-Hardware {
         Update-HardwareLabels 0
         Write-Journal 'dockerSummary' (Availability $hw.docker.reachable) (Availability $hw.docker.compose) ([Math]::Round($hw.docker.memory_bytes / 1GB, 1))
         foreach ($note in $hw.warnings) { Write-Diagnostic $note }
+        if (!$hw.docker.reachable -and !$hw.docker.error) { Write-Journal 'dockerStopped' }
+        Read-Catalog
     } -Capture
+}
+
+function Update-CatalogLabel {
+    if ($script:catalogInfo) {
+        $date = $script:catalogInfo.updated -replace 'T.*$', ''
+        $catalogLabel.Text = Get-Text 'catalogSummary' (@($script:catalogInfo.models).Count) $date
+    }
+}
+
+function Read-Catalog([switch]$refreshModels) {
+    Start-Launcher @('catalog', '--json') {
+        param($code, $json, $refresh)
+        if ($code -ne 0) { return }
+        $script:catalogInfo = ConvertFrom-Json $json
+        Update-CatalogLabel
+        if ($refresh -eq 'yes' -and !(Hub-Selected)) { Read-Recommendations }
+    } -Capture -Data $(if ($refreshModels) { 'yes' } else { 'no' })
+}
+
+function Update-ModelCatalog {
+    Start-Launcher @('update') {
+        param($code, $output)
+        if ($code -eq 0) { Read-Catalog -RefreshModels }
+    }
 }
 
 function Fit-Args {
@@ -513,6 +563,7 @@ function Fit-Args {
 function Read-Recommendations {
     Reset-Prepared
     $script:hfEngine = ''
+    $script:localWeights = ''
     Clear-Journal
     $models.Items.Clear()
     $savePlan.Enabled = $false
@@ -527,7 +578,14 @@ function Read-Recommendations {
         if ($script:choices.Count) { $models.SelectedIndex = 0; $savePlan.Enabled = $true }
         else { Write-Journal 'noModels' }
         foreach ($note in $result.notes) { Write-Diagnostic $note }
+        if ($script:choices.Count) { Show-ModelChoices }
     } -Capture
+}
+
+function Show-ModelChoices {
+    Write-Journal 'modelsFound' $script:choices.Count
+    [void]$models.Focus()
+    $models.DroppedDown = $true
 }
 
 $models.Add_SelectedIndexChanged({
@@ -591,7 +649,8 @@ function Save-ReviewedPlan {
         return
     }
     Reset-Prepared
-    $dir = Join-Path $root.Text $projectName
+    $dir = New-ProjectPath $root.Text $projectName
+    $name.Text = [IO.Path]::GetFileName($dir)
     $fit = @(Fit-Args)
     $fit[1] = $dir
     if ($hub -and (Selected-Engine) -eq 'llama.cpp') {
@@ -627,8 +686,61 @@ function Save-ReviewedPlan {
             Write-Journal 'planDownload' ([Math]::Round($p.hf_source.bytes / 1GB, 2))
         }
         if ($p.advanced) { Write-Journal 'planSettings' }
+        if ($p.hf_source) { Write-Journal 'weightsLocation' (Join-Path $dir 'hf-model') }
+        else { Write-Journal 'weightsVolume' }
         Write-Journal 'planReady'
+        if ((Hub-Selected) -and $script:localWeights) {
+            $startPrepared.Enabled = $false
+            Import-LocalWeights $dir $script:localWeights
+        }
     } -Data $dir -HubToken $secret -Capture
+}
+
+function New-ProjectPath([string]$parent, [string]$projectName) {
+    $candidate = Join-Path $parent $projectName
+    $baseName = $projectName.Substring(0, [Math]::Min(56, $projectName.Length))
+    $index = 2
+    while ([IO.Directory]::Exists($candidate) -or [IO.File]::Exists($candidate)) {
+        $candidate = Join-Path $parent ($baseName + '-' + $index)
+        $index++
+    }
+    $candidate
+}
+
+function Import-LocalWeights([string]$dir, [string]$local = '') {
+    if (!$local) {
+        Start-Launcher @('inspect', '--json', '--dir', $dir) {
+            param($code, $json, $dir)
+            if ($code -ne 0) { return }
+            $p = ConvertFrom-Json $json
+            if (!$p.hf_source) { Show-Message (Get-Text 'localWeightsHelp'); return }
+            if ($p.hf_source.files) {
+                $picker = [Windows.Forms.FolderBrowserDialog]::new()
+                $picker.Description = Get-Text 'snapshotFolder'
+            } else {
+                $picker = [Windows.Forms.OpenFileDialog]::new()
+                $picker.Filter = 'GGUF (*.gguf)|*.gguf'
+                $picker.RestoreDirectory = $true
+            }
+            $selected = ''
+            try {
+                if ($picker.ShowDialog($form) -eq 'OK') {
+                    if ($p.hf_source.files) { $selected = $picker.SelectedPath }
+                    else { $selected = $picker.FileName }
+                }
+            } finally { $picker.Dispose() }
+            if ($selected) { Import-LocalWeights $dir $selected }
+        } -Capture -Data $dir
+        return
+    }
+    Write-Journal 'verifyingWeights'
+    Start-Launcher @('import-weights', '--dir', $dir, '--from', $local) {
+        param($code, $output, $dir)
+        if ($code -eq 0) {
+            Write-Journal 'weightsReady'
+            if ($script:preparedPath -eq $dir) { $startPrepared.Enabled = $true }
+        } else { Write-Journal 'weightsMismatch' }
+    } -Data $dir
 }
 
 function Show-Compose([string]$dir) {
@@ -692,6 +804,7 @@ function Read-Projects {
 
 function Run-Project([string]$command, [string]$dir) {
     Clear-Journal
+    if ($command -eq 'import-weights') { Import-LocalWeights $dir; return }
     if ($command -in @('status', 'test')) {
         Start-Launcher @($command, '--json', '--dir', $dir) {
             param($code, $json, $command)
@@ -817,11 +930,55 @@ function Edit-HubSource {
             $script:hfURL = $link.Text.Trim()
             $script:hfToken = $token.Text.Trim()
             $script:hfEngine = $engine
+            $script:localWeights = ''
             $models.Items.Clear()
             Reset-Prepared
             $savePlan.Enabled = [bool](Hub-Selected)
             if ($script:hfURL) { Write-Journal 'sourceSelected' }
         }
+    } finally { $dialog.Dispose() }
+}
+
+function Edit-LocalSource {
+    $dialog = New-Dialog (Get-Text 'localModel') 680 390
+    $panel = Dialog-Panel $dialog
+    [void](Add-Label $panel 'localSourceHint' 610)
+    $format = Add-Combo $panel 600 @((Get-Text 'snapshotFolder'), 'GGUF / llama.cpp')
+    $local = Dialog-Text $panel 'localPath' $script:localWeights
+    $local.ReadOnly = $true
+    [void](Add-Button $panel 'browse' {
+        if ($format.SelectedIndex -eq 0) {
+            $picker = [Windows.Forms.FolderBrowserDialog]::new()
+            $picker.Description = Get-Text 'snapshotFolder'
+        } else {
+            $picker = [Windows.Forms.OpenFileDialog]::new()
+            $picker.Filter = 'GGUF (*.gguf)|*.gguf'
+            $picker.RestoreDirectory = $true
+        }
+        try {
+            if ($picker.ShowDialog($dialog) -eq 'OK') {
+                if ($format.SelectedIndex -eq 0) { $local.Text = $picker.SelectedPath }
+                else { $local.Text = $picker.FileName }
+            }
+        } finally { $picker.Dispose() }
+    })
+    $link = Dialog-Text $panel 'localSourceUrl' $script:hfURL
+    $token = Dialog-Text $panel 'readToken' $script:hfToken
+    $token.UseSystemPasswordChar = $true
+    Add-DialogOK $dialog $panel 'useSource'
+    try {
+        if ($dialog.ShowDialog($form) -ne 'OK') { return }
+        if (!$local.Text -or !$link.Text.Trim()) { Show-Message (Get-Text 'localSourceRequired'); return }
+        $engine = if ($format.SelectedIndex -eq 0) { 'vllm' } else { 'llama.cpp' }
+        $engines.SelectedIndex = [Array]::IndexOf($engineIDs, $engine)
+        $script:hfURL = $link.Text.Trim()
+        $script:hfEngine = $engine
+        $script:hfToken = $token.Text.Trim()
+        $script:localWeights = $local.Text
+        $models.Items.Clear()
+        Reset-Prepared
+        $savePlan.Enabled = $true
+        Write-Journal 'localSourceSelected' $local.Text
     } finally { $dialog.Dispose() }
 }
 
@@ -925,6 +1082,7 @@ $languagePicker.Add_SelectedIndexChanged({
         Set-ComboItems $tasks @($taskLabels | ForEach-Object { Get-Text $_ }) $tasks.SelectedIndex
         Set-ComboItems $engines @($engineLabels | ForEach-Object { Get-Text $_ }) $engines.SelectedIndex
         Update-HardwareLabels $devices.SelectedIndex
+        Update-CatalogLabel
         if ($script:job) { $progress.Text = Get-Text 'running' $script:job.Command }
         $selectedDir = ''
         if ($projectList.SelectedIndex -ge 0) { $selectedDir = $script:projects[$projectList.SelectedIndex].dir }

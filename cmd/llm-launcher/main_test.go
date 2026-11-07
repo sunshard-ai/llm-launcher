@@ -3,9 +3,11 @@ package main
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"flag"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -17,9 +19,35 @@ import (
 
 	"llmlauncher/internal/catalog"
 	"llmlauncher/internal/deploy"
+	"llmlauncher/internal/huggingface"
 )
 
 func fixture() string { return filepath.Join("..", "..", "examples", "hardware", "cpu-16gb.json") }
+
+func TestCatalogListsAllEnginesWithoutDocker(t *testing.T) {
+	t.Setenv("PATH", t.TempDir())
+	var out bytes.Buffer
+	if err := run(context.Background(), []string{"catalog", "--json"}, strings.NewReader(""), &out, io.Discard); err != nil {
+		t.Fatal(err)
+	}
+	var cat struct {
+		Models []struct {
+			Runtime string `json:"runtime"`
+		} `json:"models"`
+	}
+	if err := json.Unmarshal(out.Bytes(), &cat); err != nil {
+		t.Fatal(err)
+	}
+	engines := map[string]bool{}
+	for _, model := range cat.Models {
+		engines[model.Runtime] = true
+	}
+	for _, runtime := range []string{"ollama", "vllm", "llama.cpp"} {
+		if !engines[runtime] {
+			t.Fatalf("catalog omitted %s without Docker", runtime)
+		}
+	}
+}
 
 func TestCLIPlanFixtureAndOverwriteProtection(t *testing.T) {
 	dir := filepath.Join(t.TempDir(), "deployment")
@@ -58,6 +86,47 @@ func TestCLIRejectsInventoryForMutation(t *testing.T) {
 		if err == nil || !strings.Contains(err.Error(), "--inventory") {
 			t.Fatalf("%s: %v", cmd, err)
 		}
+	}
+}
+
+func TestCLIImportWeightsRetainsReviewedPlan(t *testing.T) {
+	o := options{inventory: fixture(), task: "chat", runtime: "llama.cpp", context: 1024, dir: filepath.Join(t.TempDir(), "deployment")}
+	hw, err := scan(context.Background(), o)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cat, err := catalog.Load("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	recs, _, err := choices(hw, cat, o)
+	if err != nil || len(recs) == 0 {
+		t.Fatalf("GGUF fixture unavailable: %v", err)
+	}
+	source := *cat.Profiles[recs[0].Model.ID].Artifact
+	data := []byte("GGUFimport fixture")
+	source.Bytes, source.SHA256 = int64(len(data)), fmt.Sprintf("%x", sha256.Sum256(data))
+	p, err := makePlanWithSource(hw, cat, recs[0], o, &source)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := deploy.WritePlan(o.dir, p); err != nil {
+		t.Fatal(err)
+	}
+	local := filepath.Join(t.TempDir(), "downloaded model.gguf")
+	if err := os.WriteFile(local, data, 0600); err != nil {
+		t.Fatal(err)
+	}
+	var out bytes.Buffer
+	if err := run(context.Background(), []string{"import-weights", "--dir", o.dir, "--from", local}, strings.NewReader(""), &out, &out); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := deploy.ReadPlan(o.dir); err != nil {
+		t.Fatalf("import changed the reviewed bundle: %v", err)
+	}
+	got, err := os.ReadFile(filepath.Join(o.dir, huggingface.CacheDir, huggingface.FileName))
+	if err != nil || !bytes.Equal(got, data) {
+		t.Fatalf("cache=%q, error=%v", got, err)
 	}
 }
 
@@ -148,7 +217,7 @@ func TestEnglishHelp(t *testing.T) {
 		t.Fatal(err)
 	}
 	assertEnglish(t, out.String())
-	for _, command := range strings.Fields("wizard scan doctor update catalog recommend plan hf-plan inspect list up run status test logs down delete restore gpu-check") {
+	for _, command := range strings.Fields("wizard scan doctor update catalog recommend plan hf-plan inspect list up run status test logs down delete restore gpu-check import-weights") {
 		t.Run(command, func(t *testing.T) {
 			if !strings.Contains(out.String(), command) {
 				t.Errorf("general help omits %q", command)
@@ -281,6 +350,54 @@ func TestVLLMDTypeDefaultsAreSavedWithoutOverridingExplicitSettings(t *testing.T
 		if err != nil || p.Advanced == nil || p.Advanced.DType != tt.want {
 			t.Fatalf("expected dtype %q in saved plan for %s, advanced=%+v err=%v", tt.want, tt.model, p.Advanced, err)
 		}
+	}
+}
+
+func TestLlamaGPUPlansEnableOffloadLogging(t *testing.T) {
+	inventory := filepath.Join("..", "..", "examples", "hardware", "linux-rtx4080-16gb.json")
+	for _, test := range []struct {
+		name, settings, want string
+		wantError            bool
+	}{
+		{"default", "", "4", false},
+		{"explicit debug", `{"environment":{"LLAMA_ARG_LOG_VERBOSITY":"5"}}`, "5", false},
+		{"quiet GPU logs", `{"environment":{"LLAMA_ARG_LOG_VERBOSITY":"3"}}`, "", true},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			dir := filepath.Join(t.TempDir(), "deployment")
+			args := []string{"plan", "--runtime", "llama.cpp", "--model", "llamacpp-qwen3-0.6b",
+				"--gpu", "0", "--inventory", inventory, "--dir", dir}
+			if test.settings != "" {
+				args = append(args, "--settings-json", test.settings)
+			}
+			err := run(context.Background(), args, strings.NewReader(""), io.Discard, io.Discard)
+			if test.wantError {
+				if err == nil || !strings.Contains(err.Error(), "VERBOSITY") {
+					t.Fatalf("expected an actionable logging error, got %v", err)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			plan, err := deploy.ReadPlan(dir)
+			if err != nil || plan.Advanced == nil || plan.Advanced.Environment["LLAMA_ARG_LOG_VERBOSITY"] != test.want {
+				t.Fatalf("GPU logging default did not reach the saved plan: %v", err)
+			}
+			compose, err := deploy.Render(plan)
+			if err != nil || !strings.Contains(string(compose), `LLAMA_ARG_LOG_VERBOSITY: "`+test.want+`"`) {
+				t.Fatalf("runtime environment did not receive the logging level: %v", err)
+			}
+			// Older saved plans retain their rendering and remain inspectable.
+			plan.Advanced = nil
+			oldDir := filepath.Join(t.TempDir(), "legacy")
+			if err := deploy.WritePlan(oldDir, plan); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := deploy.ReadPlan(oldDir); err != nil {
+				t.Fatalf("old plan became unreadable: %v", err)
+			}
+		})
 	}
 }
 

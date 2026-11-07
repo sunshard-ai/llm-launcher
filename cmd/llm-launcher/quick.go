@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net"
 	"os"
 	"path/filepath"
 
@@ -78,12 +77,6 @@ func quickScan(ctx context.Context, o options, in io.Reader, out, errOut io.Writ
 		if err != nil {
 			return err
 		}
-		if o.port == 0 && !o.dryRun && o.inventory == "" {
-			p.Port, err = availablePort(p.Host, p.Port)
-			if err != nil {
-				return err
-			}
-		}
 		if err := ctx.Err(); err != nil {
 			return err
 		}
@@ -123,18 +116,4 @@ func quickScan(ctx context.Context, o options, in io.Reader, out, errOut io.Writ
 	}
 	printEndpoints(out, p)
 	return nil
-}
-
-func availablePort(host string, preferred int) (int, error) {
-	address := &net.TCPAddr{IP: net.ParseIP(host), Port: preferred}
-	listener, err := net.ListenTCP("tcp", address)
-	if err != nil {
-		address.Port = 0
-		listener, err = net.ListenTCP("tcp", address)
-		if err != nil {
-			return 0, fmt.Errorf("не удалось подобрать локальный порт: %w", err)
-		}
-	}
-	defer listener.Close()
-	return listener.Addr().(*net.TCPAddr).Port, nil
 }

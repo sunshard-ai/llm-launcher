@@ -90,7 +90,7 @@ func Recommend(h domain.Hardware, c domain.Catalog, task, runtimeFilter string) 
 		return result, warnings, fmt.Errorf("выбран удалённый Docker context: переключитесь на локальный endpoint перед подбором модели")
 	}
 	if h.Docker.Reachable && h.Docker.ServerOS != "linux" {
-		return result, warnings, fmt.Errorf("Docker должен работать в режиме Linux containers")
+		return result, warnings, hardware.RequireLocalDocker(h.Docker)
 	}
 	if !h.Docker.Reachable || !h.Docker.Compose {
 		warnings = append(warnings, "Проверка Docker/Compose не завершена: план можно сохранить, но для запуска нужен работающий локальный Docker daemon.")

@@ -2,6 +2,8 @@
 
 [The catalog](../catalog.json) lists 52 profiles for specific combinations of model, weights, and engine. Use `llm-launcher recommend --task chat` to see the profiles that fit your machine. Set `--runtime` to filter by engine.
 
+To print every catalog profile, use `llm-launcher catalog`. In Windows PowerShell, run `.\llm-launcher-windows-amd64.exe catalog`; on Linux x64, run `./llm-launcher-linux-amd64 catalog`. In the Windows app, click **Find models** on **New deployment**, then select a row in the model dropdown. [Detailed CLI and Windows steps](USAGE.md#display-the-model-list)
+
 | Task | Small starting point | More room for weights |
 | --- | --- | --- |
 | Chat, summaries, and explanations | Qwen3 0.6B or Gemma 3 1B | Qwen3 4B Instruct, Mistral 7B Instruct, or Granite 3.3 |
@@ -42,7 +44,7 @@ Linux ARM64 and macOS Apple Silicon use CPU containers. Each plan serves one req
 
 The desktop app and interactive CLI check [this repository's catalog](../catalog.json) in the background. The first launch checks right away. Subsequent launches check at most once every 24 hours. The picker can open immediately with the latest verified local copy or the catalog built into the executable.
 
-Run `llm-launcher update` or click **Обновить список моделей** in Windows to check immediately. A successful check reports whether a newer catalog was installed. If the network or signature check fails, the launcher keeps the current list. New recommendations use the latest verified catalog, and saved deployments use their recorded plans.
+Run `llm-launcher update` or click **Update catalog** in Windows to check immediately. The catalog row shows its profile count and date. A successful check reports whether a newer catalog was installed and refreshes recommendations. If the network or signature check fails, the launcher keeps the current list. Saved deployments use their recorded plans.
 
 To try a local file, pass `--catalog /path/to/catalog.json` to `catalog`, `recommend`, or `plan`.
 

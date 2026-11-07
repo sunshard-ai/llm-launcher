@@ -1,5 +1,38 @@
 # Build and test results
 
+## v0.3.4
+
+### Windows feedback fixes
+
+- CLI coverage confirms that `catalog --json` lists all three engines with Docker unavailable. The compiled CLI is checked for catalog output, recommendations, planning and the local-weight command help. The interactive CLI and desktop planner share the same port-selection function. PowerShell checks confirm that successful recommendations focus and open the model dropdown.
+- Go tests, race checks, vet and all five target builds passed on macOS ARM64. Tests cover stopped/unknown/Windows-container Docker states, a client-only `docker info` response, an occupied port with automatic fallback, local GGUF and Safetensors import, mismatched hashes, cache preservation, cancellation and retention of reviewed plan files.
+- PowerShell 7.6.9 parsed the embedded interface and ran journal/workflow checks with mock controls and a native process fixture. Checks covered catalog refresh and recommendation reload, local-weight command paths, selection of a new project folder, a missing command executable followed by two successful starts, and an unrelated working directory.
+- The worker-copy check confirmed that moving the original executable does not remove the session worker. The tester's exact Windows `Process.Start` failure was not reproduced on the test host; the revised Windows executable still needs a native interface check. This change adds no plan schema version or runtime arguments. Existing GPU measurements below belong to the earlier Linux candidate.
+
+### Linux NVIDIA field test
+
+The final Linux amd64 candidate completed two start/test/status/down cycles on an RTX 4080 SUPER with Qwen3 0.6B Q8_0, context 4096 and one sequence. Both cycles reused the saved plan, runtime image and GGUF file. The report's binary SHA-256 matches the candidate built from `e108a65`.
+
+| Measurement | First cycle | Restart after `down` |
+| --- | --- | --- |
+| Complete `up` | 59.493 s | 57.217 s |
+| Server listening after container start | 39.940 s | 39.049 s |
+| Separate chat smoke request | `OK`, 733 ms | `OK`, 487 ms |
+| GPU layer offload | 29/29 | 29/29 |
+| API status | Reachable, selected model loaded | Reachable, selected model loaded |
+
+Neither cycle attempted a runtime image download or reported a credential-helper error. Both stopped successfully and retained the weights. Logged CUDA buffers were 604.15 MiB for weights, 448.00 MiB for KV cache and 30.01 MiB for compute, about 1.06 GiB in total. Host-wide GPU readings include other activity. These are measurements of this small-model smoke test, not a general throughput benchmark. Docker health was still `starting` in both status snapshots; readiness was independently established by model API checks and nonempty chat responses.
+
+- The second NVIDIA field test confirmed llama.cpp b9935 on an RTX 4080 SUPER: 29/29 layers offloaded, Qwen3 0.6B Q8_0 at 4096 context, first cached-weight `up` completed in 63.671 seconds, and a separate chat request returned `OK` in 499 ms. Model loading reached the listening state at 42.48 seconds. Logged device buffers were 604.15 MiB for weights, 448.00 MiB for KV cache, and 30.01 MiB for compute. Total host GPU memory also included other activity and is not attributed to this model.
+- That test's restart stopped before container creation because Compose 2.38.2 attempted a pull of the cached digest and its Docker credential helper failed. The launcher now inspects the exact local image first and starts Compose with `--pull never`. Mock Docker plus a local HTTP server cover start/down/restart with broken registry credentials; separate cases cover cached tags and digests, downloads, credential errors, unresolved images, and cancellation. The final field test above confirmed the revised restart path on NVIDIA.
+- The follow-up report contained only 14 runtime log lines at verbosity 3. The server became ready in about 40 seconds and generated 117 tokens in 636 ms, but hid the offload message. Source inspection confirmed that b9935 maps library INFO to level 4.
+- Reproduced the logging difference with the official b9935 macOS ARM64 binary and the same Qwen3 GGUF on CPU. Both runs reached the health endpoint. Level 3 produced 7 log lines and no loader messages, while level 4 produced 208 lines including loader details. The NVIDIA field test above subsequently confirmed GPU offload with level 4.
+- A user report from Ubuntu 24.04.2 under WSL2 with an RTX 4080 SUPER and NVIDIA driver 610.88 confirmed two successful Ollama Qwen3 0.6B Q4_K_M launch/relaunch cycles. The runtime log showed 29/29 layers on GPU. Separate smoke requests took 488–606 ms in the first session and 1482–1646 ms in the second.
+- The first llama.cpp attempt spent its timeout downloading the runtime image. A later attempt downloaded the GGUF and answered the model request, then failed GPU verification. Its complete startup log was unavailable, so GPU offload for that run remains unconfirmed.
+- Fixed a verification path that searched only the final 300 log lines. The new check reads the owned container's current start using Docker `logs --since` and matches both output streams while reading them. Regression checks cover early messages, split writes, large stderr output, CPU-only starts, and previous-container evidence.
+- Added `logs --all` to collect retained startup messages.
+- Go tests, the race detector, vet, and the release build passed on macOS ARM64. A process fixture exercised large stderr output. The Linux amd64 llama.cpp NVIDIA lifecycle passed the field test above. Windows GUI and other runtime/model combinations were not exercised by that test.
+
 ## v0.3.3
 
 - The desktop journal regression used mock controls to replay the Russian Docker summary and disk warning in French, German, Chinese, and English. It also checked a nested GPU warning, streamed API details, and separation of original diagnostic output.

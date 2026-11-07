@@ -323,7 +323,7 @@ func TestManagedLifecycleAndIdempotentUp(t *testing.T) {
 	var running, downloaded, loaded, network, volume bool
 	var mu sync.Mutex
 	var commands []string
-	server := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		mu.Lock()
 		defer mu.Unlock()
 		w.Header().Set("Content-Type", "application/json")
@@ -348,12 +348,13 @@ func TestManagedLifecycleAndIdempotentUp(t *testing.T) {
 		default:
 			http.NotFound(w, r)
 		}
-	}))
+	})
+	server := httptest.NewUnstartedServer(handler)
 	addr := server.Listener.Addr().String()
 	_, port, _ := net.SplitHostPort(addr)
 	p.Port, _ = strconv.Atoi(port)
 	_ = server.Listener.Close() // Startup must own the port only after preflight.
-	defer server.Close()
+	defer func() { server.Close() }()
 	if err := WritePlan(dir, p); err != nil {
 		t.Fatal(err)
 	}
@@ -369,6 +370,7 @@ func TestManagedLifecycleAndIdempotentUp(t *testing.T) {
 	m := Manager{Dir: dir, Timeout: 5 * time.Second, probeDocker: func(context.Context) domain.DockerInfo { return docker }, scanHardware: func(context.Context, string) (domain.Hardware, error) {
 		return domain.Hardware{OS: "linux", Arch: "amd64", RAMTotalBytes: 64 << 30, RAMAvailableBytes: 56 << 30, DiskFreeBytes: 100 << 30, Docker: docker}, nil
 	}}
+	freshScan := m.scanHardware
 	m.runCommand = func(_ context.Context, args []string, _ bool) (string, error) {
 		mu.Lock()
 		defer mu.Unlock()
@@ -408,10 +410,20 @@ func TestManagedLifecycleAndIdempotentUp(t *testing.T) {
 		case "image":
 			return encode([]imageInfo{{ID: "sha256:image1", RepoDigests: []string{"ollama/ollama@sha256:image1"}}}), nil
 		case "compose":
+			if strings.Contains(command, " pull --policy ") {
+				return "", fmt.Errorf("error getting credentials: cached runtime must not contact a registry")
+			}
 			if strings.Contains(command, " up --detach") {
+				if !strings.Contains(command, "--pull never") {
+					t.Fatal("startup allowed an implicit image download")
+				}
 				ln, err := net.Listen("tcp", addr)
 				if err != nil {
 					return "", err
+				}
+				if server.URL != "" {
+					server = httptest.NewUnstartedServer(handler)
+					_ = server.Listener.Close()
 				}
 				server.Listener = ln
 				server.Start()
@@ -425,6 +437,7 @@ func TestManagedLifecycleAndIdempotentUp(t *testing.T) {
 			if strings.Contains(command, " down --timeout ") {
 				running = false
 				network = false
+				server.Close()
 			}
 			if strings.Contains(command, " ps --all ") {
 				return `[{"Service":"model","State":"running"}]`, nil
@@ -466,6 +479,15 @@ func TestManagedLifecycleAndIdempotentUp(t *testing.T) {
 	state, err = loadState(dir, p)
 	if err != nil || state.Status != "stopped" {
 		t.Fatalf("state after down=%+v err=%v", state, err)
+	}
+	// A stopped project must start again from its cached image even when the
+	// registry credential helper fails. Ownership and API checks still apply.
+	m.scanHardware = freshScan
+	if err := m.Up(context.Background()); err != nil {
+		t.Fatalf("cached restart failed: %v", err)
+	}
+	if err := m.Down(context.Background()); err != nil {
+		t.Fatal(err)
 	}
 	if err := m.Archive(context.Background()); err != nil {
 		t.Fatal(err)
