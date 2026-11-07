@@ -2,6 +2,8 @@
 
 [The catalog](../catalog.json) lists 52 profiles for specific combinations of model, weights, and engine. Use `llm-launcher recommend --task chat` to see the profiles that fit your machine. Set `--runtime` to filter by engine.
 
+To print every catalog profile, use `llm-launcher catalog`. In Windows PowerShell, run `.\llm-launcher-windows-amd64.exe catalog`; on Linux x64, run `./llm-launcher-linux-amd64 catalog`. In the Windows app, click **Find models** on **New deployment**, then select a row in the model dropdown. [Detailed CLI and Windows steps](USAGE.md#display-the-model-list)
+
 | Task | Small starting point | More room for weights |
 | --- | --- | --- |
 | Chat, summaries, and explanations | Qwen3 0.6B or Gemma 3 1B | Qwen3 4B Instruct, Mistral 7B Instruct, or Granite 3.3 |

@@ -215,6 +215,9 @@ $pickModel = Add-Button $rows[3] 'findModels' {
     Read-Recommendations
 }
 $models = Add-Combo $rows[3] 390
+$models.DropDownWidth = 720
+$models.IntegralHeight = $false
+$models.DropDownHeight = 300
 $importVLLM = Add-Button $rows[3] 'importHf' { Edit-HubSource }
 $importVLLM.Visible = $false
 [void](Add-Button $rows[3] 'localModel' { Edit-LocalSource })
@@ -575,7 +578,14 @@ function Read-Recommendations {
         if ($script:choices.Count) { $models.SelectedIndex = 0; $savePlan.Enabled = $true }
         else { Write-Journal 'noModels' }
         foreach ($note in $result.notes) { Write-Diagnostic $note }
+        if ($script:choices.Count) { Show-ModelChoices }
     } -Capture
+}
+
+function Show-ModelChoices {
+    Write-Journal 'modelsFound' $script:choices.Count
+    [void]$models.Focus()
+    $models.DroppedDown = $true
 }
 
 $models.Add_SelectedIndexChanged({

@@ -18,6 +18,54 @@ llm-launcher up --dir ./my-model
 
 Use `--gpu 0` or a GPU UUID to select a specific card. Use `inspect --compose --dir ./my-model` to see the generated Compose file. To change launch settings, write a plan in a new directory.
 
+## Display the model list
+
+Choose the command for the list you need:
+
+| List | Command | Contents |
+| --- | --- | --- |
+| Launcher's model catalog | `catalog` | Every catalog profile, including profiles that exceed this computer's resources. Docker is not required. |
+| Suitable models | `recommend --task chat` | Profiles filtered using current hardware observations, memory estimates, task and engine. |
+| Running deployments | `status` | Models managed by the launcher in the current Docker daemon. |
+| Saved deployment plans | `list --dir ./runs` | Plans under that folder, including stopped and archived deployments. |
+
+For example, in the folder containing the Linux x64 binary:
+
+```bash
+./llm-launcher-linux-amd64 catalog
+./llm-launcher-linux-amd64 recommend --task chat
+./llm-launcher-linux-amd64 recommend --task code --runtime vllm
+```
+
+In Windows PowerShell, use the CLI executable:
+
+```powershell
+.\llm-launcher-windows-amd64.exe catalog
+.\llm-launcher-windows-amd64.exe recommend --task chat
+.\llm-launcher-windows-amd64.exe recommend --task code --runtime vllm
+```
+
+For an interactive task-and-model picker, run `./llm-launcher-linux-amd64 scan` in a Linux terminal or `.\llm-launcher-windows-amd64.exe scan --interactive` in Windows PowerShell. The `catalog` commands above print the full catalog directly.
+
+The catalog's columns are profile ID, engine, supported tasks, exact weight reference and license. Copy the profile ID from a recommendation into `plan --model ID`. Use `catalog --json` or `recommend --task chat --json` for structured output. Tasks are `chat`, `code`, `rag` and `embeddings`. Omit `--runtime` for automatic engine selection; supported filters are `ollama`, `vllm` and `llama.cpp`.
+
+`catalog` displays the launcher's curated profiles. A compatible model outside that catalog can be selected through `hf-plan`. Use `update` to refresh catalog metadata; model files are downloaded when a deployment starts or copied with `import-weights`.
+
+### Display models in the Windows app
+
+1. Open **New deployment** (**Новое развёртывание**). Start Docker Desktop, then click **Scan computer** (**Сканировать компьютер**).
+2. In **Task** (**Задача**), choose chat, code, answers over supplied passages, or embeddings.
+3. Leave the engine and acceleration selectors on automatic for the widest choice. Selecting a particular engine or GPU narrows the results. Context 4096 is the usual starting point.
+4. Click **Find models** (**Подобрать модели**). Wait for the command to finish. The journal reports the number of suitable profiles and the dropdown immediately to the right of that button opens.
+5. Click a row in the dropdown. Each row shows the model name, engine, acceleration and license. If the list closes, click its down arrow to reopen it. Scroll within the list to see more results.
+6. Read the selected profile's source and memory notes in the journal. **Prepare plan** saves the selected model and settings. **Launch plan** starts it. **View details…** opens the generated Compose configuration.
+
+The catalog row at the top shows all catalog profiles, while this dropdown shows only suitable recommendations. **Update catalog** checks for signed metadata and reloads recommendations. Changing the task, engine, acceleration or context clears the old selection; click **Find models** again.
+
+### If the model dropdown is empty
+
+Wait for the running command to finish, then read the journal. Start Docker Desktop and scan again if it is unavailable. Select automatic engine/acceleration, reduce the context, or free memory and repeat **Find models**. vLLM requires a compatible NVIDIA GPU and a verified Linux Docker backend on Windows. CPU profiles are available through other engines when their memory requirements fit. **Technical details…** contains the original error if a command failed.
+
 ## Windows desktop
 
 1. Start Docker Desktop with the WSL2 backend and Linux containers.
@@ -63,6 +111,18 @@ llm-launcher up --dir ./my-model
 ```
 
 The launcher copies only the files pinned by the plan and checks their sizes and hashes. Original downloads remain in place. Existing cache files are verified and kept; mismatches are rejected. Ollama uses its own project Docker volume. To use a downloaded Safetensors folder, choose the vLLM import path. Putting unrelated weights next to the executable or plan does not select a model.
+
+For a downloaded Safetensors folder on a supported NVIDIA system, the complete CLI sequence is:
+
+```bash
+llm-launcher hf-plan --runtime vllm \
+  --hf-url https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct \
+  --context 2048 --port 0 --dir ./runs/local-qwen
+llm-launcher import-weights --dir ./runs/local-qwen --from /path/to/Qwen2.5-1.5B-Instruct
+llm-launcher run --dir ./runs/local-qwen
+```
+
+Replace the source URL and local path with the model you downloaded. In Windows PowerShell, replace `llm-launcher` with `.\llm-launcher-windows-amd64.exe` and invoke each command on one line. `import-weights` is a binary command shared with the desktop app. Automatic port selection and Docker diagnostics also use the same backend in both interfaces.
 
 ## Advanced settings
 

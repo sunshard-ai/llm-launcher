@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'test-desktop-journal.ps1')
-foreach ($name in 'Set-TextKey', 'Quote-Arg', 'Start-Launcher', 'New-ProjectPath', 'Update-CatalogLabel', 'Read-Catalog', 'Update-ModelCatalog', 'Import-LocalWeights') {
+foreach ($name in 'Set-TextKey', 'Quote-Arg', 'Start-Launcher', 'New-ProjectPath', 'Update-CatalogLabel', 'Read-Catalog', 'Update-ModelCatalog', 'Import-LocalWeights', 'Show-ModelChoices') {
     $definition = $ast.Find({
         param($node)
         $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq $name
@@ -8,6 +8,13 @@ foreach ($name in 'Set-TextKey', 'Quote-Arg', 'Start-Launcher', 'New-ProjectPath
     . ([ScriptBlock]::Create($definition.Extent.Text))
 }
 $script:language = 'en'
+$models = [pscustomobject]@{ DroppedDown = $false; Focused = $false }
+$models | Add-Member ScriptMethod Focus { $this.Focused = $true; return $true }
+$script:choices = @(@{}, @{})
+Show-ModelChoices
+if (!$models.DroppedDown -or !$models.Focused -or !$log.Text.Contains('2 compatible profiles')) {
+    throw 'Successful recommendations did not display the model choices.'
+}
 $storage = [pscustomobject]@{ Enabled = $true }
 $tabs = [pscustomobject]@{ Enabled = $true }
 $cancel = [pscustomobject]@{ Enabled = $false }

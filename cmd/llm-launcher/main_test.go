@@ -24,6 +24,31 @@ import (
 
 func fixture() string { return filepath.Join("..", "..", "examples", "hardware", "cpu-16gb.json") }
 
+func TestCatalogListsAllEnginesWithoutDocker(t *testing.T) {
+	t.Setenv("PATH", t.TempDir())
+	var out bytes.Buffer
+	if err := run(context.Background(), []string{"catalog", "--json"}, strings.NewReader(""), &out, io.Discard); err != nil {
+		t.Fatal(err)
+	}
+	var cat struct {
+		Models []struct {
+			Runtime string `json:"runtime"`
+		} `json:"models"`
+	}
+	if err := json.Unmarshal(out.Bytes(), &cat); err != nil {
+		t.Fatal(err)
+	}
+	engines := map[string]bool{}
+	for _, model := range cat.Models {
+		engines[model.Runtime] = true
+	}
+	for _, runtime := range []string{"ollama", "vllm", "llama.cpp"} {
+		if !engines[runtime] {
+			t.Fatalf("catalog omitted %s without Docker", runtime)
+		}
+	}
+}
+
 func TestCLIPlanFixtureAndOverwriteProtection(t *testing.T) {
 	dir := filepath.Join(t.TempDir(), "deployment")
 	args := []string{"plan", "--inventory", fixture(), "--task", "chat", "--runtime", "ollama", "--dir", dir}

@@ -1765,5 +1765,12 @@
     "zh": "端口 {0} 已占用。请选择其他端口或使用 0 自动选择，然后创建新计划。",
     "fr": "Le port {0} est occupé. Choisissez un autre port ou 0 pour une sélection automatique, puis préparez un nouveau plan.",
     "sourcePattern": "local port ([0-9]+) is busy or unavailable; (?:choose another port or use 0 for automatic selection|create a plan with another port: .+)"
+  },
+  "modelsFound": {
+    "en": "Found {0} compatible profiles. Choose a model in the open list.",
+    "de": "{0} kompatible Profile gefunden. Wählen Sie ein Modell in der geöffneten Liste.",
+    "ru": "Найдено подходящих профилей: {0}. Выберите модель в открытом списке.",
+    "zh": "找到 {0} 个兼容配置。请在展开的列表中选择模型。",
+    "fr": "{0} profils compatibles trouvés. Choisissez un modèle dans la liste ouverte."
   }
 }

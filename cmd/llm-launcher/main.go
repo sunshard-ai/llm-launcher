@@ -227,10 +227,12 @@ func run(ctx context.Context, args []string, in io.Reader, out, errOut io.Writer
 		if o.json {
 			return writeJSON(out, cat)
 		}
-		fmt.Fprintf(out, "Каталог %s (schema %d)\n", cat.Updated, cat.SchemaVersion)
+		fmt.Fprintf(out, "Каталог %s (schema %d), профилей: %d\n", cat.Updated, cat.SchemaVersion, len(cat.Models))
+		fmt.Fprintln(out, "ID | движок | задачи | точный идентификатор весов | лицензия")
 		for _, m := range cat.Models {
 			fmt.Fprintf(out, "%s | %s | %s | %s | %s\n", m.ID, m.Runtime, strings.Join(m.Tasks, ","), m.Ref, m.License)
 		}
+		fmt.Fprintln(out, "\nПодходящие для компьютера модели: recommend --task chat. Запущенные развёртывания: status.")
 		return nil
 	}
 	if command == "wizard" {

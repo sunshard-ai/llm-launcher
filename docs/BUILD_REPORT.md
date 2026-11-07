@@ -4,6 +4,7 @@
 
 ### Windows feedback fixes
 
+- CLI coverage confirms that `catalog --json` lists all three engines with Docker unavailable. The compiled CLI is checked for catalog output, recommendations, planning and the local-weight command help. The interactive CLI and desktop planner share the same port-selection function. PowerShell checks confirm that successful recommendations focus and open the model dropdown.
 - Go tests, race checks, vet and all five target builds passed on macOS ARM64. Tests cover stopped/unknown/Windows-container Docker states, a client-only `docker info` response, an occupied port with automatic fallback, local GGUF and Safetensors import, mismatched hashes, cache preservation, cancellation and retention of reviewed plan files.
 - PowerShell 7.6.9 parsed the embedded interface and ran journal/workflow checks with mock controls and a native process fixture. Checks covered catalog refresh and recommendation reload, local-weight command paths, selection of a new project folder, a missing command executable followed by two successful starts, and an unrelated working directory.
 - The worker-copy check confirmed that moving the original executable does not remove the session worker. The tester's exact Windows `Process.Start` failure was not reproduced on the test host; the revised Windows executable still needs a native interface check. This change adds no plan schema version or runtime arguments. Existing GPU measurements below belong to the earlier Linux candidate.

@@ -30,6 +30,8 @@ Use the `url` and `profiles.source` fields in [catalog.json](../catalog.json) fo
 
 ## Development and roadmap
 
+Release checkout uses the selected tag through the pinned [actions/checkout `ref` input](https://github.com/actions/checkout/tree/v4#usage), including manually dispatched releases. The same tag supplies source, desktop checks and release notes.
+
 - [Go command reference](https://pkg.go.dev/cmd/go) and [Windows Forms](https://learn.microsoft.com/en-us/dotnet/desktop/winforms/overview/).
 - [vLLM parallelism](https://docs.vllm.ai/en/stable/serving/parallelism_scaling/) and [llama.cpp multi-GPU](https://github.com/ggml-org/llama.cpp/blob/master/docs/multi-gpu.md) for future multi-GPU work.
 - [SGLang](https://github.com/sgl-project/sglang) and [Docker Model Runner inference engines](https://docs.docker.com/ai/model-runner/inference-engines/) for future adapters.

@@ -56,11 +56,11 @@ Add notes at `docs/releases/vMAJOR.MINOR.PATCH.md`. A tag push runs the **Releas
 To produce the same set of assets locally:
 
 ```bash
-bash scripts/package-release.sh v0.3.3
-(cd dist/release/v0.3.3 && shasum -a 256 -c SHA256SUMS.txt)
+bash scripts/package-release.sh v0.3.4
+(cd dist/release/v0.3.4 && shasum -a 256 -c SHA256SUMS.txt)
 ```
 
-The source archive and binaries are built from the tagged commit. The workflow attaches them and their checksums to the GitHub Release. The launcher fetches catalog updates separately from `main`. Manual runs take the release description from the selected workflow branch. [GitHub workflow dispatch](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflow_dispatch)
+The source archive, binaries, desktop workflow checks and release description use the selected tag. The workflow attaches the assets and their checksums to the GitHub Release. The launcher fetches catalog updates separately from `main`. After publication, check the workflow conclusion, all seven assets, the source archive, checksums and the downloaded CLI's `version` output. [GitHub workflow dispatch](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflow_dispatch)
 
 ### Windows publisher signing
 
